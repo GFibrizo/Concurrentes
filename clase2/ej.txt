@@ -1,0 +1,4 @@
+Escribir un programa que encuentre el tamaño maximo permitido de memoria copartida
+
+Resolver el problema de la clase anterior usando memoria compartida
+
