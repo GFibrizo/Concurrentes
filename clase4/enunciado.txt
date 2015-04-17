@@ -1,0 +1,7 @@
+Hacer un script en bash que escriba en un FIFO
+Hacer un script en bash que lea de una FIFO
+
+Correr en 3 terminales: 1-Escritor
+			2-Lectores
+
+Verificar el funcionamiento
