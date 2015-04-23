@@ -125,6 +125,7 @@ void Logger::log(string log_file, string caller, error_type_t error_type,
 	string error_flag = get_error_flag(error_type);
 	string date = get_date();
 
+	//TODO: Cambiar el open por un lock e intentar cambiar el open a global
 	file_stream.open(log_file, fstream::out | fstream::app);
 
 	file_stream << date << "-" << "User " << caller << " " << error_flag << ":"
