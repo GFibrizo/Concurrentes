@@ -19,11 +19,15 @@
 #ifndef LOGGER_H_
 #define LOGGER_H_
 
+#include <iostream>
 #include <string>
 
 typedef char error_type_t;
 
 class Logger {
+
+private:
+	static fstream file_stream;
 
 public:
 	static const error_type_t INFO = 0;
@@ -32,11 +36,16 @@ public:
 
 private:
 	static std::string get_error_flag(error_type_t error_level);
+	static void initialize_log();
 
 public:
-	static void initialize_log(std::string log_file);
-	static void log(std::string log_file, std::string caller,
-			error_type_t error_type, std::string error_message);
+	static void open_logger(std::string log_file);
+
+
+	static void log(std::string caller, error_type_t error_type,
+			std::string error_message);
+
+	static void close_logger();
 };
 
 #endif /* LOGGER_H_ */

@@ -17,4 +17,4 @@ $(EXEC): main.cpp $(OBJECTS)
 	$(CC) $(CPPLDFLAGS) $(OBJECTS) main.cpp -o $(EXEC)
 
 clean:
-	rm -r *.o *.save *~ $(EXEC)
+	rm -f -r *.o *.save *~ $(EXEC)
