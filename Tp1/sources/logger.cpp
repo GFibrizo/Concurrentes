@@ -136,7 +136,9 @@ void Logger::open_logger(std::string log_file) {
 }
 
 void Logger::close_logger() {
-
+	file_stream << get_error_flag(INFO) << "- " << get_date() << " -"
+			<< get_error_flag(INFO) << endl;
+	file_stream << "--Fin de ejecucion--" << endl;
 	//TODO: Close lock
 	file_stream.close();
 }
