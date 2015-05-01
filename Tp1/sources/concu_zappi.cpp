@@ -18,6 +18,8 @@
  */
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <string>
 
 #include "logger.h"
@@ -27,31 +29,30 @@ using std::cout;
 using std::cin;
 using std::endl;
 using std::ifstream;
-using std::sstream;
+using std::stringstream;
 
 static const string FILENAME = "concu_zappi.cpp";
 
-int main(int argc,char** argv){
+int main(int argc, char** argv) {
 	Logger::open_logger("run_log.log"); //TODO: Agregar opccion para sobreescribir
 
-	Logger::log(FILENAME,Logger::INFO,"Configuracion inicial");
+	Logger::log(FILENAME, Logger::INFO, "Configuracion inicial");
 
 	ifstream file;
-	file.open(log_file, fstream::in);
+	file.open("config.cfg", std::fstream::in);
 
-	while (file.good()){
+	while (file.good()) {
 		int amount = 0;
 		string concept;
-		sstream output;
+		stringstream output;
 
 		file >> amount >> concept;
 
 		output << concept << " cantidad: " << amount;
 
-
 	}
 
-	Logger::log(FILENAME,Logger::INFO,"Inicia recepcion de pedidos");
+	Logger::log(FILENAME, Logger::INFO, "Inicia recepcion de pedidos");
 
-	Logger::log(FILENAME,Logger::INFO,"Cerrada recepcion de pedidos");
+	Logger::log(FILENAME, Logger::INFO, "Cerrada recepcion de pedidos");
 }

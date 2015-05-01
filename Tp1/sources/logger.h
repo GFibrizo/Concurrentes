@@ -27,7 +27,7 @@ typedef char error_type_t;
 class Logger {
 
 private:
-	static fstream file_stream;
+	static std::ofstream file_stream;
 
 public:
 	static const error_type_t INFO = 0;
@@ -40,7 +40,6 @@ private:
 
 public:
 	static void open_logger(std::string log_file);
-
 
 	static void log(std::string caller, error_type_t error_type,
 			std::string error_message);

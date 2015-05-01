@@ -14,7 +14,7 @@ logger.o: logger.h logger.cpp
 	$(CC) $(CPPFLAGS) -c logger.cpp
 				
 $(EXEC): $(EXEC).cpp $(OBJECTS)
-	$(CC) $(CPPLDFLAGS) $(OBJECTS) main.cpp -o $(EXEC)
+	$(CC) $(CPPLDFLAGS) $(OBJECTS) $(EXEC).cpp -o $(EXEC)
 
 clean:
 	rm -f -r *.o *.save *~ $(EXEC)
