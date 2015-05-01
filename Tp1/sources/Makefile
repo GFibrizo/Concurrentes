@@ -3,6 +3,12 @@
 CC = gcc -std=c++11
 CPPFLAGS = -Wall -Wextra -g -pedantic 
 CPPLDFLAGS = -lm -lstdc++
+DEBUG = OFF
+
+#ifneq($(DEBUG),OFF)
+	CPPFLAGS += -D __DEBUG__
+	CPPLDFLAGS += -D __DEBUG__
+#endif
 
 EXEC = concu_zappi
 

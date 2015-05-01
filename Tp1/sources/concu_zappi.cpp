@@ -17,10 +17,11 @@
  along with this program.  If not, see <http://www.gnu.org/licenses
  */
 
-#include <iostream>
 #include <fstream>
-#include <sstream>
+#include <iostream>
 #include <string>
+#include <sstream>
+#include <map>
 
 #include "logger.h"
 
@@ -30,29 +31,58 @@ using std::cin;
 using std::endl;
 using std::ifstream;
 using std::stringstream;
-
-static const string FILENAME = "concu_zappi.cpp";
+using std::map;
 
 int main(int argc, char** argv) {
+
 	Logger::open_logger("run_log.log"); //TODO: Agregar opccion para sobreescribir
 
-	Logger::log(FILENAME, Logger::INFO, "Configuracion inicial");
+	Logger::log(__FILE__, Logger::INFO, "Inicio configuracion");
+	map<string, int> config;
+
+	config["Recepcionistas"]=0;
+	config["Cocineras"]=0;
+	config["Cadetas"]=0;
+	config["Hornos"]=0;
 
 	ifstream file;
 	file.open("config.cfg", std::fstream::in);
 
+#ifdef __DEBUG__
+	Logger::log(__FILE__, Logger::INFO, "Configuracion inicial");
+#endif
 	while (file.good()) {
 		int amount = 0;
 		string concept;
-		stringstream output;
 
 		file >> amount >> concept;
 
-		output << concept << " cantidad: " << amount;
+		if (config.count(concept)==0){
+			continue;
+		}
 
+		config[concept] = amount;
+
+#ifdef __DEBUG__
+		stringstream output;
+		output << concept << " cantidad: " << amount;
+		Logger::log(__FILE__, Logger::INFO, output.str());
+#endif
 	}
 
-	Logger::log(FILENAME, Logger::INFO, "Inicia recepcion de pedidos");
+	for (std::map<string,int>::iterator it=config.begin(); it!=config.end(); ++it){
+		if (it->second <= 0){
+			stringstream output;
+			output << it->first << " no tiene un valor asignado o es menor o igual a 0 ";
+			Logger::log(__FILE__, Logger::ERROR, output.str());
+			Logger::log(__FILE__,Logger::ERROR,"Configuracion fallida");
+			Logger::log(__FILE__, Logger::INFO, "Cierre forzado");
+			return 1;
+		}
+	}
 
-	Logger::log(FILENAME, Logger::INFO, "Cerrada recepcion de pedidos");
+	Logger::log(__FILE__, Logger::INFO, "Configuracion exitosa");
+
+	Logger::log(__FILE__, Logger::INFO, "Inicia recepcion de pedidos");
+	Logger::log(__FILE__, Logger::INFO, "Cerrada recepcion de pedidos");
 }
