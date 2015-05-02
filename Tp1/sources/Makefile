@@ -12,12 +12,18 @@ DEBUG = OFF
 
 EXEC = concu_zappi
 
-OBJECTS = logger.o
+OBJECTS = lock_file.o pipe.o logger.o 
 
 all: $(EXEC) 
 		
-logger.o: logger.h logger.cpp
+logger.o: lock_file.o logger.h logger.cpp
 	$(CC) $(CPPFLAGS) -c logger.cpp
+
+lock_file.o: lock_file.h lock_file.cpp
+	$(CC) $(CPPFLAGS) -c lock_file.cpp
+
+pipe.o: pipe.h pipe.cpp
+	$(CC) $(CPPFLAGS) -c pipe.cpp
 				
 $(EXEC): $(EXEC).cpp $(OBJECTS)
 	$(CC) $(CPPLDFLAGS) $(OBJECTS) $(EXEC).cpp -o $(EXEC)
