@@ -32,6 +32,7 @@ using std::fstream;
 using std::endl;
 
 std::ofstream Logger::file_stream; //Declaration of static member
+Lock_File Logger::lock = Lock_File();
 
 string get_date() {
 	time_t t = time(0);
@@ -117,28 +118,27 @@ string Logger::get_error_flag(error_type_t error_level) {
 
 void Logger::log(string caller, error_type_t error_type, string error_message) {
 
-	//TODO: Get lock
-
 	string error_flag = get_error_flag(error_type);
 	string date = get_date();
 
-	file_stream << date << "-" << "File: " << caller << " " << error_flag << ": "
-			<< error_message << endl;
-
-	//TODO: Release lock
+	lock.lock();
+	file_stream << date << "-" << "File: " << caller << " " << error_flag
+			<< ": " << error_message << endl;
+	lock.release();
 }
 
 void Logger::open_logger(std::string log_file) {
 
-	//TODO: Initialize lock
+	lock = Lock_File(log_file.c_str());
 	file_stream.open(log_file.c_str(), std::ofstream::out | std::ofstream::app);
+	lock.lock();
 	initialize_log();
+	lock.release();
 }
 
 void Logger::close_logger() {
 	file_stream << get_error_flag(INFO) << "- " << get_date() << " -"
 			<< get_error_flag(INFO) << endl;
 	file_stream << "--Fin de ejecucion--" << endl;
-	//TODO: Close lock
 	file_stream.close();
 }

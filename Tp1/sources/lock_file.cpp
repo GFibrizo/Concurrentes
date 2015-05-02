@@ -29,3 +29,9 @@ ssize_t Lock_File::write_lock(const void* buffer,
 Lock_File::~Lock_File() {
 	close(this->fd);
 }
+
+/*Mock initializer*/
+Lock_File::Lock_File() {
+	fd = 0;
+	nombre = "";
+}
