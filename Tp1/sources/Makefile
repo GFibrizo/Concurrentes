@@ -12,7 +12,7 @@ DEBUG = OFF
 
 EXEC = concu_zappi
 
-OBJECTS = lock_file.o pipe.o logger.o 
+OBJECTS = lock_file.o pipe.o logger.o call_center.o
 
 all: $(EXEC) 
 		
@@ -25,6 +25,10 @@ lock_file.o: lock_file.h lock_file.cpp
 pipe.o: pipe.h pipe.cpp
 	$(CC) $(CPPFLAGS) -c pipe.cpp
 				
+call_center.o: call_center.h call_center.cpp
+	$(CC) $(CPPFLAGS) -c call_center.cpp
+				
+
 $(EXEC): $(EXEC).cpp $(OBJECTS)
 	$(CC) $(CPPLDFLAGS) $(OBJECTS) $(EXEC).cpp -o $(EXEC)
 

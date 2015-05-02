@@ -17,12 +17,15 @@
  along with this program.  If not, see <http://www.gnu.org/licenses
  */
 
+#include <unistd.h>
 #include <fstream>
 #include <iostream>
 #include <map>
 #include <sstream>
 #include <string>
+#include <cstdlib>
 
+#include "call_center.h"
 #include "logger.h"
 
 using std::string;
@@ -32,6 +35,7 @@ using std::endl;
 using std::ifstream;
 using std::stringstream;
 using std::map;
+using std::exit;
 
 /*Funcion para cargar la configuracion del programa en un map*/
 void load_configurations(map<string, int>& config) {
@@ -81,6 +85,33 @@ bool is_full_configured(map<string, int> config) {
 	return true;
 }
 
+void lanzar_cocineras() {
+	int pid = fork();
+	if (pid == 0) {
+		//TODO: cocineras cocinar
+		exit(EXIT_SUCCESS);
+	} else {
+		return;
+	}
+}
+
+void acept_calls(map<string, int>& config) {
+	Call_Center center = Call_Center(config["Recepcionistas"]);
+	string line;
+	while (std::getline(std::cin, line)) {
+		if (center.accept_call(line)) {
+#ifdef __DEBUG__
+			Logger::log(__FILE__, Logger::INFO, "Pedido aceptado: " + line);
+#endif
+		} else {
+#ifdef __DEBUG__
+			Logger::log(__FILE__, Logger::WARNING,
+					"Pedido rechazado: " + line + " [Telefono ocupado]");
+#endif
+		}
+	}
+}
+
 int main(int argc, char** argv) {
 
 	Logger::open_logger("run_log.log"); //TODO: Agregar opccion para sobreescribir
@@ -98,8 +129,16 @@ int main(int argc, char** argv) {
 	}
 	Logger::log(__FILE__, Logger::INFO, "Configuracion exitosa");
 
+	lanzar_cocineras();
+
 	Logger::log(__FILE__, Logger::INFO, "Inicia recepcion de pedidos");
+
+	acept_calls(config);
+
 	Logger::log(__FILE__, Logger::INFO, "Cerrada recepcion de pedidos");
+
+	wait();
+
 	Logger::close_logger();
 	return 0;
 }
