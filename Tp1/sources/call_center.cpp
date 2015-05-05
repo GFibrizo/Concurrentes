@@ -21,6 +21,7 @@
 
 #include <stddef.h>
 #include <unistd.h>
+#include <sys/wait.h>
 #include "logger.h"
 
 using std::string;
@@ -33,6 +34,7 @@ void Call_Center::simulate_call(string request) {
 	int pid = fork();
 	if (pid == 0) {
 		//TODO: do something
+		sleep(10);
 #ifdef __DEBUG__
 		Logger::log(__FILE__,Logger::INFO,"Pedido: "+request);
 #endif
@@ -48,12 +50,18 @@ void Call_Center::accept_call(string request) {
 		simulate_call(request);
 		return;
 	}
-	wait();
+	wait(0);
 	simulate_call(request);
 }
 
 void Call_Center::accept_calls() {
 	accept_call("UNA DE MUZZA");
+	accept_call("UNA DE PONY");
+	accept_call("UNA DE CHAMPIÑONES");
+	accept_call("UNA BOLUDEZ RAPIDO");
+	wait(0);
+	wait(0);
+	//exit (EXIT_SUCCESS);
 }
 
 Call_Center::~Call_Center() {

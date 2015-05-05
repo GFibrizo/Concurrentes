@@ -17,6 +17,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses
  */
 
+#include <sys/wait.h>
 #include <unistd.h>
 #include <fstream>
 #include <iostream>
@@ -86,23 +87,20 @@ bool is_full_configured(map<string, int> config) {
 }
 
 void lanzar_cocineras() {
-		return;
+	return;
 }
 
 void acept_calls(map<string, int>& config) {
 	Call_Center center = Call_Center(config["Recepcionistas"]);
-	string line;
-	while (std::getline(std::cin, line)) {
-		center.accept_calls();
+	center.accept_calls();
 #ifdef __DEBUG__S
-		Logger::log(__FILE__, Logger::INFO, "Pedido aceptado: " + line);
+	Logger::log(__FILE__, Logger::INFO, "Pedido aceptado: " + line);
 #endif
 #ifdef __DEBUG__S
-		Logger::log(__FILE__, Logger::WARNING,
-				"Pedido rechazado: " + line + " [Telefono ocupado]");
+	Logger::log(__FILE__, Logger::WARNING,
+			"Pedido rechazado: " + line + " [Telefono ocupado]");
 #endif
-
-	}
+	wait(0);
 }
 
 int main(int argc, char** argv) {
@@ -130,7 +128,7 @@ int main(int argc, char** argv) {
 
 	Logger::log(__FILE__, Logger::INFO, "Cerrada recepcion de pedidos");
 
-	wait();
+	wait(0);
 
 	Logger::close_logger();
 	return 0;
