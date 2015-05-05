@@ -61,7 +61,7 @@ void Call_Center::accept_calls() {
 	accept_call("UNA BOLUDEZ RAPIDO");
 	wait(0);
 	wait(0);
-	//exit (EXIT_SUCCESS);
+	//exit (EXIT_SUCCESS); FIXME
 }
 
 Call_Center::~Call_Center() {
