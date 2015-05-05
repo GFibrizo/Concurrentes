@@ -1,6 +1,6 @@
 #Project Builder
 #General
-CC = gcc -std=c++11
+CC = g++ -std=c++11 #Gaston puto no vuelvas a poner gcc
 CPPFLAGS = -Wall -Wextra -g -pedantic 
 CPPLDFLAGS = -lm -lstdc++
 DEBUG = OFF
