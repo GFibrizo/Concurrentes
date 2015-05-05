@@ -86,29 +86,22 @@ bool is_full_configured(map<string, int> config) {
 }
 
 void lanzar_cocineras() {
-	int pid = fork();
-	if (pid == 0) {
-		//TODO: cocineras cocinar
-		exit(EXIT_SUCCESS);
-	} else {
 		return;
-	}
 }
 
 void acept_calls(map<string, int>& config) {
 	Call_Center center = Call_Center(config["Recepcionistas"]);
 	string line;
 	while (std::getline(std::cin, line)) {
-		if (center.accept_call(line)) {
-#ifdef __DEBUG__
-			Logger::log(__FILE__, Logger::INFO, "Pedido aceptado: " + line);
+		center.accept_calls();
+#ifdef __DEBUG__S
+		Logger::log(__FILE__, Logger::INFO, "Pedido aceptado: " + line);
 #endif
-		} else {
-#ifdef __DEBUG__
-			Logger::log(__FILE__, Logger::WARNING,
-					"Pedido rechazado: " + line + " [Telefono ocupado]");
+#ifdef __DEBUG__S
+		Logger::log(__FILE__, Logger::WARNING,
+				"Pedido rechazado: " + line + " [Telefono ocupado]");
 #endif
-		}
+
 	}
 }
 
@@ -129,7 +122,7 @@ int main(int argc, char** argv) {
 	}
 	Logger::log(__FILE__, Logger::INFO, "Configuracion exitosa");
 
-	lanzar_cocineras();
+	//lanzar_cocineras();
 
 	Logger::log(__FILE__, Logger::INFO, "Inicia recepcion de pedidos");
 

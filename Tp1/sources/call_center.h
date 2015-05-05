@@ -29,16 +29,14 @@ class Call_Center {
 
 private:
 	int recepcionist = 0;
-	Lock_File lock = Lock_File("/tmp/call_center.lock");
 
 private:
-	void accept_call();
-	void unsuscribe();
+	void accept_call(std::string);
+	void simulate_call(std::string);
 
 public:
 	Call_Center(size_t recepcionists);
-
-	bool accept_call(std::string request);
+	void accept_calls(); //TODO: Add pipe
 
 	virtual ~Call_Center();
 };

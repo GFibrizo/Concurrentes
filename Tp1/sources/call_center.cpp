@@ -20,6 +20,8 @@
 #include "call_center.h"
 
 #include <stddef.h>
+#include <unistd.h>
+#include "logger.h"
 
 using std::string;
 
@@ -27,15 +29,31 @@ Call_Center::Call_Center(size_t recepcionists) {
 	recepcionist = recepcionists;
 }
 
-bool Call_Center::accept_call(string request) {
-	lock.lock();
+void Call_Center::simulate_call(string request) {
+	int pid = fork();
+	if (pid == 0) {
+		//TODO: do something
+#ifdef __DEBUG__
+		Logger::log(__FILE__,Logger::INFO,"Pedido: "+request);
+#endif
+		exit (EXIT_SUCCESS);
+	} else {
+		return;
+	}
+}
+
+void Call_Center::accept_call(string request) {
 	if (recepcionist > 0) {
 		recepcionist--;
-		lock.release();
-		return true;
+		simulate_call(request);
+		return;
 	}
-	lock.release();
-	return false;
+	wait();
+	simulate_call(request);
+}
+
+void Call_Center::accept_calls() {
+	accept_call("UNA DE MUZZA");
 }
 
 Call_Center::~Call_Center() {
