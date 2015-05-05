@@ -12,7 +12,7 @@ DEBUG = OFF
 
 EXEC = concu_zappi
 
-OBJECTS = lock_file.o pipe.o logger.o call_center.o semaphore.o
+OBJECTS = lock_file.o pipe.o logger.o call_center.o semaphore.o fifo.o reader_fifo.o writer_fifo.o
 
 all: $(EXEC) 
 		
@@ -30,7 +30,16 @@ call_center.o: call_center.h call_center.cpp
 				
 semaphore.o: semaphore.h semaphore.cpp
 	$(CC) $(CPPFLAGS) -c semaphore.cpp
+	
+fifo.o: fifo.h fifo.cpp
+	$(CC) $(CPPFLAGS) -c fifo.cpp
 
+reader_fifo.o: reader_fifo.h reader_fifo.cpp
+	$(CC) $(CPPFLAGS) -c reader_fifo.cpp
+	
+writer_fifo.o: writer_fifo.h writer_fifo.cpp
+	$(CC) $(CPPFLAGS) -c writer_fifo.cpp
+	
 $(EXEC): $(EXEC).cpp $(OBJECTS)
 	$(CC) $(CPPLDFLAGS) $(OBJECTS) $(EXEC).cpp -o $(EXEC)
 
