@@ -23,20 +23,22 @@
 #include <stddef.h>
 #include <string>
 
+#include "pipe.h"
 #include "lock_file.h"
 
 class Call_Center {
 
 private:
 	int recepcionist = 0;
+	Pipe internal_pipe;
 
 private:
 	void accept_call(std::string);
 	void simulate_call(std::string);
 
 public:
-	Call_Center(size_t recepcionists);
-	void accept_calls(); //TODO: Add pipe
+	Call_Center(size_t recepcionists,Pipe& pipe);
+	void accept_calls();
 
 	virtual ~Call_Center();
 };

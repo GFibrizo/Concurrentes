@@ -23,10 +23,11 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include "logger.h"
+#include "pipe.h"
 
 using std::string;
 
-Call_Center::Call_Center(size_t recepcionists) {
+Call_Center::Call_Center(size_t recepcionists,Pipe& pipe):internal_pipe(pipe) {
 	recepcionist = recepcionists;
 }
 
@@ -55,13 +56,18 @@ void Call_Center::accept_call(string request) {
 }
 
 void Call_Center::accept_calls() {
-	accept_call("UNA DE MUZZA");
-	accept_call("UNA DE PONY");
-	accept_call("UNA DE CHAMPIÑONES");
-	accept_call("UNA BOLUDEZ RAPIDO");
-	wait(0);
-	wait(0);
-	//exit (EXIT_SUCCESS); FIXME
+	internal_pipe.set_mode(Pipe::READ);
+	char* buff = new char[200];
+	internal_pipe.read_pipe(buff,200);
+	//string str(buff);
+	Logger::log(__FILE__,Logger::INFO,"Entro al pipe");
+	//while(str != "-"){
+	//	accept_call(str);
+	//	internal_pipe.read_pipe(buff,200);
+	//	string str(buff);
+	//}
+	Logger::log(__FILE__,Logger::INFO,"Salio del pipe");
+
 }
 
 Call_Center::~Call_Center() {

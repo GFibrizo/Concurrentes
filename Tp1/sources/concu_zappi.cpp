@@ -90,9 +90,31 @@ void lanzar_cocineras() {
 	return;
 }
 
-void acept_calls(map<string, int>& config) {
-	Call_Center center = Call_Center(config["Recepcionistas"]);
-	center.accept_calls();
+void launch_call_center(map<string, int>& config,Pipe& pipe) {
+
+	Call_Center center = Call_Center(config["Recepcionistas"],pipe);
+	int pid = fork();
+	if (pid == 0){
+		center.accept_calls();
+		//exit(EXIT_SUCCESS);
+	}else{
+		//FIXME: getline
+		pipe.set_mode(Pipe::WRITE);
+		string s;
+		while (true){
+			cin >> s;
+			if(s == "f"){
+				cout << "PEPE" << endl;
+				break;
+			}
+			else{
+				//pipe.write_pipe(s.c_str(),s.size());
+			}
+		}
+		pipe.write_pipe(s.c_str(),s.size());
+		wait(0);
+		pipe.close_pipe();
+	}
 #ifdef __DEBUG__S
 	Logger::log(__FILE__, Logger::INFO, "Pedido aceptado: " + line);
 #endif
@@ -124,7 +146,9 @@ int main(int argc, char** argv) {
 
 	Logger::log(__FILE__, Logger::INFO, "Inicia recepcion de pedidos");
 
-	acept_calls(config);
+	Pipe pipe = Pipe();
+	pipe.set_mode(Pipe::WRITE);
+	launch_call_center(config,pipe);
 
 	Logger::log(__FILE__, Logger::INFO, "Cerrada recepcion de pedidos");
 
