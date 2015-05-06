@@ -8,15 +8,16 @@
 #include <unistd.h>
 
 class Fifo {
+
 public:
-	Fifo(const std::string nombre);
+	Fifo(const std::string name);
 	virtual ~Fifo();
-	virtual void abrir() = 0;
-	void cerrar();
-	void eliminar() const;
+	virtual void open_fifo() = 0;
+	void close_fifo();
+	void remove() const;
 
 protected:
-	std::string nombre;
+	std::string name;
 	int fd;
 };
 
