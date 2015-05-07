@@ -101,6 +101,9 @@ void launch_call_center(map<string, int> &config, Pipe &pipe) {
         while (std::getline(cin, line)) {
             //pipe.write_pipe(s.c_str(),s.size());
         }
+        cout << "Fin recepcion de pedidos" << endl;
+        Logger::log(__FILE__, Logger::INFO, "Cerrada recepcion de pedidos");
+
     }
     wait(0);
     pipe.close_pipe();
@@ -139,8 +142,6 @@ int main(int argc, char **argv) {
     Pipe pipe = Pipe();
     pipe.set_mode(Pipe::WRITE);
     launch_call_center(config, pipe);
-
-    Logger::log(__FILE__, Logger::INFO, "Cerrada recepcion de pedidos");
 
     wait(0);
 

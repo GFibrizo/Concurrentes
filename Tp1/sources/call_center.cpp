@@ -63,6 +63,7 @@ void Call_Center::accept_calls() {
     //	internal_pipe.read_pipe(buff,200);
     //	string str(buff);
     //}
+    wait(0);
     Logger::log(__FILE__, Logger::INFO, "Salio del pipe");
 
 }
