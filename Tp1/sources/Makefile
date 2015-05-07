@@ -45,3 +45,6 @@ $(EXEC): $(EXEC).cpp $(OBJECTS)
 
 clean:
 	rm -f -r *.o *.save *.log  *~ $(EXEC)
+
+clean_objects:
+	rm -f -r *.o *.save *~
