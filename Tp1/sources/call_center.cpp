@@ -26,6 +26,7 @@ using std::string;
 
 Call_Center::Call_Center(size_t recepcionists, Pipe &pipe) : internal_pipe(pipe) {
     recepcionist = recepcionists;
+    internal_pipe.set_mode(Pipe::READ);
 }
 
 void Call_Center::simulate_call(string request) {
@@ -56,15 +57,11 @@ void Call_Center::accept_calls() {
     internal_pipe.set_mode(Pipe::READ);
     char *buff = new char[200];
     internal_pipe.read_pipe(buff, 200);
-    //string str(buff);
-    Logger::log(__FILE__, Logger::INFO, "Entro al pipe");
-    //while(str != "-"){
-    accept_call("MUZZA");
-    //	internal_pipe.read_pipe(buff,200);
-    //	string str(buff);
-    //}
+    string str(buff);
+    Logger::log(__FILE__, Logger::INFO, "Entro al pipe: " + str);
+    accept_call(str);
     wait(0);
-    Logger::log(__FILE__, Logger::INFO, "Salio del pipe");
+    Logger::log(__FILE__, Logger::INFO, "Salio del pipe:" + str);
 
 }
 

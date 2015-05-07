@@ -29,18 +29,20 @@
 class Call_Center {
 
 private:
-	int recepcionist = 0;
-	Pipe internal_pipe;
+    int recepcionist = 0;
+    Pipe internal_pipe;
 
 private:
-	void accept_call(std::string);
-	void simulate_call(std::string);
+    void accept_call(std::string);
+
+    void simulate_call(std::string);
 
 public:
-	Call_Center(size_t recepcionists,Pipe& pipe);
-	void accept_calls();
+    Call_Center(size_t recepcionists, Pipe &pipe);
 
-	virtual ~Call_Center();
+    void accept_calls();
+
+    virtual ~Call_Center();
 };
 
 #endif /* CALL_CENTER_H_ */

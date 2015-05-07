@@ -96,17 +96,8 @@ void launch_call_center(map<string, int> &config, Pipe &pipe) {
         center.accept_calls();
         exit(EXIT_SUCCESS);
     } else {
-        pipe.set_mode(Pipe::WRITE);
-        string line;
-        while (std::getline(cin, line)) {
-            //pipe.write_pipe(s.c_str(),s.size());
-        }
-        cout << "Fin recepcion de pedidos" << endl;
-        Logger::log(__FILE__, Logger::INFO, "Cerrada recepcion de pedidos");
-
+        return;
     }
-    wait(0);
-    pipe.close_pipe();
 
 #ifdef __DEBUG__S
 	Logger::log(__FILE__, Logger::INFO, "Pedido aceptado: " + line);
@@ -115,7 +106,6 @@ void launch_call_center(map<string, int> &config, Pipe &pipe) {
 	Logger::log(__FILE__, Logger::WARNING,
 			"Pedido rechazado: " + line + " [Telefono ocupado]");
 #endif
-    wait(0);
 }
 
 int main(int argc, char **argv) {
@@ -137,11 +127,21 @@ int main(int argc, char **argv) {
 
     //lanzar_cocineras();
 
-    Logger::log(__FILE__, Logger::INFO, "Inicia recepcion de pedidos");
 
     Pipe pipe = Pipe();
-    pipe.set_mode(Pipe::WRITE);
+    Logger::log(__FILE__, Logger::INFO, "Inicia recepcion de pedidos");
     launch_call_center(config, pipe);
+
+    pipe.set_mode(Pipe::WRITE);
+    string line;
+    while (std::getline(cin, line)) {
+        pipe.write_pipe(line.c_str(), line.size());
+    }
+    cout << "Fin recepcion de pedidos" << endl;
+    Logger::log(__FILE__, Logger::INFO, "Cerrada recepcion de pedidos");
+
+    wait(0);
+    pipe.close_pipe();
 
     wait(0);
 
