@@ -19,54 +19,51 @@
 
 #include "call_center.h"
 
-#include <stddef.h>
-#include <unistd.h>
 #include <sys/wait.h>
 #include "logger.h"
-#include "pipe.h"
 
 using std::string;
 
-Call_Center::Call_Center(size_t recepcionists,Pipe& pipe):internal_pipe(pipe) {
-	recepcionist = recepcionists;
+Call_Center::Call_Center(size_t recepcionists, Pipe &pipe) : internal_pipe(pipe) {
+    recepcionist = recepcionists;
 }
 
 void Call_Center::simulate_call(string request) {
-	int pid = fork();
-	if (pid == 0) {
-		//TODO: do something
-		sleep(10);
+    int pid = fork();
+    if (pid == 0) {
+        //TODO: do something
+        sleep(10);
 #ifdef __DEBUG__
 		Logger::log(__FILE__,Logger::INFO,"Pedido: "+request);
 #endif
-		exit (EXIT_SUCCESS);
-	} else {
-		return;
-	}
+        exit(EXIT_SUCCESS);
+    } else {
+        return;
+    }
 }
 
 void Call_Center::accept_call(string request) {
-	if (recepcionist > 0) {
-		recepcionist--;
-		simulate_call(request);
-		return;
-	}
-	wait(0);
-	simulate_call(request);
+    if (recepcionist > 0) {
+        recepcionist--;
+        simulate_call(request);
+        return;
+    }
+    wait(0);
+    simulate_call(request);
 }
 
 void Call_Center::accept_calls() {
-	internal_pipe.set_mode(Pipe::READ);
-	char* buff = new char[200];
-	internal_pipe.read_pipe(buff,200);
-	//string str(buff);
-	Logger::log(__FILE__,Logger::INFO,"Entro al pipe");
-	//while(str != "-"){
-	//	accept_call(str);
-	//	internal_pipe.read_pipe(buff,200);
-	//	string str(buff);
-	//}
-	Logger::log(__FILE__,Logger::INFO,"Salio del pipe");
+    internal_pipe.set_mode(Pipe::READ);
+    char *buff = new char[200];
+    internal_pipe.read_pipe(buff, 200);
+    //string str(buff);
+    Logger::log(__FILE__, Logger::INFO, "Entro al pipe");
+    //while(str != "-"){
+    accept_call("MUZZA");
+    //	internal_pipe.read_pipe(buff,200);
+    //	string str(buff);
+    //}
+    Logger::log(__FILE__, Logger::INFO, "Salio del pipe");
 
 }
 

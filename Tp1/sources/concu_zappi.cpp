@@ -23,8 +23,6 @@
 #include <iostream>
 #include <map>
 #include <sstream>
-#include <string>
-#include <cstdlib>
 
 #include "call_center.h"
 #include "logger.h"
@@ -39,82 +37,74 @@ using std::map;
 using std::exit;
 
 /*Funcion para cargar la configuracion del programa en un map*/
-void load_configurations(map<string, int>& config) {
-	ifstream file;
-	file.open("config.cfg", std::fstream::in);
+void load_configurations(map<string, int> &config) {
+    ifstream file;
+    file.open("config.cfg", std::fstream::in);
 #ifdef __DEBUG__
 	Logger::log(__FILE__, Logger::INFO, "Configuracion inicial");
 #endif
 
-	while (file.good()) {
-		int amount = 0;
-		string concept;
-		file >> amount >> concept;
-		if (config.count(concept) == 0) {
-			continue;
-		}
-		config[concept] = amount;
+    while (file.good()) {
+        int amount = 0;
+        string concept;
+        file >> amount >> concept;
+        if (config.count(concept) == 0) {
+            continue;
+        }
+        config[concept] = amount;
 
 #ifdef __DEBUG__
 		stringstream output;
 		output << concept << " cantidad: " << amount;
 		Logger::log(__FILE__, Logger::INFO, output.str());
 #endif
-	}
+    }
 }
 
-void initialize_configurations(map<string, int>& config) {
-	config["Recepcionistas"] = 0;
-	config["Cocineras"] = 0;
-	config["Cadetas"] = 0;
-	config["Hornos"] = 0;
+void initialize_configurations(map<string, int> &config) {
+    config["Recepcionistas"] = 0;
+    config["Cocineras"] = 0;
+    config["Cadetas"] = 0;
+    config["Hornos"] = 0;
 }
 
 /*Funcion que devuelve si todos los campos fueron correctamente configurados*/
 bool is_full_configured(map<string, int> config) {
-	for (std::map<string, int>::iterator it = config.begin();
-			it != config.end(); ++it) {
-		if (it->second <= 0) {
-			stringstream output;
-			output << it->first
-					<< " no tiene un valor asignado o es menor o igual a 0 ";
-			Logger::log(__FILE__, Logger::ERROR, output.str());
-			Logger::log(__FILE__, Logger::ERROR, "Configuracion fallida");
-			return false;
-		}
-	}
-	return true;
+    for (std::map<string, int>::iterator it = config.begin();
+         it != config.end(); ++it) {
+        if (it->second <= 0) {
+            stringstream output;
+            output << it->first
+            << " no tiene un valor asignado o es menor o igual a 0 ";
+            Logger::log(__FILE__, Logger::ERROR, output.str());
+            Logger::log(__FILE__, Logger::ERROR, "Configuracion fallida");
+            return false;
+        }
+    }
+    return true;
 }
 
 void lanzar_cocineras() {
-	return;
+    return;
 }
 
-void launch_call_center(map<string, int>& config,Pipe& pipe) {
+void launch_call_center(map<string, int> &config, Pipe &pipe) {
 
-	Call_Center center = Call_Center(config["Recepcionistas"],pipe);
-	int pid = fork();
-	if (pid == 0){
-		center.accept_calls();
-		//exit(EXIT_SUCCESS);
-	}else{
-		//FIXME: getline
-		pipe.set_mode(Pipe::WRITE);
-		string s;
-		while (true){
-			cin >> s;
-			if(s == "f"){
-				cout << "PEPE" << endl;
-				break;
-			}
-			else{
-				//pipe.write_pipe(s.c_str(),s.size());
-			}
-		}
-		pipe.write_pipe(s.c_str(),s.size());
-		wait(0);
-		pipe.close_pipe();
-	}
+    Call_Center center = Call_Center(config["Recepcionistas"], pipe);
+    int pid = fork();
+    if (pid == 0) {
+        center.accept_calls();
+        exit(EXIT_SUCCESS);
+    } else {
+        pipe.set_mode(Pipe::WRITE);
+        string line;
+        while (std::getline(cin, line)) {
+            //pipe.write_pipe(s.c_str(),s.size());
+        }
+    }
+    wait(0);
+    pipe.close_pipe();
+
 #ifdef __DEBUG__S
 	Logger::log(__FILE__, Logger::INFO, "Pedido aceptado: " + line);
 #endif
@@ -122,38 +112,38 @@ void launch_call_center(map<string, int>& config,Pipe& pipe) {
 	Logger::log(__FILE__, Logger::WARNING,
 			"Pedido rechazado: " + line + " [Telefono ocupado]");
 #endif
-	wait(0);
+    wait(0);
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
 
-	Logger::open_logger("run_log.log"); //TODO: Agregar opccion para sobreescribir
+    Logger::open_logger("run_log.log"); //TODO: Agregar opccion para sobreescribir
 
-	Logger::log(__FILE__, Logger::INFO, "Inicio configuracion");
-	map<string, int> config;
+    Logger::log(__FILE__, Logger::INFO, "Inicio configuracion");
+    map<string, int> config;
 
-	initialize_configurations(config);
-	load_configurations(config);
+    initialize_configurations(config);
+    load_configurations(config);
 
-	if (not is_full_configured(config)) {
-		Logger::log(__FILE__, Logger::ERROR, "Configuracion fallida");
-		Logger::close_logger();
-		return 1;
-	}
-	Logger::log(__FILE__, Logger::INFO, "Configuracion exitosa");
+    if (not is_full_configured(config)) {
+        Logger::log(__FILE__, Logger::ERROR, "Configuracion fallida");
+        Logger::close_logger();
+        return 1;
+    }
+    Logger::log(__FILE__, Logger::INFO, "Configuracion exitosa");
 
-	//lanzar_cocineras();
+    //lanzar_cocineras();
 
-	Logger::log(__FILE__, Logger::INFO, "Inicia recepcion de pedidos");
+    Logger::log(__FILE__, Logger::INFO, "Inicia recepcion de pedidos");
 
-	Pipe pipe = Pipe();
-	pipe.set_mode(Pipe::WRITE);
-	launch_call_center(config,pipe);
+    Pipe pipe = Pipe();
+    pipe.set_mode(Pipe::WRITE);
+    launch_call_center(config, pipe);
 
-	Logger::log(__FILE__, Logger::INFO, "Cerrada recepcion de pedidos");
+    Logger::log(__FILE__, Logger::INFO, "Cerrada recepcion de pedidos");
 
-	wait(0);
+    wait(0);
 
-	Logger::close_logger();
-	return 0;
+    Logger::close_logger();
+    return 0;
 }
