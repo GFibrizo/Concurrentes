@@ -44,4 +44,4 @@ $(EXEC): $(EXEC).cpp $(OBJECTS)
 	$(CC) $(CPPLDFLAGS) $(OBJECTS) $(EXEC).cpp -o $(EXEC)
 
 clean:
-	rm -f -r *.o *.save *~ $(EXEC)
+	rm -f -r *.o *.save *.log  *~ $(EXEC)
