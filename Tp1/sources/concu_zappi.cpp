@@ -132,19 +132,15 @@ int main(int argc, char **argv) {
     Logger::log(__FILE__, Logger::INFO, "Inicia recepcion de pedidos");
     launch_call_center(config, pipe);
 
-    pipe.set_mode(Pipe::WRITE);
     string line;
     while (std::getline(cin, line)) {
-        pipe.write_pipe(line.c_str(), line.size());
+        pipe.write_pipe(static_cast<const void*>(line.c_str()), line.size());
     }
     cout << "Fin recepcion de pedidos" << endl;
     Logger::log(__FILE__, Logger::INFO, "Cerrada recepcion de pedidos");
 
-    wait(0);
     pipe.close_pipe();
-
-    wait(0);
-
+    wait(0); //Wait call_center to finish
     Logger::close_logger();
     return 0;
 }

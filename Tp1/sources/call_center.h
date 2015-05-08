@@ -29,7 +29,7 @@
 class Call_Center {
 
 private:
-    int recepcionist = 0;
+    size_t recepcionist = 0;
     Pipe internal_pipe;
 
 private:
@@ -38,7 +38,7 @@ private:
     void simulate_call(std::string);
 
 public:
-    Call_Center(size_t recepcionists, Pipe &pipe);
+    Call_Center(size_t recepcionists, Pipe pipe);
 
     void accept_calls();
 

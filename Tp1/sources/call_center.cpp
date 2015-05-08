@@ -19,14 +19,14 @@
 
 #include "call_center.h"
 
+#include <cstdlib>
 #include <sys/wait.h>
 #include "logger.h"
 
 using std::string;
 
-Call_Center::Call_Center(size_t recepcionists, Pipe &pipe) : internal_pipe(pipe) {
+Call_Center::Call_Center(size_t recepcionists, Pipe pipe) : internal_pipe(pipe) {
     recepcionist = recepcionists;
-    internal_pipe.set_mode(Pipe::READ);
 }
 
 void Call_Center::simulate_call(string request) {
@@ -54,15 +54,18 @@ void Call_Center::accept_call(string request) {
 }
 
 void Call_Center::accept_calls() {
-    internal_pipe.set_mode(Pipe::READ);
-    char *buff = new char[200];
-    internal_pipe.read_pipe(buff, 200);
-    string str(buff);
-    Logger::log(__FILE__, Logger::INFO, "Entro al pipe: " + str);
-    accept_call(str);
-    wait(0);
-    Logger::log(__FILE__, Logger::INFO, "Salio del pipe:" + str);
+    static const int BUFFSIZE = 200;
+    char buff[BUFFSIZE];
 
+    while (internal_pipe.read_pipe(buff, BUFFSIZE) > 0) {
+        string request = buff;
+        Logger::log(__FILE__, Logger::INFO, "Salio del pipe:" + request);
+        accept_call(request);
+    }
+
+    for (size_t i = 0;i<recepcionist;i++){
+        wait(0); //Waits for all recepcionist to finish
+    }
 }
 
 Call_Center::~Call_Center() {
