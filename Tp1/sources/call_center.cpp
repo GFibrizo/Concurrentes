@@ -63,7 +63,7 @@ void Call_Center::accept_calls() {
         accept_call(request);
     }
 
-    for (size_t i = 0;i<recepcionist;i++){
+    for (size_t i = 0; i < recepcionist; i++) {
         wait(0); //Waits for all recepcionist to finish
     }
 }

@@ -28,7 +28,7 @@ Kitchen::Kitchen() {
 void Kitchen::cook() {
     //TODO: Fifo
 
-    while (true){
+    while (true) {
         //TODO: read from Fifo
     }
 
