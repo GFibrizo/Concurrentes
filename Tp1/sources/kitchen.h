@@ -35,6 +35,8 @@ private:
 
 public:
     Kitchen();
+
+    void cook();
 };
 
 #endif /* KITCHEN_H */

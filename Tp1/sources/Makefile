@@ -12,12 +12,16 @@ DEBUG = OFF
 
 EXEC = concu_zappi
 
-OBJECTS = lock_file.o pipe.o logger.o call_center.o semaphore.o fifo.o reader_fifo.o writer_fifo.o
+CONCURRENT_OBJECTS = lock_file.o pipe.o semaphore.o fifo.o reader_fifo.o writer_fifo.o
+OBJECTS = $(CONCURRENT_OBJECTS) logger.o call_center.o kitchen.o
 
 all: $(EXEC) 
-		
+
 logger.o: lock_file.o logger.h logger.cpp
 	$(CC) $(CPPFLAGS) -c logger.cpp
+
+kitchen.o: kitchen.h kitchen.cpp
+	$(CC) $(CPPFLAGS) -c kitchen.cpp
 
 lock_file.o: lock_file.h lock_file.cpp
 	$(CC) $(CPPFLAGS) -c lock_file.cpp

@@ -24,3 +24,13 @@ using std::string;
 Kitchen::Kitchen() {
 
 }
+
+void Kitchen::cook() {
+    //TODO: Fifo
+
+    while (true){
+        //TODO: read from Fifo
+    }
+
+
+}
