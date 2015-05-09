@@ -33,7 +33,7 @@ void Call_Center::simulate_call(string request) {
     int pid = fork();
     if (pid == 0) {
         //TODO: do something
-        sleep(10);
+        sleep(2);
 #ifdef __DEBUG__
 		Logger::log(__FILE__,Logger::INFO,"Pedido: "+request);
 #endif
