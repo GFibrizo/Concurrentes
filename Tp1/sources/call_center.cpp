@@ -35,7 +35,7 @@ void Call_Center::simulate_call(string request) {
         //TODO: do something
         sleep(2);
 #ifdef __DEBUG__
-		Logger::log(__FILE__,Logger::INFO,"Pedido: "+request);
+		Logger::log(__FILE__,Logger::DEBUG,"Pedido: "+request);
 #endif
         recepcionist.v();
         exit(EXIT_SUCCESS);

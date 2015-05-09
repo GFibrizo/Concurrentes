@@ -42,7 +42,7 @@ void load_configurations(map<string, int> &config) {
     ifstream file;
     file.open("config.cfg", std::fstream::in);
 #ifdef __DEBUG__
-	Logger::log(__FILE__, Logger::INFO, "Configuracion inicial");
+	Logger::log(__FILE__, Logger::DEBUG, "Configuracion inicial");
 #endif
 
     while (file.good()) {
@@ -117,12 +117,12 @@ void answer_calls(Pipe &pipe) {
 
         if (wrote == line.size()) {
 #ifdef __DEBUG__
-	Logger::log(__FILE__, Logger::INFO, "Pedido aceptado: " + line);
+	Logger::log(__FILE__, Logger::DEBUG, "Pedido aceptado: " + line);
 #endif
         } else {
             cout << ">>Telefono ocupado<<" << endl;
 #ifdef __DEBUG__
-	Logger::log(__FILE__, Logger::WARNING,
+	Logger::log(__FILE__, Logger::DEBUG,
 			"Pedido rechazado: " + line + " [Telefono ocupado]");
 #endif
         }
