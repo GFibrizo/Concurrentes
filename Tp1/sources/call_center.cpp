@@ -39,8 +39,6 @@ void Call_Center::simulate_call(string request) {
 #endif
         recepcionist.v();
         exit(EXIT_SUCCESS);
-    } else {
-        return;
     }
 }
 
