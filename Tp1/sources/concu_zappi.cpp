@@ -130,7 +130,7 @@ void answer_calls(Pipe &pipe) {
     }
     cout << "Fin recepcion de pedidos" << endl;
     Logger::log(__FILE__, Logger::INFO, "Cerrada recepcion de pedidos");
-    pipe.close_pipe();
+    pipe.close_pipe(); //TODO: ver esto cuando le pongamos el maximo a meter
 }
 
 int main(int argc, char **argv) {

@@ -67,8 +67,8 @@ void Call_Center::accept_calls() {
         accept_call(request);
     }
 
-    for (size_t i = 0; i < launched_process; i++) { //FIXME: Por esto es que los semaforos no funcionan para esto.
-        // FIXME O en realidad hay que tirar un wait por proceso lanzado me parece independientemente de como lo hagamos
+    for (size_t i = 0; i < launched_process; i++) { //TODO: Por esto es que los semaforos no funcionan para esto.
+        //TODO O en realidad hay que tirar un wait por proceso lanzado me parece independientemente de como lo hagamos
         wait(0); //Waits for all recepcionist to finish
     }
 }
