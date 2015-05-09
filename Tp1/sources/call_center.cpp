@@ -58,12 +58,12 @@ void Call_Center::accept_calls() {
     char buff[BUFFSIZE];
     char len_buff[sizeof(int)];
     while (internal_pipe.read_pipe(len_buff, sizeof(int)) > 0) {
-        int* len = (int*) len_buff;
-        if (*len == 0){
+        int *len = (int *) len_buff;
+        if (*len == 0) {
             break;
         }
 
-        if (internal_pipe.read_pipe(buff, *len) == 0){
+        if (internal_pipe.read_pipe(buff, *len) == 0) {
             //TODO: Error
         }
 
