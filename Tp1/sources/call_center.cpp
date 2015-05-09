@@ -18,6 +18,7 @@
  */
 
 #include "call_center.h"
+#include "logger.h"
 
 #include <cstdlib>
 #include <sys/wait.h>
