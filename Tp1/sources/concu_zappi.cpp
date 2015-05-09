@@ -90,16 +90,15 @@ void lanzar_cocineras() {
     return;
 }
 
-void launch_call_center(Semaphore &recepcionists, Pipe &pipe) {
+int launch_call_center(Semaphore &recepcionists, Pipe &pipe) {
 
     Call_Center center = Call_Center(recepcionists, pipe);
     int pid = fork();
     if (pid == 0) {
         center.accept_calls();
         exit(EXIT_SUCCESS);
-    } else {
-        return;
     }
+    return pid;
 }
 
 void answer_calls(Pipe &pipe) {
@@ -156,11 +155,11 @@ int main(int argc, char **argv) {
     Pipe pipe = Pipe();
     Logger::log(__FILE__, Logger::INFO, "Inicia recepcion de pedidos");
     Semaphore recepcionists_semaphore = Semaphore("Recepcionist", config["Recepcionistas"]);
-    launch_call_center(recepcionists_semaphore, pipe);
+    int call_center_pid = launch_call_center(recepcionists_semaphore, pipe);
 
     answer_calls(pipe);
+    waitpid(call_center_pid, 0, 0); //Wait call_center to finish
 
-    wait(0); //Wait call_center to finish
     Logger::close_logger();
     return 0;
 }
