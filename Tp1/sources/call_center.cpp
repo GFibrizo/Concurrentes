@@ -21,7 +21,6 @@
 
 #include <cstdlib>
 #include <sys/wait.h>
-#include "logger.h"
 
 using std::string;
 
@@ -35,7 +34,7 @@ void Call_Center::simulate_call(string request) {
         //TODO: do something
         sleep(2);
 #ifdef __DEBUG__
-		Logger::log(__FILE__,Logger::DEBUG,"Pedido: "+request);
+		Logger::log(__FILE__,Logger::DEBUG,"Pedido cargado: "+request);
 #endif
         recepcionist.v();
         exit(EXIT_SUCCESS);
@@ -65,7 +64,6 @@ void Call_Center::accept_calls() {
         buff[*len] = '\0'; //Agrega fin de linea donde va
 
         string request = buff;
-        Logger::log(__FILE__, Logger::INFO, "Salio del pipe:" + request);
         accept_call(request);
     }
 
