@@ -105,7 +105,15 @@ void answer_calls(Pipe &pipe) {
     string line;
     cout << "Pedido: ";
     while (getline(cin, line)) {
-        size_t wrote = pipe.write_pipe(static_cast<const void *>(line.c_str()), line.size());
+        int size = line.size();
+        const char* len = (char*) &size;
+        ssize_t wrote = pipe.write_pipe(static_cast<const void *>(len), sizeof(int));
+
+        if (wrote <= 0){
+            break; //TODO: Ver bien que hacer en este caso.
+        }
+
+        wrote = pipe.write_pipe(static_cast<const void *>(line.c_str()), size);
 
         if (wrote == line.size()) {
 #ifdef __DEBUG__

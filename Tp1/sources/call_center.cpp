@@ -56,8 +56,19 @@ void Call_Center::accept_call(string request) {
 void Call_Center::accept_calls() {
     static const int BUFFSIZE = 200;
     char buff[BUFFSIZE];
+    char len_buff[sizeof(int)];
+    while (internal_pipe.read_pipe(len_buff, sizeof(int)) > 0) {
+        int* len = (int*) len_buff;
+        if (*len == 0){
+            break;
+        }
 
-    while (internal_pipe.read_pipe(buff, BUFFSIZE) > 0) {
+        if (internal_pipe.read_pipe(buff, *len) == 0){
+            //TODO: Error
+        }
+
+        buff[*len] = '\0'; //Agrega fin de linea donde va
+
         string request = buff;
         Logger::log(__FILE__, Logger::INFO, "Salio del pipe:" + request);
         accept_call(request);
