@@ -21,6 +21,7 @@
 
 #include <iostream>
 #include <string>
+#include <fstream>
 #include "lock_file.h"
 
 typedef char error_type_t;
@@ -28,25 +29,27 @@ typedef char error_type_t;
 class Logger {
 
 private:
-	static std::ofstream file_stream;
-	static Lock_File lock;
+    static std::ofstream file_stream;
+    static Lock_File lock;
 
 public:
-	static const error_type_t INFO = 0;
-	static const error_type_t WARNING = 1;
-	static const error_type_t ERROR = 2;
+    static const error_type_t INFO = 0;
+    static const error_type_t WARNING = 1;
+    static const error_type_t ERROR = 2;
+    static const error_type_t DEBUG = 3;
 
 private:
-	static std::string get_error_flag(error_type_t error_level);
-	static void initialize_log();
+    static std::string get_error_flag(error_type_t error_level);
+
+    static void initialize_log();
 
 public:
-	static void open_logger(std::string log_file);
+    static void open_logger(std::string log_file);
 
-	static void log(std::string caller, error_type_t error_type,
-			std::string error_message);
+    static void log(std::string caller, error_type_t error_type,
+                    std::string error_message);
 
-	static void close_logger();
+    static void close_logger();
 };
 
 #endif /* LOGGER_H_ */

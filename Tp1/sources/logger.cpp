@@ -20,7 +20,6 @@
 #include "logger.h"
 
 #include <ctime>
-#include <fstream>
 #include <iomanip>
 #include <sstream>
 
@@ -35,19 +34,19 @@ std::ofstream Logger::file_stream; //Declaration of static member
 Lock_File Logger::lock = Lock_File();
 
 string get_date() {
-	time_t t = time(0);
+    time_t t = time(0);
 
-	stringstream date;
+    stringstream date;
 
-	struct tm * now = localtime(&t);
-	date << setfill('0');
+    struct tm *now = localtime(&t);
+    date << setfill('0');
 
-	date << setw(2) << now->tm_mday << "/" << setw(2) << now->tm_mon + 1 << "/"
-			<< setw(4) << now->tm_year + 1900 << "   " << setw(2)
-			<< now->tm_hour << ":" << setw(2) << now->tm_min << ":" << setw(2)
-			<< now->tm_sec;
+    date << setw(2) << now->tm_mday << "/" << setw(2) << now->tm_mon + 1 << "/"
+    << setw(4) << now->tm_year + 1900 << "   " << setw(2)
+    << now->tm_hour << ":" << setw(2) << now->tm_min << ":" << setw(2)
+    << now->tm_sec;
 
-	return date.str();
+    return date.str();
 }
 
 /*
@@ -99,48 +98,50 @@ string get_date() {
  */
 
 void Logger::initialize_log() {
-	file_stream << "--Inicio de ejecucion--" << endl;
-	file_stream << get_error_flag(INFO) << "- " << get_date() << " -"
-			<< get_error_flag(INFO) << endl;
+    file_stream << "--Inicio de ejecucion--" << endl;
+    file_stream << get_error_flag(INFO) << "- " << get_date() << " -"
+    << get_error_flag(INFO) << endl;
 }
 
 string Logger::get_error_flag(error_type_t error_level) {
-	switch (error_level) {
-	case ERROR:
-		return "ERR";
-	case WARNING:
-		return "WAR";
-	case INFO:
-	default:
-		return "INFO";
-	}
+    switch (error_level) {
+        case ERROR:
+            return "ERR";
+        case WARNING:
+            return "WAR";
+        case DEBUG:
+            return "DBUG";
+        case INFO:
+        default:
+            return "INFO";
+    }
 }
 
 void Logger::log(string caller, error_type_t error_type, string error_message) {
 
-	string error_flag = get_error_flag(error_type);
-	string date = get_date();
+    string error_flag = get_error_flag(error_type);
+    string date = get_date();
 
-	lock.lock();
-	file_stream << date << "-" << "File: " << caller << " " << error_flag
-			<< ": " << error_message << endl;
-	lock.release();
+    lock.lock();
+    file_stream << date << "-" << "File: " << caller << " " << error_flag
+    << ": " << error_message << endl;
+    lock.release();
 }
 
 void Logger::open_logger(std::string log_file) {
 
-	lock = Lock_File(log_file.c_str());
-	file_stream.open(log_file.c_str(), std::ofstream::out | std::ofstream::app);
-	lock.lock();
-	initialize_log();
-	lock.release();
+    lock = Lock_File(log_file.c_str());
+    file_stream.open(log_file.c_str(), std::ofstream::out | std::ofstream::app);
+    lock.lock();
+    initialize_log();
+    lock.release();
 }
 
 void Logger::close_logger() {
-	lock.lock();
-	file_stream << get_error_flag(INFO) << "- " << get_date() << " -"
-			<< get_error_flag(INFO) << endl;
-	file_stream << "--Fin de ejecucion--" << endl;
-	file_stream.close();
-	lock.release();
+    lock.lock();
+    file_stream << get_error_flag(INFO) << "- " << get_date() << " -"
+    << get_error_flag(INFO) << endl;
+    file_stream << "--Fin de ejecucion--" << endl;
+    file_stream.close();
+    lock.release();
 }
