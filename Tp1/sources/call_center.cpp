@@ -25,8 +25,8 @@
 
 using std::string;
 
-Call_Center::Call_Center(size_t recepcionists, Pipe pipe) : internal_pipe(pipe) {
-    recepcionist = recepcionists;
+Call_Center::Call_Center(Semaphore &recepcionists_semaphore, Pipe pipe) : recepcionist(recepcionists_semaphore),
+                                                                          internal_pipe(pipe) {
 }
 
 void Call_Center::simulate_call(string request) {
@@ -44,13 +44,10 @@ void Call_Center::simulate_call(string request) {
 }
 
 void Call_Center::accept_call(string request) {
-    if (recepcionist > 0) {
-        recepcionist--;
-        simulate_call(request);
-        return;
-    }
-    wait(0);
+    launched_process++;
+    recepcionist.p();
     simulate_call(request);
+    recepcionist.v();
 }
 
 void Call_Center::accept_calls() {
@@ -74,7 +71,8 @@ void Call_Center::accept_calls() {
         accept_call(request);
     }
 
-    for (size_t i = 0; i < recepcionist; i++) {
+    for (size_t i = 0; i < launched_process; i++) { //FIXME: Por esto es que los semaforos no funcionan para esto.
+        // FIXME O en realidad hay que tirar un wait por proceso lanzado me parece independientemente de como lo hagamos
         wait(0); //Waits for all recepcionist to finish
     }
 }

@@ -25,11 +25,13 @@
 
 #include "pipe.h"
 #include "lock_file.h"
+#include "semaphore.h"
 
 class Call_Center {
 
 private:
-    size_t recepcionist = 0;
+    size_t launched_process = 0;
+    Semaphore recepcionist;
     Pipe internal_pipe;
 
 private:
@@ -38,7 +40,7 @@ private:
     void simulate_call(std::string);
 
 public:
-    Call_Center(size_t recepcionists, Pipe pipe);
+    Call_Center(Semaphore &recepcionists, Pipe pipe);
 
     void accept_calls();
 
