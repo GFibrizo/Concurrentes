@@ -45,9 +45,9 @@ void Call_Center::simulate_call(string request) {
 
 void Call_Center::accept_call(string request) {
     launched_process++;
-    recepcionist.p();
-    simulate_call(request);
-    recepcionist.v();
+    recepcionist.p();        // FIXME No funcionan los semaforos porque estas incrementando y decrementando enseguida.
+    simulate_call(request);  // FIXME Cuando simulate_call() va por el lado del padre hace un return, sin que importe
+    recepcionist.v();        // FIXME el hijo. Decrementás, tiras el hijo, volves e incrementas, todo de corrido.
 }
 
 void Call_Center::accept_calls() {

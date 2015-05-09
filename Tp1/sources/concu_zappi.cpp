@@ -63,6 +63,7 @@ void load_configurations(map<string, int> &config) {
 }
 
 void initialize_configurations(map<string, int> &config) {
+    config["Pedidos"] = 0;
     config["Recepcionistas"] = 0;
     config["Cocineras"] = 0;
     config["Cadetas"] = 0;
