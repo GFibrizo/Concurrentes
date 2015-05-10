@@ -19,6 +19,8 @@
 
 #include "call_center.h"
 #include "logger.h"
+#include "locknames.h"
+#include "pipenames.h"
 
 #include <cstdlib>
 #include <sys/wait.h>
@@ -27,7 +29,8 @@ using std::string;
 
 Call_Center::Call_Center(Semaphore &recepcionists_semaphore, Pipe pipe) : recepcionist(recepcionists_semaphore),
                                                                           internal_pipe(pipe),
-                                                                          fifo("/tmp/PedidosAceptados") {
+                                                                          fifo_lock(REQUEST_FIFO_LOCK),
+                                                                          fifo(REQUEST_PIPE) {
     fifo.open_fifo();
 }
 

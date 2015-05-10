@@ -22,6 +22,7 @@
 
 #include "kitchen.h"
 #include "logger.h"
+#include "pipenames.h"
 
 using std::string;
 
@@ -72,6 +73,6 @@ void Kitchen::acept_orders() {
     }
 }
 
-Kitchen::Kitchen(Semaphore &chefs_semaphore) : chefs(chefs_semaphore), fifo("/tmp/PedidosAceptados") {
+Kitchen::Kitchen(Semaphore &chefs_semaphore) : chefs(chefs_semaphore), fifo(REQUEST_PIPE) {
     fifo.open_fifo();
 }

@@ -13,7 +13,6 @@ private:
 	std::string nombre;
 
 public:
-	Lock_File();
 	Lock_File(const std::string nombre);
 	~Lock_File();
 

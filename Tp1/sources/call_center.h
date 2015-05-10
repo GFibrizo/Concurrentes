@@ -34,6 +34,8 @@ private:
     size_t launched_process = 0;
     Semaphore recepcionist;
     Pipe internal_pipe;
+
+    Lock_File fifo_lock;
     WriterFifo fifo;
 
 private:

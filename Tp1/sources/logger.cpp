@@ -18,6 +18,7 @@
  */
 
 #include "logger.h"
+#include "locknames.h"
 
 #include <ctime>
 #include <iomanip>
@@ -31,7 +32,7 @@ using std::fstream;
 using std::endl;
 
 std::ofstream Logger::file_stream; //Declaration of static member
-Lock_File Logger::lock = Lock_File();
+Lock_File Logger::lock = Lock_File(NULL_LOCK);
 
 string get_date() {
     time_t t = time(0);
@@ -130,7 +131,7 @@ void Logger::log(string caller, error_type_t error_type, string error_message) {
 
 void Logger::open_logger(std::string log_file) {
 
-    lock = Lock_File(log_file.c_str());
+    lock = Lock_File(LOGGER_LOCK);
     file_stream.open(log_file.c_str(), std::ofstream::out | std::ofstream::app);
     lock.lock();
     initialize_log();
