@@ -36,7 +36,6 @@ using std::endl;
 using std::ifstream;
 using std::stringstream;
 using std::map;
-using std::exit;
 
 /*Funcion para cargar la configuracion del programa en un map*/
 void load_configurations(map<string, int> &config) {

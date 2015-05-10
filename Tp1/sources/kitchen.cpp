@@ -71,5 +71,5 @@ void Kitchen::acept_orders() {
 }
 
 Kitchen::Kitchen(Semaphore &chefs_semaphore) : chefs(chefs_semaphore) {
-
+    fifo.open_fifo();
 }

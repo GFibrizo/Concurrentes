@@ -27,6 +27,7 @@ using std::string;
 
 Call_Center::Call_Center(Semaphore &recepcionists_semaphore, Pipe pipe) : recepcionist(recepcionists_semaphore),
                                                                           internal_pipe(pipe) {
+    fifo.open_fifo();
 }
 
 void Call_Center::simulate_call(string request) {
