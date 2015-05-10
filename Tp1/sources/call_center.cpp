@@ -92,7 +92,7 @@ void Call_Center::accept_calls() {
     Logger::log(__FILE__,Logger::DEBUG,"Atendidos todos los pedidos");
 #endif
 
-    fifo_lock.lock(); //Espero a que se vacie la cola
+    //fifo_lock.lock(); //Espero a que se vacie la cola
     fifo.close_fifo();
     fifo_lock.release();
 

@@ -23,6 +23,7 @@
 #include "kitchen.h"
 #include "logger.h"
 #include "pipenames.h"
+#include "locknames.h"
 
 using std::string;
 
@@ -30,9 +31,13 @@ void Kitchen::simulate_cook(std::string pizza) {
     int pid = fork();
     if (pid == 0) {
         //TODO: do something
-        sleep(2);
 #ifdef __DEBUG__
-		Logger::log(__FILE__,Logger::DEBUG,"Cocinando: "+pizza);
+		Logger::log(__FILE__,Logger::DEBUG,"Amasando: "+pizza);
+#endif
+        sleep(2);
+        //TODO: Mandar al horno
+#ifdef __DEBUG__
+		Logger::log(__FILE__,Logger::DEBUG,"Al horno: "+pizza);
 #endif
         chefs.v(); //TODO: ver en que orden se deberia liberar esto
         exit(EXIT_SUCCESS);
@@ -50,29 +55,35 @@ void Kitchen::acept_orders() {
     static const int BUFFSIZE = 200;
     char buff[BUFFSIZE];
     char len_buff[sizeof(int)];
-    while (fifo.read_fifo(len_buff, sizeof(int)) > 0) {
-        int *len = (int *) len_buff;
-        if (*len == 0) {
+    while (requests_fifo.read_fifo(len_buff, sizeof(int)) > 0) {
+        int len = *(int *) len_buff;
+        if (len == 0) {
             break;
         }
 
-        if (fifo.read_fifo(buff, *len) == 0) {
+        if (requests_fifo.read_fifo(buff, len) == 0) {
             //TODO: Error
         }
 
-        buff[*len] = '\0'; //Agrega fin de linea donde va
+        buff[len] = '\0'; //Agrega fin de linea donde va
 
         string pizza = buff;
         accept_order(pizza);
     }
 
-    fifo.close_fifo();
+    requests_fifo.close_fifo();
+    request_fifo_lock.release();
+
 
     for (size_t i = 0; i < launched_process; i++) {
         wait(0); //Waits for all chefs to finish
     }
+
 }
 
-Kitchen::Kitchen(Semaphore &chefs_semaphore) : chefs(chefs_semaphore), fifo(REQUEST_PIPE) {
-    fifo.open_fifo();
+Kitchen::Kitchen(Semaphore &chefs_semaphore) : chefs(chefs_semaphore), request_fifo_lock(REQUEST_FIFO_LOCK),
+                                               requests_fifo(REQUEST_PIPE) {
+    request_fifo_lock.lock();
+    requests_fifo.open_fifo();
+    launched_process = 0;
 }

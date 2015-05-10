@@ -33,7 +33,9 @@ class Kitchen {
 private:
     Semaphore chefs;
     size_t launched_process;
-    ReaderFifo fifo;
+
+    Lock_File request_fifo_lock;
+    ReaderFifo requests_fifo;
 
 private:
 
