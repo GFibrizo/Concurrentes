@@ -76,6 +76,11 @@ void Call_Center::accept_calls() {
         //TODO O en realidad hay que tirar un wait por proceso lanzado me parece independientemente de como lo hagamos
         wait(0); //Waits for all recepcionist to finish
     }
+
+    int end = 0;
+    fifo.write_fifo(static_cast<void *>(&end), sizeof(int));
+
+    //TODO: Yo le pondria un lock para saber cuando se terminaron de sacar las cosas
 }
 
 Call_Center::~Call_Center() {

@@ -17,21 +17,13 @@
  along with this program.  If not, see <http://www.gnu.org/licenses
  */
 
-#include <stdlib.h>
+#include <cstdlib>
+#include <sys/wait.h>
+
 #include "kitchen.h"
 #include "logger.h"
 
 using std::string;
-
-void Kitchen::cook() {
-    //TODO: Fifo
-
-    while (true) {
-        //TODO: read from Fifo
-    }
-
-
-}
 
 void Kitchen::simulate_cook(std::string pizza) {
     int pid = fork();

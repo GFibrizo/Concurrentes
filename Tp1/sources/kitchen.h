@@ -32,7 +32,7 @@ class Kitchen {
 
 private:
     Semaphore chefs;
-    ssize_t launched_process;
+    size_t launched_process;
     ReaderFifo fifo = ReaderFifo("PedidosAceptados");
 
 private:
