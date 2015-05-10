@@ -139,6 +139,10 @@ void answer_calls(Pipe &pipe) {
         }
         cout << "Pedido: ";
     }
+
+    int size = 0;
+    pipe.write_pipe(static_cast<const void *>(&size), sizeof(int));
+
     cout << "Fin recepcion de pedidos" << endl;
 
     Logger::log(__FILE__, Logger::INFO, "Cerrada recepcion de pedidos");
