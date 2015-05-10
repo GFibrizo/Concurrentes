@@ -26,7 +26,8 @@
 using std::string;
 
 Call_Center::Call_Center(Semaphore &recepcionists_semaphore, Pipe pipe) : recepcionist(recepcionists_semaphore),
-                                                                          internal_pipe(pipe) {
+                                                                          internal_pipe(pipe),
+                                                                          fifo("/tmp/PedidosAceptados") {
     fifo.open_fifo();
 }
 
@@ -80,8 +81,13 @@ void Call_Center::accept_calls() {
 
     int end = 0;
     fifo.write_fifo(static_cast<void *>(&end), sizeof(int));
-
     //TODO: Yo le pondria un lock para saber cuando se terminaron de sacar las cosas
+
+#ifdef __DEBUG__
+    Logger::log(__FILE__,Logger::DEBUG,"Atendidos todos los pedidos");
+#endif
+    fifo.close_fifo();
+    fifo.remove();
 }
 
 Call_Center::~Call_Center() {

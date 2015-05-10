@@ -65,11 +65,13 @@ void Kitchen::acept_orders() {
         accept_order(pizza);
     }
 
+    fifo.close_fifo();
+
     for (size_t i = 0; i < launched_process; i++) {
         wait(0); //Waits for all chefs to finish
     }
 }
 
-Kitchen::Kitchen(Semaphore &chefs_semaphore) : chefs(chefs_semaphore) {
+Kitchen::Kitchen(Semaphore &chefs_semaphore) : chefs(chefs_semaphore), fifo("/tmp/PedidosAceptados") {
     fifo.open_fifo();
 }

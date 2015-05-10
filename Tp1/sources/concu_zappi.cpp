@@ -92,7 +92,9 @@ void lanzar_cocineras() {
 
 int launch_chefs(Semaphore &chefs) {
 
+    cout << "NO" << endl;
     Kitchen kitchen = Kitchen(chefs);
+    cout << "CREO" << endl;
     int pid = fork();
     if (pid == 0) {
         kitchen.acept_orders();

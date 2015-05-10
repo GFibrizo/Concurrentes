@@ -34,7 +34,7 @@ private:
     size_t launched_process = 0;
     Semaphore recepcionist;
     Pipe internal_pipe;
-    WriterFifo fifo = WriterFifo("PedidosAceptados");
+    WriterFifo fifo;
 
 private:
     void accept_call(std::string);
