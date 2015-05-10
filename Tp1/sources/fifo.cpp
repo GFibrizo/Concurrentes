@@ -1,7 +1,7 @@
 #include "fifo.h"
 
-Fifo::Fifo(const std::string name) : name(name), fd(-1) {
-	mknod(static_cast<const char*>(name.c_str()), S_IFIFO | 0666, 0);
+Fifo::Fifo(const std::string filename) : name(filename), fd(-1) {
+	mknod(static_cast<const char *>(filename.c_str()), S_IFIFO | 0666, 0);
 }
 
 Fifo::~Fifo() {

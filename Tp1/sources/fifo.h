@@ -10,7 +10,7 @@
 class Fifo {
 
 public:
-	Fifo(const std::string name);
+	Fifo(const std::string filename);
 	virtual ~Fifo();
 	virtual void open_fifo() = 0;
 	void close_fifo();

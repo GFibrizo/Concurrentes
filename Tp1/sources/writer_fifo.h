@@ -5,7 +5,7 @@
 
 class WriterFifo : public Fifo {
 public:
-	WriterFifo(const std::string name);
+	WriterFifo(const std::string filename);
 	~WriterFifo();
 
 	void open_fifo();

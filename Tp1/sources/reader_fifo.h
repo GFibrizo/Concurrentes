@@ -5,7 +5,7 @@
 
 class ReaderFifo : public Fifo {
 public:
-	ReaderFifo(const std::string name);
+	ReaderFifo(const std::string filename);
 	~ReaderFifo();
 
 	void open_fifo();

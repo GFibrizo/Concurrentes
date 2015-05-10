@@ -1,6 +1,6 @@
 #include "reader_fifo.h"
 
-ReaderFifo::ReaderFifo(const std::string name) : Fifo(name) {
+ReaderFifo::ReaderFifo(const std::string filename) : Fifo(filename) {
 }
 
 ReaderFifo::~ReaderFifo() {
