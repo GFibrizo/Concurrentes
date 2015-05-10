@@ -33,6 +33,8 @@ class Call_Center {
 private:
     size_t launched_process = 0;
     Semaphore recepcionist;
+
+    Lock_File pipe_lock;
     Pipe internal_pipe;
 
     Lock_File fifo_lock;

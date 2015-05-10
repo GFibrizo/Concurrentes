@@ -28,9 +28,11 @@
 using std::string;
 
 Call_Center::Call_Center(Semaphore &recepcionists_semaphore, Pipe pipe) : recepcionist(recepcionists_semaphore),
+                                                                          pipe_lock(REQUEST_PIPE_LOCK),
                                                                           internal_pipe(pipe),
                                                                           fifo_lock(REQUEST_FIFO_LOCK),
                                                                           fifo(REQUEST_PIPE) {
+    pipe_lock.lock();
     fifo.open_fifo();
 }
 
@@ -62,20 +64,22 @@ void Call_Center::accept_calls() {
     char buff[BUFFSIZE];
     char len_buff[sizeof(int)];
     while (internal_pipe.read_pipe(len_buff, sizeof(int)) > 0) {
-        int *len = (int *) len_buff;
-        if (*len == 0) {
+        int len = *(int *) len_buff;
+        if (len == 0) {
             break;
         }
 
-        if (internal_pipe.read_pipe(buff, *len) == 0) {
+        if (internal_pipe.read_pipe(buff, len) == 0) {
             //TODO: Error
         }
 
-        buff[*len] = '\0'; //Agrega fin de linea donde va
+        buff[len] = '\0'; //Agrega fin de linea donde va
 
         string request = buff;
         accept_call(request);
     }
+
+    pipe_lock.release(); //El pipe ya esta vacio
 
     for (size_t i = 0; i < launched_process; i++) { //TODO: Por esto es que los semaforos no funcionan para esto.
         //TODO O en realidad hay que tirar un wait por proceso lanzado me parece independientemente de como lo hagamos
@@ -84,12 +88,14 @@ void Call_Center::accept_calls() {
 
     int end = 0;
     fifo.write_fifo(static_cast<void *>(&end), sizeof(int));
-    //TODO: Yo le pondria un lock para saber cuando se terminaron de sacar las cosas
-
 #ifdef __DEBUG__
     Logger::log(__FILE__,Logger::DEBUG,"Atendidos todos los pedidos");
 #endif
+
+    fifo_lock.lock(); //Espero a que se vacie la cola
     fifo.close_fifo();
+    fifo_lock.release();
+
     fifo.remove();
 }
 

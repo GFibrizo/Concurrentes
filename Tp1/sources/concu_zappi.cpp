@@ -28,6 +28,7 @@
 #include "call_center.h"
 #include "logger.h"
 #include "kitchen.h"
+#include "locknames.h"
 
 using std::string;
 using std::cout;
@@ -139,8 +140,14 @@ void answer_calls(Pipe &pipe) {
         cout << "Pedido: ";
     }
     cout << "Fin recepcion de pedidos" << endl;
+
     Logger::log(__FILE__, Logger::INFO, "Cerrada recepcion de pedidos");
-    pipe.close_pipe(); //TODO: ver esto cuando le pongamos el maximo a meter
+
+    Lock_File pipe_lock = Lock_File(REQUEST_PIPE_LOCK);
+
+    pipe_lock.lock();
+    pipe.close_pipe();
+    pipe_lock.release();
 }
 
 int main(int argc, char **argv) {
