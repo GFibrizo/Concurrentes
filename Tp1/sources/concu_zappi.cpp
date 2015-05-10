@@ -27,6 +27,7 @@
 
 #include "call_center.h"
 #include "logger.h"
+#include "kitchen.h"
 
 using std::string;
 using std::cout;
@@ -90,6 +91,17 @@ void lanzar_cocineras() {
     return;
 }
 
+int launch_chefs(Semaphore &chefs) {
+
+    Kitchen kitchen = Kitchen(chefs);
+    int pid = fork();
+    if (pid == 0) {
+        kitchen.acept_orders();
+        exit(EXIT_SUCCESS);
+    }
+    return pid;
+}
+
 int launch_call_center(Semaphore &recepcionists, Pipe &pipe) {
 
     Call_Center center = Call_Center(recepcionists, pipe);
@@ -149,7 +161,8 @@ int main(int argc, char **argv) {
     }
     Logger::log(__FILE__, Logger::INFO, "Configuracion exitosa");
 
-    //lanzar_cocineras();
+    Semaphore chefs_semaphore = Semaphore("Recepcionist", config["Recepcionistas"]);
+    int kitchen_pid = launch_chefs(chefs_semaphore);
 
     Pipe pipe = Pipe();
     Logger::log(__FILE__, Logger::INFO, "Inicia recepcion de pedidos");
@@ -158,6 +171,8 @@ int main(int argc, char **argv) {
 
     answer_calls(pipe);
     waitpid(call_center_pid, 0, 0); //Wait call_center to finish
+
+    waitpid(kitchen_pid, 0, 0); //Wait kitchen to finish
 
     Logger::close_logger();
     return 0;
