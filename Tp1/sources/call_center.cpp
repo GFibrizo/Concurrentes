@@ -37,7 +37,11 @@ void Call_Center::simulate_call(string request) {
 #ifdef __DEBUG__
 		Logger::log(__FILE__,Logger::DEBUG,"Pedido cargado: "+request);
 #endif
-        recepcionist.v();
+        int len = request.size();
+        char *buffer = (char *) request.c_str();
+        fifo.write_fifo(static_cast<void *>(&len), sizeof(int)); //TODO: esto me hace un poco de ruido
+        fifo.write_fifo(static_cast<void *>(buffer), len);
+        recepcionist.v(); //TODO: ver en que orden se deberia liberar esto
         exit(EXIT_SUCCESS);
     }
 }

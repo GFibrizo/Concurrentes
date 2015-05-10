@@ -25,18 +25,26 @@
 
 #include "pipe.h"
 #include "lock_file.h"
+#include "semaphore.h"
+#include "reader_fifo.h"
 
 class Kitchen {
 
 private:
-    size_t chefs = 0;
+    Semaphore chefs;
+    ssize_t launched_process;
+    ReaderFifo fifo = ReaderFifo("PedidosAceptados");
 
 private:
 
-public:
-    Kitchen();
+    void accept_order(std::string);
 
-    void cook();
+    void simulate_cook(std::string);
+
+public:
+    Kitchen(Semaphore &chefs);
+
+    void acept_orders();
 };
 
 #endif /* KITCHEN_H */

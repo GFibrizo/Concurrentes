@@ -26,6 +26,7 @@
 #include "pipe.h"
 #include "lock_file.h"
 #include "semaphore.h"
+#include "writer_fifo.h"
 
 class Call_Center {
 
@@ -33,6 +34,7 @@ private:
     size_t launched_process = 0;
     Semaphore recepcionist;
     Pipe internal_pipe;
+    WriterFifo fifo = WriterFifo("PedidosAceptados");
 
 private:
     void accept_call(std::string);

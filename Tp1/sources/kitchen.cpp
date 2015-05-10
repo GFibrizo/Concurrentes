@@ -17,13 +17,11 @@
  along with this program.  If not, see <http://www.gnu.org/licenses
  */
 
+#include <stdlib.h>
 #include "kitchen.h"
+#include "logger.h"
 
 using std::string;
-
-Kitchen::Kitchen() {
-
-}
 
 void Kitchen::cook() {
     //TODO: Fifo
@@ -32,5 +30,54 @@ void Kitchen::cook() {
         //TODO: read from Fifo
     }
 
+
+}
+
+void Kitchen::simulate_cook(std::string pizza) {
+    int pid = fork();
+    if (pid == 0) {
+        //TODO: do something
+        sleep(2);
+#ifdef __DEBUG__
+		Logger::log(__FILE__,Logger::DEBUG,"Cocinando: "+pizza);
+#endif
+        chefs.v(); //TODO: ver en que orden se deberia liberar esto
+        exit(EXIT_SUCCESS);
+    }
+}
+
+
+void Kitchen::accept_order(std::string pizza) {
+    launched_process++;
+    chefs.p();
+    simulate_cook(pizza);
+}
+
+void Kitchen::acept_orders() {
+    static const int BUFFSIZE = 200;
+    char buff[BUFFSIZE];
+    char len_buff[sizeof(int)];
+    while (fifo.read_fifo(len_buff, sizeof(int)) > 0) {
+        int *len = (int *) len_buff;
+        if (*len == 0) {
+            break;
+        }
+
+        if (fifo.read_fifo(buff, *len) == 0) {
+            //TODO: Error
+        }
+
+        buff[*len] = '\0'; //Agrega fin de linea donde va
+
+        string pizza = buff;
+        accept_order(pizza);
+    }
+
+    for (size_t i = 0; i < launched_process; i++) {
+        wait(0); //Waits for all chefs to finish
+    }
+}
+
+Kitchen::Kitchen(Semaphore &chefs_semaphore) : chefs(chefs_semaphore) {
 
 }
