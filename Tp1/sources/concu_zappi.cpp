@@ -92,11 +92,9 @@ void lanzar_cocineras() {
 
 int launch_chefs(Semaphore &chefs) {
 
-    cout << "NO" << endl;
-    Kitchen kitchen = Kitchen(chefs);
-    cout << "CREO" << endl;
     int pid = fork();
     if (pid == 0) {
+        Kitchen kitchen = Kitchen(chefs);
         kitchen.acept_orders();
         exit(EXIT_SUCCESS);
     }
@@ -105,9 +103,9 @@ int launch_chefs(Semaphore &chefs) {
 
 int launch_call_center(Semaphore &recepcionists, Pipe &pipe) {
 
-    Call_Center center = Call_Center(recepcionists, pipe);
     int pid = fork();
     if (pid == 0) {
+        Call_Center center = Call_Center(recepcionists, pipe);
         center.accept_calls();
         exit(EXIT_SUCCESS);
     }
@@ -163,13 +161,13 @@ int main(int argc, char **argv) {
     Logger::log(__FILE__, Logger::INFO, "Configuracion exitosa");
 
     Semaphore chefs_semaphore = Semaphore("Recepcionist", config["Recepcionistas"]);
-    int kitchen_pid = launch_chefs(chefs_semaphore);
+    Semaphore recepcionists_semaphore = Semaphore("Recepcionist", config["Recepcionistas"]);
 
     Pipe pipe = Pipe();
-    Logger::log(__FILE__, Logger::INFO, "Inicia recepcion de pedidos");
-    Semaphore recepcionists_semaphore = Semaphore("Recepcionist", config["Recepcionistas"]);
     int call_center_pid = launch_call_center(recepcionists_semaphore, pipe);
+    int kitchen_pid = launch_chefs(chefs_semaphore);
 
+    Logger::log(__FILE__, Logger::INFO, "Inicia recepcion de pedidos");
     answer_calls(pipe);
     waitpid(call_center_pid, 0, 0); //Wait call_center to finish
 
