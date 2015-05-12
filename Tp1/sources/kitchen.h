@@ -46,7 +46,7 @@ private:
 public:
     Kitchen(Semaphore &chefs);
 
-    void acept_orders();
+    void accept_orders();
 };
 
 #endif /* KITCHEN_H */

@@ -51,7 +51,7 @@ void Kitchen::accept_order(std::string pizza) {
     simulate_cook(pizza);
 }
 
-void Kitchen::acept_orders() {
+void Kitchen::accept_orders() {
     static const int BUFFSIZE = 200;
     char buff[BUFFSIZE];
     char len_buff[sizeof(int)];
