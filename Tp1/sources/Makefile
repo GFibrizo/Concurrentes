@@ -13,37 +13,40 @@ DEBUG = OFF
 EXEC = concu_zappi
 
 CONCURRENT_OBJECTS = lock_file.o pipe.o semaphore.o fifo.o reader_fifo.o writer_fifo.o
-OBJECTS = $(CONCURRENT_OBJECTS) logger.o call_center.o kitchen.o
+OBJECTS = $(CONCURRENT_OBJECTS) logger.o call_center.o kitchen.o delivery.o
 
 all: $(EXEC) 
 
 logger.o: lock_file.o logger.h logger.cpp
 	$(CC) $(CPPFLAGS) -c logger.cpp
 
-kitchen.o: kitchen.h kitchen.cpp
-	$(CC) $(CPPFLAGS) -c kitchen.cpp
-
 lock_file.o: lock_file.h lock_file.cpp
 	$(CC) $(CPPFLAGS) -c lock_file.cpp
 
 pipe.o: pipe.h pipe.cpp
 	$(CC) $(CPPFLAGS) -c pipe.cpp
-				
-call_center.o: call_center.h call_center.cpp
-	$(CC) $(CPPFLAGS) -c call_center.cpp
-				
+
 semaphore.o: semaphore.h semaphore.cpp
 	$(CC) $(CPPFLAGS) -c semaphore.cpp
-	
+
 fifo.o: fifo.h fifo.cpp
 	$(CC) $(CPPFLAGS) -c fifo.cpp
 
 reader_fifo.o: reader_fifo.h reader_fifo.cpp
 	$(CC) $(CPPFLAGS) -c reader_fifo.cpp
-	
+
 writer_fifo.o: writer_fifo.h writer_fifo.cpp
 	$(CC) $(CPPFLAGS) -c writer_fifo.cpp
-	
+
+call_center.o: call_center.h call_center.cpp
+	$(CC) $(CPPFLAGS) -c call_center.cpp
+
+kitchen.o: kitchen.h kitchen.cpp
+	$(CC) $(CPPFLAGS) -c kitchen.cpp
+
+delivery.o: delivery.h delivery.cpp
+	$(CC) $(CPPFLAGS) -c delivery.cpp
+
 $(EXEC): $(EXEC).cpp $(OBJECTS)
 	$(CC) $(CPPLDFLAGS) $(OBJECTS) $(EXEC).cpp -o $(EXEC)
 

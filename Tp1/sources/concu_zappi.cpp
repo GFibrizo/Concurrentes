@@ -29,6 +29,8 @@
 #include "logger.h"
 #include "kitchen.h"
 #include "locknames.h"
+#include "delivery.h"
+#include "pipenames.h"
 
 using std::string;
 using std::cout;
@@ -64,7 +66,6 @@ void load_configurations(map<string, int> &config) {
 }
 
 void initialize_configurations(map<string, int> &config) {
-    config["Pedidos"] = 0;
     config["Recepcionistas"] = 0;
     config["Cocineras"] = 0;
     config["Cadetas"] = 0;
@@ -91,23 +92,33 @@ void lanzar_cocineras() {
     return;
 }
 
-int launch_chefs(Semaphore &chefs) {
-
-    int pid = fork();
-    if (pid == 0) {
-        Kitchen kitchen = Kitchen(chefs);
-        kitchen.acept_orders();
-        exit(EXIT_SUCCESS);
-    }
-    return pid;
-}
-
 int launch_call_center(Semaphore &recepcionists, Pipe &pipe) {
 
     int pid = fork();
     if (pid == 0) {
         Call_Center center = Call_Center(recepcionists, pipe);
         center.accept_calls();
+        exit(EXIT_SUCCESS);
+    }
+    return pid;
+}
+
+int launch_chefs(Semaphore &chefs) {
+
+    int pid = fork();
+    if (pid == 0) {
+        Kitchen kitchen = Kitchen(chefs);
+        kitchen.accept_orders();
+        exit(EXIT_SUCCESS);
+    }
+    return pid;
+}
+
+int launch_delivery(Semaphore &cadets) {
+    int pid = fork();
+    if (pid == 0) {
+        Delivery delivery = Delivery(cadets);
+        delivery.start_deliveries();
         exit(EXIT_SUCCESS);
     }
     return pid;
@@ -171,18 +182,34 @@ int main(int argc, char **argv) {
     }
     Logger::log(__FILE__, Logger::INFO, "Configuracion exitosa");
 
-    Semaphore chefs_semaphore = Semaphore("Recepcionist", config["Recepcionistas"]);
     Semaphore recepcionists_semaphore = Semaphore("Recepcionist", config["Recepcionistas"]);
+    Semaphore chefs_semaphore = Semaphore("Recepcionist", config["Recepcionistas"]);
+    Semaphore cadets_semaphore = Semaphore("Cadets", config["Cadetas"]);
 
     Pipe pipe = Pipe();
     int call_center_pid = launch_call_center(recepcionists_semaphore, pipe);
     int kitchen_pid = launch_chefs(chefs_semaphore);
+    int delivery_pid = launch_delivery(cadets_semaphore);
 
     Logger::log(__FILE__, Logger::INFO, "Inicia recepcion de pedidos");
     answer_calls(pipe);
-    waitpid(call_center_pid, 0, 0); //Wait call_center to finish
 
+    waitpid(call_center_pid, 0, 0); //Wait call_center to finish
     waitpid(kitchen_pid, 0, 0); //Wait kitchen to finish
+    //FIXME: Sacarlo cuando esten los hornos
+    WriterFifo fifo_hornos = WriterFifo(FINISHED_FIFO);
+    fifo_hornos.open_fifo();
+    int kill_command = -1;
+    fifo_hornos.write_fifo(static_cast<void *>(&kill_command), sizeof(int));
+    fifo_hornos.close_fifo();
+    ////////////////////////////////////////
+    waitpid(delivery_pid, 0, 0); //Wait delivery to finish
+    fifo_hornos.remove();  //FIXME: Sacarlo cuando esten los hornos
+
+    //TODO: Ver bien donde ponerlo
+    recepcionists_semaphore.remove();
+    chefs_semaphore.remove();
+    cadets_semaphore.remove();
 
     Logger::close_logger();
     return 0;

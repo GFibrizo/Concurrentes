@@ -1,5 +1,5 @@
 /**
- call_center.h
+ delivery.h
 
  Copyright 2015 Gaston Martinez Gaston.martinez.90@gmail.com
 
@@ -15,42 +15,36 @@
 
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses
- */
+*/
 
-#ifndef CALL_CENTER_H_
-#define CALL_CENTER_H_
+#ifndef DELIVERY_H_
+#define DELIVERY_H_
 
 #include <stddef.h>
 #include <string>
 
-#include "pipe.h"
 #include "lock_file.h"
 #include "semaphore.h"
-#include "writer_fifo.h"
+#include "reader_fifo.h"
 
-class Call_Center {
+class Delivery {
 
 private:
     size_t launched_process = 0;
-    Semaphore recepcionist;
+    Semaphore cadets;
 
-    Lock_File pipe_lock;
-    Pipe internal_pipe;
-
-    Lock_File fifo_lock;
-    WriterFifo fifo;
+    Lock_File finished_fifo_lock;
+    ReaderFifo finished_fifo;
 
 private:
-    void accept_call(std::string);
+    void simulate_delivery(int oven_number);
 
-    void simulate_call(std::string);
+    void make_delivery(int oven_number);
 
 public:
-    Call_Center(Semaphore &recepcionists, Pipe pipe);
+    Delivery(Semaphore &cadets_semaphore);
 
-    void accept_calls();
-
-    virtual ~Call_Center();
+    void start_deliveries();
 };
 
-#endif /* CALL_CENTER_H_ */
+#endif /* DELIVERY_H_ */
