@@ -3,6 +3,7 @@
 //
 
 #include "supervisor.h"
+#include <unistd.h>
 
 Supervisor::Supervisor(Semaphore& cash_register_sem, Cash_Register& cash_reg) :
         cash_register_mutex(cash_register_sem), cash(cash_reg) {

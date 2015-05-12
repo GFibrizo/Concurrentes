@@ -5,6 +5,9 @@
 #ifndef CONCURRENTES_SUPERVISOR_H
 #define CONCURRENTES_SUPERVISOR_H
 
+#include "semaphore.h"
+#include "cash_register.h"
+
 
 class Supervisor {
 

@@ -5,10 +5,11 @@
 #ifndef CONCURRENTES_CASH_REGISTER_H
 #define CONCURRENTES_CASH_REGISTER_H
 
+#include "shared_memory.h"
 
 class Cash_Register {
 private:
-    Shared_Memory cash;
+    Shared_Memory<float> cash;
 
 public:
     Cash_Register();
