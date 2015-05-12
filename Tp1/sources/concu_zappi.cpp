@@ -190,6 +190,10 @@ int main(int argc, char **argv) {
     int call_center_pid = launch_call_center(recepcionists_semaphore, pipe);
     int kitchen_pid = launch_chefs(chefs_semaphore);
     int delivery_pid = launch_delivery(cadets_semaphore);
+    //FIXME: Sacarlo cuando esten los hornos
+    WriterFifo fifo_hornos = WriterFifo(FINISHED_FIFO);
+    fifo_hornos.open_fifo();
+    ////////////////////////////////////////
 
     Logger::log(__FILE__, Logger::INFO, "Inicia recepcion de pedidos");
     answer_calls(pipe);
@@ -197,8 +201,6 @@ int main(int argc, char **argv) {
     waitpid(call_center_pid, 0, 0); //Wait call_center to finish
     waitpid(kitchen_pid, 0, 0); //Wait kitchen to finish
     //FIXME: Sacarlo cuando esten los hornos
-    WriterFifo fifo_hornos = WriterFifo(FINISHED_FIFO);
-    fifo_hornos.open_fifo();
     int kill_command = -1;
     fifo_hornos.write_fifo(static_cast<void *>(&kill_command), sizeof(int));
     fifo_hornos.close_fifo();

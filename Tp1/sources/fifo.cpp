@@ -4,13 +4,14 @@ Fifo::Fifo(const std::string filename) : name(filename), fd(-1) {
 	int ret = mknod(static_cast<const char *>(filename.c_str()), S_IFIFO | 0666, 0);
 	if (ret != 0) {
 		int err = errno;
-		std::cerr << "Error al crear la fifo " << filename << std::endl;
-		if (err == EEXIST) {
-			std::cerr << "El archivo ya existe (EEXIST)" << std::endl;
-		} else if (err == EACCES) {
-			std::cerr << "No se poseen permisos para acceder a directorios o crear archivos (EACCES)" << std::endl;
-		} else {
-			std::cerr << "Numero de error (errno): " << err << std::endl;
+		// Se ignora el EEXIST
+		if (err != EEXIST) {
+			std::cerr << "Error al crear la fifo " << filename << std::endl;
+			if (err == EACCES) {
+				std::cerr << "No se poseen permisos para acceder a directorios o crear archivos (EACCES)" << std::endl;
+			} else {
+				std::cerr << "Numero de error (errno): " << err << std::endl;
+			}
 		}
 	}
 }

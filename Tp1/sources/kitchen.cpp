@@ -65,9 +65,10 @@ void Kitchen::accept_orders() {
             //TODO: Error
         }
 
-        buff[len] = '\0'; //Agrega fin de linea donde va
+        //buff[len] = '\0'; //Agrega fin de linea donde va
 
         string pizza = buff;
+        pizza.resize(len);
         accept_order(pizza);
     }
 

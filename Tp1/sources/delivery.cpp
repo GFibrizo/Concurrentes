@@ -21,13 +21,28 @@
 
 #include <cstdlib>
 #include <sys/wait.h>
+#include <random>
 
 #include "logger.h"
 #include "pipenames.h"
 #include "locknames.h"
 
+#define MIN_TIME 0.5
+#define MAX_TIME 2.0
+#define MIN_PAYMENT 50
+#define MAX_PAYMENT 100
+
 using std::string;
 using std::to_string;
+
+float generate_deliver_time() {
+    static bool seeded = false;
+    if (! seeded) {
+        srand(time(NULL));
+        seeded = true;
+    }
+    return MIN_TIME+(rand()/(RAND_MAX/(MAX_TIME-MIN_TIME)));
+}
 
 Delivery::Delivery(Semaphore &cadets_semaphore) : cadets(cadets_semaphore),
                                                   finished_fifo_lock(FINISHED_FIFO_LOCK),
@@ -52,8 +67,10 @@ void Delivery::simulate_delivery(int oven_number) {
 #ifdef __DEBUG__
 	    Logger::log(__FILE__,Logger::DEBUG,"Sacada del horno: "+pizza);
 #endif
-        //TODO: Tiempo de entrega y monto random
-        int deliver_time = 2;
+        int deliver_time = generate_deliver_time();
+        sleep(deliver_time);
+
+        //TODO: monto random
         int payment = 50;
 #ifdef __DEBUG__
 	    Logger::log(__FILE__,Logger::DEBUG,"Se entrego "+pizza+". Tiempo: "+to_string(deliver_time)+". Pago: "+to_string(payment));
