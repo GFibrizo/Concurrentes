@@ -37,6 +37,8 @@ private:
     Lock_File request_fifo_lock;
     ReaderFifo requests_fifo;
 
+    Semaphore max_requests;
+
 private:
 
     void accept_order(std::string);
@@ -44,7 +46,7 @@ private:
     void simulate_cook(std::string);
 
 public:
-    Kitchen(Semaphore &chefs);
+    Kitchen(Semaphore &,Semaphore&);
 
     void accept_orders();
 };

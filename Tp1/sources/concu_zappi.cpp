@@ -88,22 +88,22 @@ bool is_full_configured(map<string, int> config) {
     return true;
 }
 
-int launch_call_center(Semaphore &recepcionists, Pipe &pipe) {
+int launch_call_center(Semaphore &recepcionists,Semaphore &max_requests_semaphore, Pipe &pipe) {
 
     int pid = fork();
     if (pid == 0) {
-        Call_Center center = Call_Center(recepcionists, pipe);
+        Call_Center center = Call_Center(recepcionists,max_requests_semaphore, pipe);
         center.accept_calls();
         exit(EXIT_SUCCESS);
     }
     return pid;
 }
 
-int launch_chefs(Semaphore &chefs) {
+int launch_chefs(Semaphore &chefs, Semaphore& max_requests_semaphore) {
 
     int pid = fork();
     if (pid == 0) {
-        Kitchen kitchen = Kitchen(chefs);
+        Kitchen kitchen = Kitchen(chefs,max_requests_semaphore);
         kitchen.accept_orders();
         exit(EXIT_SUCCESS);
     }
@@ -179,12 +179,13 @@ int main(int argc, char **argv) {
     Logger::log(__FILE__, Logger::INFO, "Configuracion exitosa");
 
     Semaphore recepcionists_semaphore = Semaphore("Recepcionist", config["Recepcionistas"]);
-    Semaphore chefs_semaphore = Semaphore("Recepcionist", config["Recepcionistas"]);
+    Semaphore chefs_semaphore = Semaphore("Chefs", config["Cocineras"]);
+    Semaphore max_requests_semaphore = Semaphore("Max_Requests", config["Cocineras"]*2);
     Semaphore cadets_semaphore = Semaphore("Cadets", config["Cadetas"]);
 
     Pipe pipe = Pipe();
-    int call_center_pid = launch_call_center(recepcionists_semaphore, pipe);
-    int kitchen_pid = launch_chefs(chefs_semaphore);
+    int call_center_pid = launch_call_center(recepcionists_semaphore,max_requests_semaphore, pipe);
+    int kitchen_pid = launch_chefs(chefs_semaphore,max_requests_semaphore);
     int delivery_pid = launch_delivery(cadets_semaphore);
     //FIXME: Sacarlo cuando esten los hornos
     WriterFifo fifo_hornos = WriterFifo(FINISHED_FIFO);

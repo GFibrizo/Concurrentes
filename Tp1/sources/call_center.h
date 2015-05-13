@@ -40,13 +40,15 @@ private:
     Lock_File fifo_lock;
     WriterFifo fifo;
 
+    Semaphore aviable_requests;
+
 private:
     void accept_call(std::string);
 
     void simulate_call(std::string);
 
 public:
-    Call_Center(Semaphore &recepcionists, Pipe pipe);
+    Call_Center(Semaphore&,Semaphore&,Pipe&);
 
     void accept_calls();
 

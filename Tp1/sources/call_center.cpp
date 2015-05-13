@@ -27,13 +27,15 @@
 
 using std::string;
 
-Call_Center::Call_Center(Semaphore &recepcionists_semaphore, Pipe pipe) : recepcionist(recepcionists_semaphore),
+Call_Center::Call_Center(Semaphore &recepcionists_semaphore,Semaphore &max_requests_semaphore, Pipe& pipe) : recepcionist(recepcionists_semaphore),
                                                                           pipe_lock(REQUEST_PIPE_LOCK),
                                                                           internal_pipe(pipe),
                                                                           fifo_lock(REQUEST_FIFO_LOCK),
-                                                                          fifo(REQUEST_PIPE) {
+                                                                          fifo(REQUEST_PIPE),
+                                                                          aviable_requests(max_requests_semaphore) {
     pipe_lock.lock();
     fifo.open_fifo();
+
 }
 
 void Call_Center::simulate_call(string request) {
