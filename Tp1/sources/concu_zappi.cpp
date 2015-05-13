@@ -88,10 +88,6 @@ bool is_full_configured(map<string, int> config) {
     return true;
 }
 
-void lanzar_cocineras() {
-    return;
-}
-
 int launch_call_center(Semaphore &recepcionists, Pipe &pipe) {
 
     int pid = fork();
