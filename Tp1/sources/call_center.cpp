@@ -78,7 +78,13 @@ void Call_Center::accept_calls() {
         buff[len] = '\0'; //Agrega fin de linea donde va
 
         string request = buff;
+
+#ifdef __DEBUG__
+        Logger::log(__FILE__,Logger::DEBUG,"Pedido Atendiendose: "+request);
+#endif
+
         accept_call(request);
+
     }
 
     pipe_lock.release(); //El pipe ya esta vacio

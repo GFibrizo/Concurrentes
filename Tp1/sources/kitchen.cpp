@@ -56,6 +56,7 @@ void Kitchen::accept_orders() {
     char buff[BUFFSIZE];
     char len_buff[sizeof(int)];
     while (requests_fifo.read_fifo(len_buff, sizeof(int)) > 0) {
+        max_requests.v();
         int len = *(int *) len_buff;
         if (len == 0) {
             break;

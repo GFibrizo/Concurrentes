@@ -120,7 +120,7 @@ int launch_delivery(Semaphore &cadets) {
     return pid;
 }
 
-void answer_calls(Pipe &pipe) {
+void answer_calls(Pipe &pipe,Semaphore& max_requests_semaphore) {
     string line;
     cout << "Pedido: ";
     while (getline(cin, line)) {
@@ -131,11 +131,12 @@ void answer_calls(Pipe &pipe) {
             break; //TODO: Ver bien que hacer en este caso.
         }
 
+        
         wrote = pipe.write_pipe(static_cast<const void *>(line.c_str()), size);
 
         if (wrote == line.size()) {
 #ifdef __DEBUG__
-	Logger::log(__FILE__, Logger::DEBUG, "Pedido aceptado: " + line);
+	Logger::log(__FILE__, Logger::DEBUG, "Pedido atendido: " + line);
 #endif
         } else {
             cout << ">>Telefono ocupado<<" << endl;
@@ -193,7 +194,7 @@ int main(int argc, char **argv) {
     ////////////////////////////////////////
 
     Logger::log(__FILE__, Logger::INFO, "Inicia recepcion de pedidos");
-    answer_calls(pipe);
+    answer_calls(pipe,max_requests_semaphore);
 
     waitpid(call_center_pid, 0, 0); //Wait call_center to finish
     waitpid(kitchen_pid, 0, 0); //Wait kitchen to finish
