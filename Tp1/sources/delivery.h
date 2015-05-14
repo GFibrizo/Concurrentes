@@ -29,13 +29,14 @@
 #include "event_handler.h"
 #include "signal_handler.h"
 #include "cash_register.h"
+#include "oven_set.h"
 
 class Delivery {
 
 private:
     size_t launched_process = 0;
     Semaphore cadets;
-
+    OvenSet ovens;
     Semaphore occupied_ovens;
 
     Lock_File finished_fifo_lock;
@@ -49,7 +50,7 @@ private:
     void make_delivery(int oven_number);
 
 public:
-    Delivery(Semaphore &cadets_semaphore, Semaphore &occupied_ovens_semaphore, Cash_Register &cash_register);
+    Delivery(Semaphore &cadets_semaphore, OvenSet &ovens, Semaphore &occupied_ovens_semaphore, Cash_Register &cash_register);
     void start_deliveries();
 
 private:

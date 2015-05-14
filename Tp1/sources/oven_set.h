@@ -12,6 +12,10 @@
 
 #include "semaphore.h"
 #include "shared_memory.h"
+#include "writer_fifo.h"
+#include "lock_file.h"
+#include "locknames.h"
+#include "pipenames.h"
 
 
 class OvenSet {
@@ -20,11 +24,17 @@ private:
     std::vector<Shared_Memory<std::string>*> ovens;
     std::list<std::string> ready_pizzas;
 
+    Semaphore occupied_ovens;
+    Lock_File finished_fifo_lock;  // Creo que no había que usarlo acá, lo agregué por las dudas. - Bruno
+    WriterFifo finished_fifo;
+
 public:
-    OvenSet(int ovens_number);
+    OvenSet(int ovens_number, Semaphore &occupied_ovens_semaphore);  //TODO: Agregar lo que haga falta para la cocina
     ~OvenSet();
+    void start_ovens();
     void cook(std::string pizza, float time);
     std::string remove();
+    void close_ovens();
 };
 
 

@@ -111,10 +111,18 @@ int launch_chefs(Semaphore &chefs, Semaphore& max_requests_semaphore) {
     return pid;
 }
 
-int launch_delivery(Semaphore &cadets, Semaphore &occupied_ovens_semaphore, Cash_Register &cash_register) {
+void ignite_ovens(OvenSet &ovens) {
     int pid = fork();
     if (pid == 0) {
-        Delivery delivery = Delivery(cadets, occupied_ovens_semaphore, cash_register);
+        ovens.start_ovens();
+        exit(EXIT_SUCCESS);
+    }
+}
+
+int launch_delivery(Semaphore &cadets, OvenSet &ovens, Semaphore &occupied_ovens_semaphore, Cash_Register &cash_register) {
+    int pid = fork();
+    if (pid == 0) {
+        Delivery delivery = Delivery(cadets, ovens, occupied_ovens_semaphore, cash_register);
         delivery.start_deliveries();
         exit(EXIT_SUCCESS);
     }
@@ -189,17 +197,19 @@ int main(int argc, char **argv) {
     Pipe pipe = Pipe();
     int call_center_pid = launch_call_center(recepcionists_semaphore,max_requests_semaphore, pipe);
     int kitchen_pid = launch_chefs(chefs_semaphore,max_requests_semaphore);
+    OvenSet ovens = OvenSet(config["Hornos"], occupied_ovens_semaphore);
+    ignite_ovens(ovens);
     int delivery_pid = 0;
     try {
         Cash_Register cash_register = Cash_Register();
-        delivery_pid = launch_delivery(cadets_semaphore, occupied_ovens_semaphore, cash_register);
+        delivery_pid = launch_delivery(cadets_semaphore, ovens, occupied_ovens_semaphore, cash_register);
     }catch (std::string e){
         cout <<  e << endl;
         exit(EXIT_FAILURE);
     }
     //FIXME: Sacarlo cuando esten los hornos
-    WriterFifo fifo_hornos = WriterFifo(FINISHED_FIFO);
-    fifo_hornos.open_fifo();
+    //WriterFifo fifo_hornos = WriterFifo(FINISHED_FIFO);
+    //fifo_hornos.open_fifo();
     ////////////////////////////////////////
 
     Logger::log(__FILE__, Logger::INFO, "Inicia recepcion de pedidos");
@@ -209,8 +219,9 @@ int main(int argc, char **argv) {
     waitpid(kitchen_pid, 0, 0);  // espera que termine kitchen
     kill(delivery_pid, SIGINT);  //TODO: manejo de errores?
     waitpid(delivery_pid, 0, 0);  // espera que termine delivery
-    fifo_hornos.close_fifo();  //FIXME: Sacarlo cuando esten los hornos
-    fifo_hornos.remove();  //FIXME: Sacarlo cuando esten los hornos, o ponerlo en delivery
+    ovens.close_ovens();
+    //fifo_hornos.close_fifo();  //FIXME: Sacarlo cuando esten los hornos
+    //fifo_hornos.remove();  //FIXME: Sacarlo cuando esten los hornos, o ponerlo en delivery
 
     //TODO: Ver bien donde ponerlo
     recepcionists_semaphore.remove();

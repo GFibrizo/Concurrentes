@@ -1,5 +1,5 @@
-#ifndef MEMORIACOMPARTIDA2_H_
-#define SHAREDMEMORY
+#ifndef SHARED_MEMORY_H
+#define SHARED_MEMORY_H
 
 #include <sys/types.h>
 #include <sys/ipc.h>

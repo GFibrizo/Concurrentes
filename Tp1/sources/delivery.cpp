@@ -52,8 +52,9 @@ int generate_payment_amount(std::string pizza) {
     return MIN_PAYMENT + (key % (MAX_PAYMENT - MIN_PAYMENT));
 }
 
-Delivery::Delivery(Semaphore &cadets_semaphore, Semaphore &occupied_ovens_semaphore, Cash_Register &cash_register)
+Delivery::Delivery(Semaphore &cadets_semaphore, OvenSet &ovens, Semaphore &occupied_ovens_semaphore, Cash_Register &cash_register)
         : cadets(cadets_semaphore),
+          ovens(ovens),
           occupied_ovens(occupied_ovens_semaphore),
           finished_fifo_lock(FINISHED_FIFO_LOCK),
           finished_fifo(FINISHED_FIFO),
@@ -73,11 +74,9 @@ void Delivery::make_delivery(int oven_number) {
 void Delivery::simulate_delivery(int oven_number) {
     int pid = fork();
     if (pid == 0) {
-        //TODO: Ir al horno y sacar la pizza
-        sleep(2);  //FIXME
-        string pizza = "test pizza";  //FIXME
+        string pizza = ovens.remove();
 #ifdef __DEBUG__
-	    Logger::log(__FILE__,Logger::DEBUG,"Sacada del horno: "+pizza);
+	    Logger::log(__FILE__,Logger::DEBUG,"Sacada del horno "+to_string(oven_number)+": "+pizza);
 #endif
         occupied_ovens.p();
 
