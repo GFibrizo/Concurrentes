@@ -185,7 +185,7 @@ void answer_calls(Pipe &pipe,Semaphore& max_requests_semaphore) {
 int launch_supervisor(Supervisor &supervisor) {
     int pid = fork();
     if (pid == 0) {
-        supervisor.check_cash_register();
+        supervisor.start_checking_register();
         exit(EXIT_SUCCESS);
     }
     return pid;

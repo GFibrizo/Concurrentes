@@ -50,9 +50,6 @@ supervisor.o: supervisor.h supervisor.cpp
 oven_set.o: oven_set.h oven_set.cpp
 	$(CC) $(CPPFLAGS) -c oven_set.cpp
 
-supervisor.o: supervisor.h supervisor.cpp
-	$(CC) $(CPPFLAGS) -c supervisor.cpp
-
 call_center.o: call_center.h call_center.cpp
 	$(CC) $(CPPFLAGS) -c call_center.cpp
 
