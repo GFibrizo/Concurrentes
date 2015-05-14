@@ -233,9 +233,9 @@ int main(int argc, char **argv) {
     kill(supervisor_pid, SIGINT);  // mata al supervisor
     waitpid(call_center_pid, 0, 0);  // espera que termine call_center
     waitpid(kitchen_pid, 0, 0);  // espera que termine kitchen
+    ovens.close_ovens();
     kill(delivery_pid, SIGINT);  // mata al delivery
     waitpid(delivery_pid, 0, 0);  // espera que termine delivery
-    ovens.close_ovens();
     waitpid(supervisor_pid, 0, 0);  // espera al supervisor
     //fifo_hornos.close_fifo();  //FIXME: Sacarlo cuando esten los hornos
     //fifo_hornos.remove();  //FIXME: Sacarlo cuando esten los hornos, o ponerlo en delivery

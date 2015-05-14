@@ -104,7 +104,10 @@ void Delivery::start_deliveries() {
     SignalHandler::get_instance()->register_handler(SIGINT, &sigint_handler);
 
     char buffer[sizeof(int)];
-    while (finished_fifo.read_fifo(buffer, sizeof(int)) > 0) {
+    Logger::log(__FILE__,Logger::DEBUG,"llega");
+    while (finished_fifo.read_fifo(buffer, sizeof(int)) >= 0) {
+        Logger::log(__FILE__,Logger::DEBUG,"entra");
+
         int oven_number = *(int*)buffer;
         make_delivery(oven_number);
     }
@@ -129,6 +132,7 @@ int Delivery::DeliverySIGINTHandler::handle_signal(int signal_number) {
         sigprocmask(SIG_BLOCK, &blocking_set, NULL);
         // Graceful Quit
         occupied_ovens.w();
+
         finished_fifo.close_fifo();
         return 0;
     }

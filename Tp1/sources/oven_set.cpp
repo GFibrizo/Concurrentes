@@ -25,14 +25,19 @@ OvenSet::~OvenSet() {
 }
 
 void OvenSet::start_ovens() {
-    //finished_fifo_lock.lock();
     finished_fifo.open_fifo();
 }
 
 void OvenSet::close_ovens() {
-    ovens.clear();
+    int end = -1;
+    finished_fifo_lock.lock();
+    finished_fifo.write_fifo(static_cast<void *>(&end), sizeof(int));
     finished_fifo.close_fifo();
+    finished_fifo_lock.release();
     finished_fifo.remove();
+
+    ovens.clear();
+
 }
 
 void OvenSet::cook(string pizza, float time) {
@@ -48,8 +53,9 @@ void OvenSet::cook(string pizza, float time) {
     if (pid == 0) {
         sleep(time);
         ready_ovens.push_back(n_oven);
+        finished_fifo_lock.lock();
         finished_fifo.write_fifo(static_cast<void *>(&n_oven), sizeof(int));
-
+        finished_fifo_lock.release();
 #ifdef __DEBUG__
         Logger::log(__FILE__,Logger::DEBUG,"Coccion finalizada: "+pizza);
 #endif
