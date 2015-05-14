@@ -26,15 +26,16 @@ OvenSet::~OvenSet() {
 }
 
 void OvenSet::start_ovens() {
-    finished_fifo_lock.lock();
     finished_fifo.open_fifo();
 }
 
 void OvenSet::close_ovens() {
     int end = -1;
     finished_fifo.write_fifo(static_cast<void *>(&end), sizeof(int));
+    finished_fifo_lock.lock(); //Espero a que terminen de usar la fifo las chicas del delivery
     finished_fifo.close_fifo();
     finished_fifo.remove();
+    finished_fifo_lock.release();
 
     ovens.clear();
 
