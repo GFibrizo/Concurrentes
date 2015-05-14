@@ -17,7 +17,9 @@ private:
 
 public:
     Supervisor(Cash_Register &cash_register, float checking_interval);
+
     ~Supervisor();
+
     void start_checking_register();
 };
 

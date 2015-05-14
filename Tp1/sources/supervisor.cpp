@@ -15,7 +15,7 @@ using std::cout;
 using std::endl;
 using std::to_string;
 
-Supervisor::Supervisor(Cash_Register& cash_register, float checking_interval) :
+Supervisor::Supervisor(Cash_Register &cash_register, float checking_interval) :
         register_lock(CASH_REGISTER_LOCK), cash_register(cash_register), checking_interval(checking_interval) {
 }
 
@@ -31,7 +31,7 @@ void Supervisor::start_checking_register() {
             Logger::log(__FILE__, Logger::INFO, "La caja esta vacia");
         } else {
             int register_amount = cash_register.get_amount();
-            Logger::log(__FILE__, Logger::INFO, "Hay en la caja: "+to_string(register_amount));
+            Logger::log(__FILE__, Logger::INFO, "Hay en la caja: " + to_string(register_amount));
         }
         register_lock.release();
         sleep(checking_interval);

@@ -30,8 +30,6 @@
 #include "kitchen.h"
 #include "locknames.h"
 #include "delivery.h"
-#include "pipenames.h"
-#include "cash_register.h"
 #include "supervisor.h"
 
 using std::string;
@@ -91,11 +89,11 @@ bool is_full_configured(map<string, int> config) {
     return true;
 }
 
-int launch_call_center(Semaphore &recepcionists,Semaphore &max_requests_semaphore, Pipe &pipe) {
+int launch_call_center(Semaphore &recepcionists, Semaphore &max_requests_semaphore, Pipe &pipe) {
 
     int pid = fork();
     if (pid == 0) {
-        Call_Center center = Call_Center(recepcionists,max_requests_semaphore, pipe);
+        Call_Center center = Call_Center(recepcionists, max_requests_semaphore, pipe);
         center.accept_calls();
         exit(EXIT_SUCCESS);
     }
@@ -113,15 +111,17 @@ int launch_chefs(Semaphore &chefs, Semaphore& max_requests_semaphore, OvenSet & 
     return pid;
 }
 
-void ignite_ovens(OvenSet &ovens) {
+int ignite_ovens(OvenSet &ovens) {
     int pid = fork();
     if (pid == 0) {
         ovens.start_ovens();
         exit(EXIT_SUCCESS);
     }
+    return pid;
 }
 
-int launch_delivery(Semaphore &cadets, OvenSet &ovens, Semaphore &occupied_ovens_semaphore, Cash_Register &cash_register) {
+int launch_delivery(Semaphore &cadets, OvenSet &ovens, Semaphore &occupied_ovens_semaphore,
+                    Cash_Register &cash_register) {
     int pid = fork();
     if (pid == 0) {
         Delivery delivery = Delivery(cadets, ovens, occupied_ovens_semaphore, cash_register);
@@ -141,7 +141,7 @@ int launch_supervisor(Cash_Register &cash_register, float checking_interval) {
     return pid;
 }
 
-void answer_calls(Pipe &pipe,Semaphore& max_requests_semaphore) {
+void answer_calls(Pipe &pipe, Semaphore &max_requests_semaphore) {
     string line;
     cout << "Pedido: ";
     while (getline(cin, line)) {
@@ -156,7 +156,7 @@ void answer_calls(Pipe &pipe,Semaphore& max_requests_semaphore) {
 
         if (wrote == line.size()) {
 #ifdef __DEBUG__
-	Logger::log(__FILE__, Logger::DEBUG, "Pedido atendido: " + line);
+	Logger::log(__FILE__, Logger::DEBUG, "Llamado entrante: " + line);
 #endif
         } else {
             cout << ">>Telefono ocupado<<" << endl;
@@ -182,15 +182,6 @@ void answer_calls(Pipe &pipe,Semaphore& max_requests_semaphore) {
     pipe_lock.release();
 }
 
-int launch_supervisor(Supervisor &supervisor) {
-    int pid = fork();
-    if (pid == 0) {
-        supervisor.start_checking_register();
-        exit(EXIT_SUCCESS);
-    }
-    return pid;
-}
-
 int main(int argc, char **argv) {
     Logger::open_logger("run_log.log"); //TODO: Agregar opccion para sobreescribir
 
@@ -210,14 +201,14 @@ int main(int argc, char **argv) {
 
     Semaphore recepcionists_semaphore = Semaphore("Recepcionist", config["Recepcionistas"]);
     Semaphore chefs_semaphore = Semaphore("Chefs", config["Cocineras"]);
-    Semaphore max_requests_semaphore = Semaphore("Max_Requests", config["Cocineras"]*2);
+    Semaphore max_requests_semaphore = Semaphore("Max_Requests", config["Cocineras"] * 2);
     Semaphore cadets_semaphore = Semaphore("Cadets", config["Cadetas"]);
     Semaphore free_ovens_semaphore = Semaphore("Free Ovens", config["Hornos"]);  // Cocina -> Hornos
     Semaphore occupied_ovens_semaphore = Semaphore("Occupied Ovens", 0);  // Hornos -> Delivery
 
     Pipe pipe = Pipe();
     OvenSet ovens = OvenSet(config["Hornos"], free_ovens_semaphore, occupied_ovens_semaphore);
-    ignite_ovens(ovens);
+    int ovens_pid = ignite_ovens(ovens);
 
     int call_center_pid = launch_call_center(recepcionists_semaphore,max_requests_semaphore, pipe);
     int kitchen_pid = launch_chefs(chefs_semaphore, max_requests_semaphore, ovens);
@@ -228,27 +219,23 @@ int main(int argc, char **argv) {
         Cash_Register cash_register = Cash_Register();
         delivery_pid = launch_delivery(cadets_semaphore, ovens, occupied_ovens_semaphore, cash_register);
         supervisor_pid = launch_supervisor(cash_register, config["Intervalo_Supervisora"]);
-    }catch (std::string e){
-        cout <<  e << endl;
+    } catch (std::string e) {
+        cout << e << endl;
         exit(EXIT_FAILURE);
     }
-    //FIXME: Sacarlo cuando esten los hornos
-    //WriterFifo fifo_hornos = WriterFifo(FINISHED_FIFO);
-    //fifo_hornos.open_fifo();
-    ////////////////////////////////////////
 
     Logger::log(__FILE__, Logger::INFO, "Inicia recepcion de pedidos");
-    answer_calls(pipe,max_requests_semaphore);
+    answer_calls(pipe, max_requests_semaphore);
 
-    kill(supervisor_pid, SIGINT);  // mata al supervisor
+    waitpid(ovens_pid,0,0); //Levanta la finalizacion de prender los hornos
+
     waitpid(call_center_pid, 0, 0);  // espera que termine call_center
     waitpid(kitchen_pid, 0, 0);  // espera que termine kitchen
+    ovens.close_ovens();
     kill(delivery_pid, SIGINT);  // mata al delivery
     waitpid(delivery_pid, 0, 0);  // espera que termine delivery
-    ovens.close_ovens();
+    kill(supervisor_pid, SIGINT);  // mata al supervisor
     waitpid(supervisor_pid, 0, 0);  // espera al supervisor
-    //fifo_hornos.close_fifo();  //FIXME: Sacarlo cuando esten los hornos
-    //fifo_hornos.remove();  //FIXME: Sacarlo cuando esten los hornos, o ponerlo en delivery
 
     //TODO: Ver bien donde ponerlo
     recepcionists_semaphore.remove();
