@@ -181,15 +181,6 @@ void answer_calls(Pipe &pipe, Semaphore &max_requests_semaphore) {
     pipe_lock.release();
 }
 
-int launch_supervisor(Supervisor &supervisor) {
-    int pid = fork();
-    if (pid == 0) {
-        supervisor.start_checking_register();
-        exit(EXIT_SUCCESS);
-    }
-    return pid;
-}
-
 int main(int argc, char **argv) {
     Logger::open_logger("run_log.log"); //TODO: Agregar opccion para sobreescribir
 
