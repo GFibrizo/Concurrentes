@@ -35,7 +35,6 @@ Call_Center::Call_Center(Semaphore &recepcionists_semaphore,Semaphore &max_reque
                                                                           aviable_requests(max_requests_semaphore) {
     pipe_lock.lock();
     fifo.open_fifo();
-
 }
 
 void Call_Center::simulate_call(string request) {
@@ -75,16 +74,15 @@ void Call_Center::accept_calls() {
             //TODO: Error
         }
 
-        buff[len] = '\0'; //Agrega fin de linea donde va
+        //buff[len] = '\0'; //Agrega fin de linea donde va
 
         string request = buff;
+        request.resize(len);
 
 #ifdef __DEBUG__
         Logger::log(__FILE__,Logger::DEBUG,"Pedido Atendiendose: "+request);
 #endif
-
         accept_call(request);
-
     }
 
     pipe_lock.release(); //El pipe ya esta vacio

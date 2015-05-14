@@ -12,11 +12,11 @@
 class Supervisor {
 
 private:
-    Semaphore cash_register_mutex;
-    Cash_Register  cash;
+    Lock_File register_lock;
+    Cash_Register cash_register;
 
 public:
-    Supervisor(Semaphore& cash_register_sem, Cash_Register& cash_reg);
+    Supervisor(Semaphore& cash_register_sem, Cash_Register&cash_register);
     ~Supervisor();
     void check_cash_register();
 };

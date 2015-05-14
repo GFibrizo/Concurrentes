@@ -1,4 +1,4 @@
-#include "SignalHandler.h"
+#include "signal_handler.h"
 
 SignalHandler* SignalHandler::instance = NULL;
 EventHandler* SignalHandler::handlers[NSIG];
@@ -6,7 +6,7 @@ EventHandler* SignalHandler::handlers[NSIG];
 SignalHandler::SignalHandler() {
 }
 
-SignalHandler* SignalHandler::getInstance() {
+SignalHandler* SignalHandler::get_instance() {
 	if (instance == NULL) {
 		instance = new SignalHandler();
 	}
@@ -36,7 +36,7 @@ EventHandler* SignalHandler::register_handler(int signal_number, EventHandler *h
 
 void SignalHandler::dispatcher(int signal_number) {
 	if ( SignalHandler::handlers[signal_number] != 0) {
-		SignalHandler::handlers[signal_number]->handleSignal(signal_number);
+		SignalHandler::handlers[signal_number]->handle_signal(signal_number);
 	}
 }
 

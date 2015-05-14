@@ -12,7 +12,6 @@ Semaphore::~Semaphore() {
 }
 
 int Semaphore::initialize() const {
-
 	union semnum {
 		int val;
 		struct semid_ds* buf;
@@ -26,25 +25,33 @@ int Semaphore::initialize() const {
 }
 
 int Semaphore::p() const {
-
 	struct sembuf operation;
-
 	operation.sem_num = 0;	// numero de semaforo
 	operation.sem_op  = -1;	// restar 1 al semaforo
 	operation.sem_flg = SEM_UNDO;
 
-	return semop(this->id, &operation, 1); //FIXME
+	int res = semop(this->id, &operation, 1); //FIXME
+	return res;
 }
 
 int Semaphore::v() const {
-
 	struct sembuf operation;
-
 	operation.sem_num = 0;	// numero de semaforo
 	operation.sem_op  = 1;	// sumar 1 al semaforo
 	operation.sem_flg = SEM_UNDO;
 
-	return semop(this->id,&operation, 1); //FIXME
+	int res = semop(this->id,&operation, 1); //FIXME
+	return res;
+}
+
+int Semaphore::w() const {
+	struct sembuf operation;
+	operation.sem_num = 0;	// numero de semaforo
+	operation.sem_op  = 0;	// espera a que sea 0
+	operation.sem_flg = SEM_UNDO;
+
+	int res = semop(this->id,&operation, 1); //FIXME
+	return res;
 }
 
 void Semaphore::remove() const {

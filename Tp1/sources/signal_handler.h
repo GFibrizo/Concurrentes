@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <memory.h>
 
-#include "EventHandler.h"
+#include "event_handler.h"
 
 class SignalHandler {
 
@@ -17,9 +17,9 @@ class SignalHandler {
 		static void dispatcher(int signal_number);
 
 	public:
-		static SignalHandler* getInstance();
+		static SignalHandler*get_instance();
 		static void destroy();
-		EventHandler*register_handler(int signal_number, EventHandler *handler);
+		EventHandler* register_handler(int signal_number, EventHandler *handler);
 		int remove_handler(int signal_number);
 
 };

@@ -26,6 +26,9 @@
 #include "lock_file.h"
 #include "semaphore.h"
 #include "reader_fifo.h"
+#include "event_handler.h"
+#include "signal_handler.h"
+#include "cash_register.h"
 
 class Delivery {
 
@@ -33,18 +36,34 @@ private:
     size_t launched_process = 0;
     Semaphore cadets;
 
+    Semaphore occupied_ovens;
+
     Lock_File finished_fifo_lock;
     ReaderFifo finished_fifo;
 
+    Lock_File cash_register_lock;
+    Cash_Register cash_register;
+
 private:
     void simulate_delivery(int oven_number);
-
     void make_delivery(int oven_number);
 
 public:
-    Delivery(Semaphore &cadets_semaphore);
-
+    Delivery(Semaphore &cadets_semaphore, Semaphore &occupied_ovens_semaphore, Cash_Register &cash_register);
     void start_deliveries();
+
+private:
+    class DeliverySIGINTHandler : public EventHandler {
+
+    private:
+        Semaphore occupied_ovens;
+        ReaderFifo finished_fifo;
+
+    public:
+        DeliverySIGINTHandler(Semaphore &occupied_ovens, ReaderFifo &finished_fifo);
+        int handle_signal(int signal_number);
+    };
+
 };
 
 #endif /* DELIVERY_H_ */

@@ -17,9 +17,9 @@ private:
 public:
 	Semaphore( const std::string& name, const int initial_value );
 	~Semaphore();
-
-	int p() const; // decrementa
-	int v() const; // incrementa
+	int p() const;  // decrementa
+	int v() const;  // incrementa
+	int w() const;  // espera a que sea 0
 	void remove() const;
 };
 

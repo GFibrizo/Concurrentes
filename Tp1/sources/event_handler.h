@@ -4,7 +4,7 @@
 class EventHandler {
 
 public:
-	virtual int handleSignal(int signal_number) = 0;
+	virtual int handle_signal(int signal_number) = 0;
 	virtual ~EventHandler() {};
 };
 

@@ -4,28 +4,28 @@
 #include <signal.h>
 #include <assert.h>
 
-#include "EventHandler.h"
+#include "event_handler.h"
 
 class SIGINT_Handler : public EventHandler {
 
 	private:
-		sig_atomic_t gracefulQuit;
+		sig_atomic_t graceful_quit;
 
 	public:
-		SIGINT_Handler() : gracefulQuit(0) {
+		SIGINT_Handler() : graceful_quit(0) {
 		}
 
 		~SIGINT_Handler() {
 		}
 
-		virtual int handleSignal(int signal_number) {
-			assert (signal_number == SIGINT);
-			this->gracefulQuit = 1;
+		virtual int handle_signal(int signal_number) {
+			assert(signal_number == SIGINT);
+			this->graceful_quit = 1;
 			return 0;
 		}
 
-		sig_atomic_t getGracefulQuit() const {
-			return this->gracefulQuit;
+		sig_atomic_t get_graceful_quit() const {
+			return this->graceful_quit;
 		}
 };
 

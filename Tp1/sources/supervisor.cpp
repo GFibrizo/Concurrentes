@@ -3,10 +3,12 @@
 //
 
 #include "supervisor.h"
-#include <unistd.h>
 
-Supervisor::Supervisor(Semaphore& cash_register_sem, Cash_Register& cash_reg) :
-        cash_register_mutex(cash_register_sem), cash(cash_reg) {
+#include <unistd.h>
+#include "locknames.h"
+
+Supervisor::Supervisor(Semaphore& cash_register_sem, Cash_Register& cash_register) :
+        register_lock(CASH_REGISTER_LOCK), cash_register(cash_register) {
 }
 
 Supervisor::~Supervisor() {
@@ -14,10 +16,10 @@ Supervisor::~Supervisor() {
 
 void Supervisor::check_cash_register() {
     while (true) {
-        cash_register_mutex.p();
+        register_lock.lock();
         if (cash.empty())
             //TODO: cambiar a lo que sea que haya que chequear
-        cash_register_mutex.v();
+        register_lock.release();
         //TODO: cortar ejecucion
         sleep(2);
     }

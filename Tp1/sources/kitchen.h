@@ -40,14 +40,11 @@ private:
     Semaphore max_requests;
 
 private:
-
     void accept_order(std::string);
-
     void simulate_cook(std::string);
 
 public:
     Kitchen(Semaphore &,Semaphore&);
-
     void accept_orders();
 };
 

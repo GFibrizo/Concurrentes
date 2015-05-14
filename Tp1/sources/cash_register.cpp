@@ -9,8 +9,7 @@
 
 using std::string;
 
-Cash_Register::Cash_Register() :
-    cash(Shared_Memory<float>(CASH_REGISTER_SM, 'a')){
+Cash_Register::Cash_Register() : cash(Shared_Memory<float>(CASH_REGISTER_SM, 'a')) {
 }
 
 Cash_Register::~Cash_Register() {

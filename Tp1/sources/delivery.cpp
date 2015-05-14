@@ -41,12 +41,24 @@ float generate_deliver_time() {
         srand(time(NULL));
         seeded = true;
     }
-    return MIN_TIME+(rand()/(RAND_MAX/(MAX_TIME-MIN_TIME)));
+    return MIN_TIME + (rand() / (RAND_MAX / (MAX_TIME - MIN_TIME)));
 }
 
-Delivery::Delivery(Semaphore &cadets_semaphore) : cadets(cadets_semaphore),
-                                                  finished_fifo_lock(FINISHED_FIFO_LOCK),
-                                                  finished_fifo(FINISHED_FIFO) {
+int generate_payment_amount(std::string pizza) {
+    int key = 0;
+    for (unsigned int i = 0; i < pizza.length(); i++) {
+        key+= int(pizza[i]) * (i+1);
+    }
+    return MIN_PAYMENT + (key % (MAX_PAYMENT - MIN_PAYMENT));
+}
+
+Delivery::Delivery(Semaphore &cadets_semaphore, Semaphore &occupied_ovens_semaphore, Cash_Register &cash_register)
+        : cadets(cadets_semaphore),
+          occupied_ovens(occupied_ovens_semaphore),
+          finished_fifo_lock(FINISHED_FIFO_LOCK),
+          finished_fifo(FINISHED_FIFO),
+          cash_register_lock(CASH_REGISTER_LOCK),
+          cash_register(cash_register) {
     finished_fifo_lock.lock();
     finished_fifo.open_fifo();
     launched_process = 0;
@@ -67,15 +79,19 @@ void Delivery::simulate_delivery(int oven_number) {
 #ifdef __DEBUG__
 	    Logger::log(__FILE__,Logger::DEBUG,"Sacada del horno: "+pizza);
 #endif
-        int deliver_time = generate_deliver_time();
+        occupied_ovens.p();
+
+        float deliver_time = generate_deliver_time();
         sleep(deliver_time);
 
-        //TODO: monto random
-        int payment = 50;
+        int payment = generate_payment_amount(pizza);
 #ifdef __DEBUG__
 	    Logger::log(__FILE__,Logger::DEBUG,"Se entrego "+pizza+". Tiempo: "+to_string(deliver_time)+". Pago: "+to_string(payment));
 #endif
-        //TODO: Dejar pago en la caja
+
+        cash_register_lock.lock();
+        cash_register.add_money(payment);
+        cash_register_lock.release();
 #ifdef __DEBUG__
 	    Logger::log(__FILE__,Logger::DEBUG,"Se deja en la caja: "+to_string(payment));
 #endif
@@ -85,24 +101,31 @@ void Delivery::simulate_delivery(int oven_number) {
 }
 
 void Delivery::start_deliveries() {
-    char buffer[sizeof(int)];
-    while (true) {
-        if (finished_fifo.read_fifo(buffer, sizeof(int))) {
-            //TODO: error
-        }
-        int oven_number = *(int*)buffer;
-        if (oven_number == -1) {
-            break;
-        }
+    DeliverySIGINTHandler sigint_handler(occupied_ovens, finished_fifo);
+    SignalHandler::get_instance()->register_handler(SIGINT, &sigint_handler);
 
+    char buffer[sizeof(int)];
+    while (finished_fifo.read_fifo(buffer, sizeof(int)) > 0) {
+        int oven_number = *(int*)buffer;
         make_delivery(oven_number);
     }
-
-    finished_fifo.close_fifo();
-    finished_fifo_lock.release();
-
 
     for (size_t i = 0; i < launched_process; i++) {
         wait(0); // Espera que terminen todas las entregas
     }
+
+    finished_fifo_lock.release();
+}
+
+Delivery::DeliverySIGINTHandler::DeliverySIGINTHandler(Semaphore &occupied_ovens, ReaderFifo &finished_fifo)
+        : occupied_ovens(occupied_ovens), finished_fifo(finished_fifo) {
+}
+
+int Delivery::DeliverySIGINTHandler::handle_signal(int signal_number) {
+    if (signal_number == SIGINT) {
+        occupied_ovens.w();
+        finished_fifo.close_fifo();
+        return 0;
+    }
+    return -1;
 }
