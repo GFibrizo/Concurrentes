@@ -31,5 +31,5 @@ void Supervisor::check_cash_register() {
 }
 
 void Supervisor::stop() {
-    continue_checking = false;
+    continue_checking = false; //FIXME: algo mejor que esto
 }
