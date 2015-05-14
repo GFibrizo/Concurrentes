@@ -26,9 +26,6 @@
 #include "locknames.h"
 #include "times.h"
 
-#define MIN_TIME 0.5
-#define MAX_TIME 2.0
-
 using std::string;
 
 float generate_cooking_time() {
@@ -37,7 +34,7 @@ float generate_cooking_time() {
         srand(time(NULL));
         seeded = true;
     }
-    return MIN_TIME + (rand() / (RAND_MAX / (MAX_TIME - MIN_TIME)));
+    return OVEN_MIN_TIME + (rand() / (RAND_MAX / (OVEN_MAX_TIME - OVEN_MIN_TIME)));
 }
 
 void Kitchen::simulate_cook(std::string pizza) {

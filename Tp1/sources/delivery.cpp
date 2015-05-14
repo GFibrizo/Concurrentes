@@ -23,14 +23,12 @@
 #include <sys/wait.h>
 
 #include "logger.h"
+#include "times.h"
 
+#define  MIN_PAYMENT 50
+#define  MAX_PAYMENT 100
 
-#define MIN_TIME 0.5
-#define MAX_TIME 2.0
-#define MIN_PAYMENT 50
-#define MAX_PAYMENT 100
-
-using std::string;
+Using std::string;
 using std::to_string;
 
 float generate_deliver_time() {
@@ -39,7 +37,7 @@ float generate_deliver_time() {
         srand(time(NULL));
         seeded = true;
     }
-    return MIN_TIME + (rand() / (RAND_MAX / (MAX_TIME - MIN_TIME)));
+    return DELIVERY_MIN_TIME + (rand() / (RAND_MAX / (DELIVERY_MAX_TIME - DELIVERY_MIN_TIME)));
 }
 
 int generate_payment_amount(std::string pizza) {
