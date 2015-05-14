@@ -37,6 +37,7 @@ void OvenSet::close_ovens() {
 
 void OvenSet::cook(string pizza, float time) {
     free_ovens_semaphore.p();
+    occupied_ovens_semaphore.v();
 
     int n_oven = free_ovens.front();
     string* new_pizza = new string(pizza);
@@ -48,12 +49,15 @@ void OvenSet::cook(string pizza, float time) {
         sleep(time);
         ready_ovens.push_back(n_oven);
         finished_fifo.write_fifo(static_cast<void *>(&n_oven), sizeof(int));
+
+#ifdef __DEBUG__
+        Logger::log(__FILE__,Logger::DEBUG,"Coccion finalizada: "+pizza);
+#endif
         exit(EXIT_SUCCESS);
     }
 }
 
 string OvenSet::remove() {
-    occupied_ovens_semaphore.p();
     while (ready_ovens.empty()) {
         sleep(1);
     }
@@ -68,9 +72,11 @@ string OvenSet::remove() {
     ready_ovens.pop_front();
     free_ovens.push_back(n_oven);
 
-    Logger::log(__FILE__, Logger::DEBUG, "termina cocinar: " + pizza_copy);
-    occupied_ovens_semaphore.v();
+#ifdef __DEBUG__
+        Logger::log(__FILE__,Logger::DEBUG,"Pizza retirada: "+pizza_copy);
+#endif
 
+    occupied_ovens_semaphore.p();
     return pizza_copy;
 }
 
