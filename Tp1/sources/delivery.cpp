@@ -21,11 +21,8 @@
 
 #include <cstdlib>
 #include <sys/wait.h>
-#include <random>
 
 #include "logger.h"
-#include "pipenames.h"
-#include "locknames.h"
 
 #define MIN_TIME 0.5
 #define MAX_TIME 2.0
@@ -37,7 +34,7 @@ using std::to_string;
 
 float generate_deliver_time() {
     static bool seeded = false;
-    if (! seeded) {
+    if (!seeded) {
         srand(time(NULL));
         seeded = true;
     }
@@ -47,12 +44,13 @@ float generate_deliver_time() {
 int generate_payment_amount(std::string pizza) {
     int key = 0;
     for (unsigned int i = 0; i < pizza.length(); i++) {
-        key+= int(pizza[i]) * (i+1);
+        key += int(pizza[i]) * (i + 1);
     }
     return MIN_PAYMENT + (key % (MAX_PAYMENT - MIN_PAYMENT));
 }
 
-Delivery::Delivery(Semaphore &cadets_semaphore, OvenSet &ovens, Semaphore &occupied_ovens_semaphore, Cash_Register &cash_register)
+Delivery::Delivery(Semaphore &cadets_semaphore, OvenSet &ovens, Semaphore &occupied_ovens_semaphore,
+                   Cash_Register &cash_register)
         : cadets(cadets_semaphore),
           ovens(ovens),
           occupied_ovens(occupied_ovens_semaphore),
@@ -103,9 +101,9 @@ void Delivery::start_deliveries() {
     DeliverySIGINTHandler sigint_handler(occupied_ovens, finished_fifo);
     SignalHandler::get_instance()->register_handler(SIGINT, &sigint_handler);
 
-    char buffer[sizeof(int)];
+    int oven_number = 0;
+    char *buffer = (char *) &oven_number;
     while (finished_fifo.read_fifo(buffer, sizeof(int)) > 0) {
-        int oven_number = *(int*)buffer;
         make_delivery(oven_number);
     }
 

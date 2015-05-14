@@ -21,7 +21,7 @@
 class OvenSet {
 private:
     Semaphore ovens_sem;
-    std::vector<Shared_Memory<std::string*>*> ovens;
+    std::vector<Shared_Memory<std::string *> *> ovens;
     std::list<int> free_ovens;
     std::list<int> ready_ovens;
 
@@ -32,10 +32,15 @@ private:
 
 public:
     OvenSet(int ovens_number, Semaphore &free_ovens_sem, Semaphore &occupied_ovens_sem);
+
     ~OvenSet();
+
     void start_ovens();
+
     void cook(std::string pizza, float time);
+
     std::string remove();
+
     void close_ovens();
 };
 
