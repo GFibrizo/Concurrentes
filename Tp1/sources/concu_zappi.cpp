@@ -178,7 +178,6 @@ int main(int argc, char **argv) {
     }
     Logger::log(__FILE__, Logger::INFO, "Configuracion exitosa");
 
-    Cash_Register cash_register = Cash_Register();
 
     Semaphore recepcionists_semaphore = Semaphore("Recepcionist", config["Recepcionistas"]);
     Semaphore chefs_semaphore = Semaphore("Chefs", config["Cocineras"]);
@@ -190,7 +189,14 @@ int main(int argc, char **argv) {
     Pipe pipe = Pipe();
     int call_center_pid = launch_call_center(recepcionists_semaphore,max_requests_semaphore, pipe);
     int kitchen_pid = launch_chefs(chefs_semaphore,max_requests_semaphore);
-    int delivery_pid = launch_delivery(cadets_semaphore, occupied_ovens_semaphore, cash_register);
+    int delivery_pid = 0;
+    try {
+        Cash_Register cash_register = Cash_Register();
+        delivery_pid = launch_delivery(cadets_semaphore, occupied_ovens_semaphore, cash_register);
+    }catch (std::string e){
+        cout <<  e << endl;
+        exit(EXIT_FAILURE);
+    }
     //FIXME: Sacarlo cuando esten los hornos
     WriterFifo fifo_hornos = WriterFifo(FINISHED_FIFO);
     fifo_hornos.open_fifo();
