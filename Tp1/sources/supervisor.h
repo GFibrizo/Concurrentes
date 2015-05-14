@@ -7,6 +7,7 @@
 
 #include "semaphore.h"
 #include "cash_register.h"
+#include "lock_file.h"
 
 
 class Supervisor {
@@ -15,10 +16,13 @@ private:
     Lock_File register_lock;
     Cash_Register cash_register;
 
+    bool continue_checking;
+
 public:
-    Supervisor(Semaphore& cash_register_sem, Cash_Register&cash_register);
+    Supervisor(Cash_Register&cash_register);
     ~Supervisor();
     void check_cash_register();
+    void stop();
 };
 
 

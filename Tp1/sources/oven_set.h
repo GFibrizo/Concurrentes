@@ -21,15 +21,17 @@
 class OvenSet {
 private:
     Semaphore ovens_sem;
-    std::vector<Shared_Memory<std::string>*> ovens;
-    std::list<std::string> ready_pizzas;
+    std::vector<Shared_Memory<std::string*>*> ovens;
+    std::list<int> free_ovens;
+    std::list<int> ready_ovens;
 
-    Semaphore occupied_ovens;
+    Semaphore free_ovens_semaphore;
+    Semaphore occupied_ovens_semaphore;
     Lock_File finished_fifo_lock;  // Creo que no había que usarlo acá, lo agregué por las dudas. - Bruno
     WriterFifo finished_fifo;
 
 public:
-    OvenSet(int ovens_number, Semaphore &occupied_ovens_semaphore);  //TODO: Agregar lo que haga falta para la cocina
+    OvenSet(int ovens_number, Semaphore &free_ovens_sem, Semaphore &occupied_ovens_sem);
     ~OvenSet();
     void start_ovens();
     void cook(std::string pizza, float time);
