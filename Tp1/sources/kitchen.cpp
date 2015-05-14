@@ -33,7 +33,7 @@ using std::string;
 
 float generate_cooking_time() {
     static bool seeded = false;
-    if (! seeded) {
+    if (!seeded) {
         srand(time(NULL));
         seeded = true;
     }
@@ -95,11 +95,15 @@ void Kitchen::accept_orders() {
         wait(0); //Waits for all chefs to finish
     }
 
+#ifdef __DEBUG__
+		Logger::log(__FILE__,Logger::DEBUG,"Amasados todos los pedidos");
+#endif
+
 }
 
 Kitchen::Kitchen(Semaphore &chefs_semaphore, Semaphore &max_requests_semaphore, OvenSet &ovenSet) :
         chefs(chefs_semaphore), request_fifo_lock(REQUEST_FIFO_LOCK),
-        requests_fifo(REQUEST_PIPE) ,max_requests(max_requests_semaphore),
+        requests_fifo(REQUEST_PIPE), max_requests(max_requests_semaphore),
         ovens(ovenSet) {
     request_fifo_lock.lock();
     requests_fifo.open_fifo();
