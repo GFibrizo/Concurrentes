@@ -102,7 +102,7 @@ void Delivery::start_deliveries() {
 
     int oven_number = 0;
     char *buffer = (char *) &oven_number;
-    while (finished_fifo.read_fifo(buffer, sizeof(int)) >= 0) {
+    while (finished_fifo.read_fifo(buffer, sizeof(int)) > 0) {
         make_delivery(oven_number);
     }
 
