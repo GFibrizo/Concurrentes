@@ -24,6 +24,7 @@
 #include "logger.h"
 #include "pipenames.h"
 #include "locknames.h"
+#include "times.h"
 
 using std::string;
 
@@ -34,7 +35,7 @@ void Kitchen::simulate_cook(std::string pizza) {
 #ifdef __DEBUG__
 		Logger::log(__FILE__,Logger::DEBUG,"Amasando: "+pizza);
 #endif
-        sleep(2);
+        sleep(COOKING_TIME);
         //TODO: Mandar al horno
 #ifdef __DEBUG__
 		Logger::log(__FILE__,Logger::DEBUG,"Al horno: "+pizza);

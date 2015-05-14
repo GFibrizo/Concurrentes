@@ -21,6 +21,7 @@
 #include "logger.h"
 #include "locknames.h"
 #include "pipenames.h"
+#include "times.h"
 
 #include <cstdlib>
 #include <sys/wait.h>
@@ -41,7 +42,7 @@ void Call_Center::simulate_call(string request) {
     int pid = fork();
     if (pid == 0) {
         //TODO: do something
-        sleep(2);
+        sleep(CALL_TIME);
 #ifdef __DEBUG__
 		Logger::log(__FILE__,Logger::DEBUG,"Pedido cargado: "+request);
 #endif
