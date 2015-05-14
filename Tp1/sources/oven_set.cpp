@@ -35,6 +35,9 @@ void OvenSet::close_ovens() {
     finished_fifo_lock.lock(); //Espero a que terminen de usar la fifo las chicas del delivery
     finished_fifo.close_fifo();
     finished_fifo.remove();
+
+    //TODO: wait para cada proceso.
+
     finished_fifo_lock.release();
 
     ovens.clear();
@@ -63,9 +66,6 @@ void OvenSet::cook(string pizza, float time) {
 }
 
 string OvenSet::remove() {
-    while (ready_ovens.empty()) {
-        sleep(1);
-    }
     free_ovens_semaphore.v();
 
     int n_oven = ready_ovens.front();
