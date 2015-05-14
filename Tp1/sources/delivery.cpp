@@ -102,14 +102,16 @@ void Delivery::start_deliveries() {
 
     int oven_number = 0;
     char *buffer = (char *) &oven_number;
-    while (finished_fifo.read_fifo(buffer, sizeof(int)) >= 0) {
+    while (finished_fifo.read_fifo(buffer, sizeof(int)) > 0) {
         make_delivery(oven_number);
+
     }
 
     for (size_t i = 0; i < launched_process; i++) {
         wait(0); // Espera que terminen todas las entregas
     }
 
+    finished_fifo.close_fifo();
     finished_fifo_lock.release();
 }
 
@@ -125,7 +127,7 @@ int Delivery::DeliverySIGINTHandler::handle_signal(int signal_number) {
         sigaddset(&blocking_set, SIGINT);
         sigprocmask(SIG_BLOCK, &blocking_set, NULL);
         // Graceful Quit
-        occupied_ovens.w();
+        occupied_ovens.w(); //Espera que no haya hornos en uso
         finished_fifo.close_fifo();
         return 0;
     }

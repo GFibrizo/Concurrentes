@@ -2,6 +2,7 @@
 
 Fifo::Fifo(const std::string filename) : name(filename), fd(-1) {
 	int ret = mknod(static_cast<const char *>(filename.c_str()), S_IFIFO | 0666, 0);
+
 	if (ret != 0) {
 		int err = errno;
 		// Se ignora el EEXIST

@@ -228,7 +228,6 @@ int main(int argc, char **argv) {
     answer_calls(pipe, max_requests_semaphore);
 
     waitpid(ovens_pid,0,0); //Levanta la finalizacion de prender los hornos
-
     waitpid(call_center_pid, 0, 0);  // espera que termine call_center
     waitpid(kitchen_pid, 0, 0);  // espera que termine kitchen
     ovens.close_ovens();
