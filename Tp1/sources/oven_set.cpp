@@ -32,10 +32,8 @@ void OvenSet::start_ovens() {
 
 void OvenSet::close_ovens() {
     int end = -1;
-    finished_fifo_lock.lock();
     finished_fifo.write_fifo(static_cast<void *>(&end), sizeof(int));
     finished_fifo.close_fifo();
-    finished_fifo_lock.release();
     finished_fifo.remove();
 
     ovens.clear();
