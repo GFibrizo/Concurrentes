@@ -32,6 +32,7 @@
 #include "delivery.h"
 #include "pipenames.h"
 #include "cash_register.h"
+#include "supervisor.h"
 
 using std::string;
 using std::cout;
@@ -100,11 +101,11 @@ int launch_call_center(Semaphore &recepcionists,Semaphore &max_requests_semaphor
     return pid;
 }
 
-int launch_chefs(Semaphore &chefs, Semaphore& max_requests_semaphore, OvenSet & ovens, Semaphore &free_ovens) {
+int launch_chefs(Semaphore &chefs, Semaphore& max_requests_semaphore, OvenSet & ovens) {
 
     int pid = fork();
     if (pid == 0) {
-        Kitchen kitchen = Kitchen(chefs,max_requests_semaphore, ovens, free_ovens);
+        Kitchen kitchen = Kitchen(chefs,max_requests_semaphore, ovens);
         kitchen.accept_orders();
         exit(EXIT_SUCCESS);
     }
@@ -170,6 +171,15 @@ void answer_calls(Pipe &pipe,Semaphore& max_requests_semaphore) {
     pipe_lock.release();
 }
 
+int launch_supervisor(Supervisor &supervisor) {
+    int pid = fork();
+    if (pid == 0) {
+        supervisor.check_cash_register();
+        exit(EXIT_SUCCESS);
+    }
+    return pid;
+}
+
 int main(int argc, char **argv) {
     Logger::open_logger("run_log.log"); //TODO: Agregar opccion para sobreescribir
 
@@ -195,20 +205,23 @@ int main(int argc, char **argv) {
     Semaphore occupied_ovens_semaphore = Semaphore("Occupied Ovens", 0);  // Hornos -> Delivery
 
     Pipe pipe = Pipe();
-    OvenSet ovens = OvenSet(config["Hornos"], occupied_ovens_semaphore);
+    OvenSet ovens = OvenSet(config["Hornos"], free_ovens_semaphore, occupied_ovens_semaphore);
     ignite_ovens(ovens);
 
     int call_center_pid = launch_call_center(recepcionists_semaphore,max_requests_semaphore, pipe);
-    int kitchen_pid = launch_chefs(chefs_semaphore,max_requests_semaphore, ovens, free_ovens_semaphore);
+    int kitchen_pid = launch_chefs(chefs_semaphore, max_requests_semaphore, ovens);
 
     int delivery_pid = 0;
     try {
         Cash_Register cash_register = Cash_Register();
         delivery_pid = launch_delivery(cadets_semaphore, ovens, occupied_ovens_semaphore, cash_register);
+//        Supervisor supervisor(cash_register);
+//        int supervisor_pid = launch_supervisor(supervisor);
     }catch (std::string e){
         cout <<  e << endl;
         exit(EXIT_FAILURE);
     }
+
     //FIXME: Sacarlo cuando esten los hornos
     //WriterFifo fifo_hornos = WriterFifo(FINISHED_FIFO);
     //fifo_hornos.open_fifo();
@@ -222,6 +235,10 @@ int main(int argc, char **argv) {
     kill(delivery_pid, SIGINT);  //TODO: manejo de errores?
     waitpid(delivery_pid, 0, 0);  // espera que termine delivery
     ovens.close_ovens();
+//    supervisor.stop();
+//    waitpid(supervisor_pid, 0, 0); //FIXME: buscar la manera de no tener problemas con la declaracion del try
+
+
     //fifo_hornos.close_fifo();  //FIXME: Sacarlo cuando esten los hornos
     //fifo_hornos.remove();  //FIXME: Sacarlo cuando esten los hornos, o ponerlo en delivery
 

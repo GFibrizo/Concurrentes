@@ -41,14 +41,13 @@ private:
     Semaphore max_requests;
 
     OvenSet& ovens;
-    Semaphore& free_ovens_semaphore;
 
 private:
     void accept_order(std::string);
     void simulate_cook(std::string);
 
 public:
-    Kitchen(Semaphore &,Semaphore&, OvenSet&, Semaphore&);
+    Kitchen(Semaphore &,Semaphore&, OvenSet&);
     void accept_orders();
 };
 

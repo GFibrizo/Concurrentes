@@ -3,7 +3,7 @@
 CC = g++ -std=c++11 #Gaston puto no vuelvas a poner gcc
 CPPFLAGS = -Wall -Wextra -g -pedantic 
 CPPLDFLAGS = -lm -lstdc++
-DEBUG = OFF
+DEBUG = ON
 
 #ifneq($(DEBUG),OFF)
 	CPPFLAGS += -D __DEBUG__
@@ -13,7 +13,7 @@ DEBUG = OFF
 EXEC = concu_zappi
 
 CONCURRENT_OBJECTS = lock_file.o pipe.o semaphore.o fifo.o reader_fifo.o writer_fifo.o signal_handler.o
-OBJECTS = $(CONCURRENT_OBJECTS) logger.o call_center.o kitchen.o delivery.o cash_register.o oven_set.o
+OBJECTS = $(CONCURRENT_OBJECTS) logger.o call_center.o kitchen.o delivery.o cash_register.o oven_set.o supervisor.o
 
 all: $(EXEC) 
 
@@ -46,6 +46,9 @@ cash_register.o: cash_register.h cash_register.cpp
 
 oven_set.o: oven_set.h oven_set.cpp
 	$(CC) $(CPPFLAGS) -c oven_set.cpp
+
+supervisor.o: supervisor.h supervisor.cpp
+	$(CC) $(CPPFLAGS) -c supervisor.cpp
 
 call_center.o: call_center.h call_center.cpp
 	$(CC) $(CPPFLAGS) -c call_center.cpp

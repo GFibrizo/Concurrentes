@@ -48,9 +48,9 @@ void Kitchen::simulate_cook(std::string pizza) {
 		Logger::log(__FILE__,Logger::DEBUG,"Amasando: "+pizza);
 #endif
         sleep(2);
-        free_ovens_semaphore.p();
+
         ovens.cook(pizza, generate_cooking_time());
-        free_ovens_semaphore.v();
+
 #ifdef __DEBUG__
 		Logger::log(__FILE__,Logger::DEBUG,"Al horno: "+pizza);
 #endif
@@ -96,10 +96,10 @@ void Kitchen::accept_orders() {
 
 }
 
-Kitchen::Kitchen(Semaphore &chefs_semaphore, Semaphore &max_requests_semaphore, OvenSet &ovenSet, Semaphore &free_ovens) :
+Kitchen::Kitchen(Semaphore &chefs_semaphore, Semaphore &max_requests_semaphore, OvenSet &ovenSet) :
         chefs(chefs_semaphore), request_fifo_lock(REQUEST_FIFO_LOCK),
         requests_fifo(REQUEST_PIPE) ,max_requests(max_requests_semaphore),
-        ovens(ovenSet), free_ovens_semaphore(free_ovens) {
+        ovens(ovenSet) {
     request_fifo_lock.lock();
     requests_fifo.open_fifo();
     launched_process = 0;
