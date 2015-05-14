@@ -100,11 +100,11 @@ int launch_call_center(Semaphore &recepcionists,Semaphore &max_requests_semaphor
     return pid;
 }
 
-int launch_chefs(Semaphore &chefs, Semaphore& max_requests_semaphore) {
+int launch_chefs(Semaphore &chefs, Semaphore& max_requests_semaphore, OvenSet & ovens, Semaphore &free_ovens) {
 
     int pid = fork();
     if (pid == 0) {
-        Kitchen kitchen = Kitchen(chefs,max_requests_semaphore);
+        Kitchen kitchen = Kitchen(chefs,max_requests_semaphore, ovens, free_ovens);
         kitchen.accept_orders();
         exit(EXIT_SUCCESS);
     }
@@ -195,10 +195,12 @@ int main(int argc, char **argv) {
     Semaphore occupied_ovens_semaphore = Semaphore("Occupied Ovens", 0);  // Hornos -> Delivery
 
     Pipe pipe = Pipe();
-    int call_center_pid = launch_call_center(recepcionists_semaphore,max_requests_semaphore, pipe);
-    int kitchen_pid = launch_chefs(chefs_semaphore,max_requests_semaphore);
     OvenSet ovens = OvenSet(config["Hornos"], occupied_ovens_semaphore);
     ignite_ovens(ovens);
+
+    int call_center_pid = launch_call_center(recepcionists_semaphore,max_requests_semaphore, pipe);
+    int kitchen_pid = launch_chefs(chefs_semaphore,max_requests_semaphore, ovens, free_ovens_semaphore);
+
     int delivery_pid = 0;
     try {
         Cash_Register cash_register = Cash_Register();

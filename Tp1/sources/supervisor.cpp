@@ -17,8 +17,11 @@ Supervisor::~Supervisor() {
 void Supervisor::check_cash_register() {
     while (true) {
         register_lock.lock();
-        if (cash.empty())
-            //TODO: cambiar a lo que sea que haya que chequear
+        if (cash_register.empty()) {
+#ifdef __DEBUG__
+            Logger::log(__FILE__,Logger::INFO,"Caja registradora vacia");
+#endif
+        }
         register_lock.release();
         //TODO: cortar ejecucion
         sleep(2);

@@ -25,17 +25,32 @@
 #include "pipenames.h"
 #include "locknames.h"
 
+#define MIN_TIME 0.5
+#define MAX_TIME 2.0
+
 using std::string;
+
+float generate_cooking_time() {
+    static bool seeded = false;
+    if (! seeded) {
+        srand(time(NULL));
+        seeded = true;
+    }
+    return MIN_TIME + (rand() / (RAND_MAX / (MAX_TIME - MIN_TIME)));
+}
 
 void Kitchen::simulate_cook(std::string pizza) {
     int pid = fork();
     if (pid == 0) {
         //TODO: do something
+
 #ifdef __DEBUG__
 		Logger::log(__FILE__,Logger::DEBUG,"Amasando: "+pizza);
 #endif
         sleep(2);
-        //TODO: Mandar al horno
+        free_ovens_semaphore.p();
+        ovens.cook(pizza, generate_cooking_time());
+        free_ovens_semaphore.v();
 #ifdef __DEBUG__
 		Logger::log(__FILE__,Logger::DEBUG,"Al horno: "+pizza);
 #endif
@@ -81,8 +96,10 @@ void Kitchen::accept_orders() {
 
 }
 
-Kitchen::Kitchen(Semaphore &chefs_semaphore,Semaphore &max_requests_semaphore) : chefs(chefs_semaphore), request_fifo_lock(REQUEST_FIFO_LOCK),
-                                               requests_fifo(REQUEST_PIPE) ,max_requests(max_requests_semaphore){
+Kitchen::Kitchen(Semaphore &chefs_semaphore, Semaphore &max_requests_semaphore, OvenSet &ovenSet, Semaphore &free_ovens) :
+        chefs(chefs_semaphore), request_fifo_lock(REQUEST_FIFO_LOCK),
+        requests_fifo(REQUEST_PIPE) ,max_requests(max_requests_semaphore),
+        ovens(ovenSet), free_ovens_semaphore(free_ovens) {
     request_fifo_lock.lock();
     requests_fifo.open_fifo();
     launched_process = 0;

@@ -27,6 +27,7 @@
 #include "lock_file.h"
 #include "semaphore.h"
 #include "reader_fifo.h"
+#include "oven_set.h"
 
 class Kitchen {
 
@@ -39,12 +40,15 @@ private:
 
     Semaphore max_requests;
 
+    OvenSet& ovens;
+    Semaphore& free_ovens_semaphore;
+
 private:
     void accept_order(std::string);
     void simulate_cook(std::string);
 
 public:
-    Kitchen(Semaphore &,Semaphore&);
+    Kitchen(Semaphore &,Semaphore&, OvenSet&, Semaphore&);
     void accept_orders();
 };
 

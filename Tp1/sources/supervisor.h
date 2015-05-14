@@ -7,6 +7,7 @@
 
 #include "semaphore.h"
 #include "cash_register.h"
+#include "lock_file.h"
 
 
 class Supervisor {
