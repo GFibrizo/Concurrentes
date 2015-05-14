@@ -26,6 +26,7 @@ OvenSet::~OvenSet() {
 }
 
 void OvenSet::start_ovens() {
+    finished_fifo_lock.lock();
     finished_fifo.open_fifo();
 }
 
