@@ -223,10 +223,6 @@ int main(int argc, char **argv) {
         cout << e << endl;
         exit(EXIT_FAILURE);
     }
-    //FIXME: Sacarlo cuando esten los hornos
-    //WriterFifo fifo_hornos = WriterFifo(FINISHED_FIFO);
-    //fifo_hornos.open_fifo();
-    ////////////////////////////////////////
 
     Logger::log(__FILE__, Logger::INFO, "Inicia recepcion de pedidos");
     answer_calls(pipe, max_requests_semaphore);
@@ -240,8 +236,6 @@ int main(int argc, char **argv) {
     kill(delivery_pid, SIGINT);  // mata al delivery
     waitpid(delivery_pid, 0, 0);  // espera que termine delivery
     waitpid(supervisor_pid, 0, 0);  // espera al supervisor
-    //fifo_hornos.close_fifo();  //FIXME: Sacarlo cuando esten los hornos
-    //fifo_hornos.remove();  //FIXME: Sacarlo cuando esten los hornos, o ponerlo en delivery
 
     //TODO: Ver bien donde ponerlo
     recepcionists_semaphore.remove();
