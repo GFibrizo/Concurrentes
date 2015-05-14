@@ -21,6 +21,7 @@
 #include "locknames.h"
 #include "pipenames.h"
 #include "times.h"
+#include "logger.h"
 
 #include <cstdlib>
 #include <sys/wait.h>
