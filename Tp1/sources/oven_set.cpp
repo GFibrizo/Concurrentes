@@ -55,9 +55,7 @@ void OvenSet::cook(string pizza, float time) {
     if (pid == 0) {
         sleep(time);
         ready_ovens.push_back(n_oven);
-        finished_fifo_lock.lock();
         finished_fifo.write_fifo(static_cast<void *>(&n_oven), sizeof(int));
-        finished_fifo_lock.release();
 #ifdef __DEBUG__
         Logger::log(__FILE__,Logger::DEBUG,"Coccion finalizada: "+pizza);
 #endif
