@@ -28,7 +28,7 @@
 #define  MIN_PAYMENT 50
 #define  MAX_PAYMENT 100
 
-Using std::string;
+using std::string;
 using std::to_string;
 
 float generate_deliver_time() {

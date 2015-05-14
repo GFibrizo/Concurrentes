@@ -22,8 +22,6 @@
 
 #include "kitchen.h"
 #include "logger.h"
-#include "pipenames.h"
-#include "locknames.h"
 #include "times.h"
 
 using std::string;
