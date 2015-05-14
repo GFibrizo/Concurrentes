@@ -72,6 +72,7 @@ void initialize_configurations(map<string, int> &config) {
     config["Cocineras"] = 0;
     config["Cadetas"] = 0;
     config["Hornos"] = 0;
+    config["Intervalo_Supervisora"] = 0;
 }
 
 /*Funcion que devuelve si todos los campos fueron correctamente configurados*/
@@ -125,6 +126,16 @@ int launch_delivery(Semaphore &cadets, OvenSet &ovens, Semaphore &occupied_ovens
     if (pid == 0) {
         Delivery delivery = Delivery(cadets, ovens, occupied_ovens_semaphore, cash_register);
         delivery.start_deliveries();
+        exit(EXIT_SUCCESS);
+    }
+    return pid;
+}
+
+int launch_supervisor(Cash_Register &cash_register, float checking_interval) {
+    int pid = fork();
+    if (pid == 0) {
+        Supervisor supervisor = Supervisor(cash_register, checking_interval);
+        supervisor.start_checking_register();
         exit(EXIT_SUCCESS);
     }
     return pid;
@@ -212,16 +223,15 @@ int main(int argc, char **argv) {
     int kitchen_pid = launch_chefs(chefs_semaphore, max_requests_semaphore, ovens);
 
     int delivery_pid = 0;
+    int supervisor_pid = 0;
     try {
         Cash_Register cash_register = Cash_Register();
         delivery_pid = launch_delivery(cadets_semaphore, ovens, occupied_ovens_semaphore, cash_register);
-//        Supervisor supervisor(cash_register);
-//        int supervisor_pid = launch_supervisor(supervisor);
+        supervisor_pid = launch_supervisor(cash_register, config["Intervalo_Supervisora"]);
     }catch (std::string e){
         cout <<  e << endl;
         exit(EXIT_FAILURE);
     }
-
     //FIXME: Sacarlo cuando esten los hornos
     //WriterFifo fifo_hornos = WriterFifo(FINISHED_FIFO);
     //fifo_hornos.open_fifo();
@@ -230,15 +240,13 @@ int main(int argc, char **argv) {
     Logger::log(__FILE__, Logger::INFO, "Inicia recepcion de pedidos");
     answer_calls(pipe,max_requests_semaphore);
 
+    kill(supervisor_pid, SIGINT);  // mata al supervisor
     waitpid(call_center_pid, 0, 0);  // espera que termine call_center
     waitpid(kitchen_pid, 0, 0);  // espera que termine kitchen
-    kill(delivery_pid, SIGINT);  //TODO: manejo de errores?
+    kill(delivery_pid, SIGINT);  // mata al delivery
     waitpid(delivery_pid, 0, 0);  // espera que termine delivery
     ovens.close_ovens();
-//    supervisor.stop();
-//    waitpid(supervisor_pid, 0, 0); //FIXME: buscar la manera de no tener problemas con la declaracion del try
-
-
+    waitpid(supervisor_pid, 0, 0);  // espera al supervisor
     //fifo_hornos.close_fifo();  //FIXME: Sacarlo cuando esten los hornos
     //fifo_hornos.remove();  //FIXME: Sacarlo cuando esten los hornos, o ponerlo en delivery
 

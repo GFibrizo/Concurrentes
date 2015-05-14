@@ -15,7 +15,7 @@ Cash_Register::Cash_Register() : cash(Shared_Memory<float>(CASH_REGISTER_SM, 'a'
 Cash_Register::~Cash_Register() {
 }
 
-bool Cash_Register::empty() {
+bool Cash_Register::is_empty() {
     return (cash.read() == 0);
 }
 
@@ -24,4 +24,8 @@ bool Cash_Register::add_money(float money) {
         return false; //Se puede cambiar por manejo de errores
     cash.write(money);
     return  true;
+}
+
+float Cash_Register::get_amount() {
+    return cash.read();
 }

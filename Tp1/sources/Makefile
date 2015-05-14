@@ -44,6 +44,9 @@ signal_handler.o: signal_handler.h signal_handler.cpp
 cash_register.o: cash_register.h cash_register.cpp
 	$(CC) $(CPPFLAGS) -c cash_register.cpp
 
+supervisor.o: supervisor.h supervisor.cpp
+	$(CC) $(CPPFLAGS) -c supervisor.cpp
+
 oven_set.o: oven_set.h oven_set.cpp
 	$(CC) $(CPPFLAGS) -c oven_set.cpp
 
