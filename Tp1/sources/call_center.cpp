@@ -18,7 +18,6 @@
  */
 
 #include "call_center.h"
-#include "logger.h"
 #include "locknames.h"
 #include "pipenames.h"
 #include "times.h"
@@ -28,12 +27,13 @@
 
 using std::string;
 
-Call_Center::Call_Center(Semaphore &recepcionists_semaphore,Semaphore &max_requests_semaphore, Pipe& pipe) : recepcionist(recepcionists_semaphore),
-                                                                          pipe_lock(REQUEST_PIPE_LOCK),
-                                                                          internal_pipe(pipe),
-                                                                          fifo_lock(REQUEST_FIFO_LOCK),
-                                                                          fifo(REQUEST_PIPE),
-                                                                          aviable_requests(max_requests_semaphore) {
+Call_Center::Call_Center(Semaphore &recepcionists_semaphore, Semaphore &max_requests_semaphore, Pipe &pipe)
+        : recepcionist(recepcionists_semaphore),
+          pipe_lock(REQUEST_PIPE_LOCK),
+          internal_pipe(pipe),
+          fifo_lock(REQUEST_FIFO_LOCK),
+          fifo(REQUEST_PIPE),
+          aviable_requests(max_requests_semaphore) {
     pipe_lock.lock();
     fifo.open_fifo();
 }
@@ -44,7 +44,7 @@ void Call_Center::simulate_call(string request) {
         //TODO: do something
         sleep(CALL_TIME);
 #ifdef __DEBUG__
-		Logger::log(__FILE__,Logger::DEBUG,"Pedido cargado: "+request);
+		Logger::log(__FILE__,Logger::DEBUG,"Pedido aceptado: "+request);
 #endif
         int len = request.size();
         char *buffer = (char *) request.c_str();
@@ -81,7 +81,7 @@ void Call_Center::accept_calls() {
         request.resize(len);
 
 #ifdef __DEBUG__
-        Logger::log(__FILE__,Logger::DEBUG,"Pedido Atendiendose: "+request);
+        Logger::log(__FILE__,Logger::DEBUG,"Llamada atendiendose: "+request);
 #endif
         accept_call(request);
     }
