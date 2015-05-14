@@ -5,31 +5,35 @@
 #include "supervisor.h"
 
 #include <unistd.h>
+#include <iostream>
 #include "locknames.h"
+#include "signal_handler.h"
+#include "SIGINT_handler.h"
 #include "logger.h"
 
-Supervisor::Supervisor(Cash_Register& cash_register) :
-        register_lock(CASH_REGISTER_LOCK), cash_register(cash_register), continue_checking(false) {
+using std::cout;
+using std::endl;
+using std::to_string;
+
+Supervisor::Supervisor(Cash_Register& cash_register, float checking_interval) :
+        register_lock(CASH_REGISTER_LOCK), cash_register(cash_register), checking_interval(checking_interval) {
 }
 
 Supervisor::~Supervisor() {
 }
 
-void Supervisor::check_cash_register() {
-    continue_checking = true;
-
-    while (continue_checking) {
+void Supervisor::start_checking_register() {
+    SIGINT_Handler sigint_handler = SIGINT_Handler();
+    SignalHandler::get_instance()->register_handler(SIGINT, &sigint_handler);
+    while (sigint_handler.get_graceful_quit() == 0) {
         register_lock.lock();
-        if (cash_register.empty()) {
-#ifdef __DEBUG__
-            //Logger::log(__FILE__,Logger::DEBUG,"Caja registradora vacia");
-#endif
+        if (cash_register.is_empty()) {
+            Logger::log(__FILE__, Logger::INFO, "La caja esta vacia");
+        } else {
+            int register_amount = cash_register.get_amount();
+            Logger::log(__FILE__, Logger::INFO, "Hay en la caja: "+to_string(register_amount));
         }
         register_lock.release();
-        sleep(100);
+        sleep(checking_interval);
     }
-}
-
-void Supervisor::stop() {
-    continue_checking = false; //FIXME: algo mejor que esto
 }

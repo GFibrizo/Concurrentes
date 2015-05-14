@@ -122,6 +122,12 @@ Delivery::DeliverySIGINTHandler::DeliverySIGINTHandler(Semaphore &occupied_ovens
 
 int Delivery::DeliverySIGINTHandler::handle_signal(int signal_number) {
     if (signal_number == SIGINT) {
+        // Bloqueo de SIGINT
+        sigset_t blocking_set;
+        sigemptyset(&blocking_set);
+        sigaddset(&blocking_set, SIGINT);
+        sigprocmask(SIG_BLOCK, &blocking_set, NULL);
+        // Graceful Quit
         occupied_ovens.w();
         finished_fifo.close_fifo();
         return 0;

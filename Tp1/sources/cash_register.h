@@ -14,8 +14,9 @@ private:
 public:
     Cash_Register();
     ~Cash_Register();
-    bool empty();
+    bool is_empty();
     bool add_money(float money);
+    float get_amount();
 };
 
 
