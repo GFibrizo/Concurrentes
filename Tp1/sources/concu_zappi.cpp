@@ -229,12 +229,12 @@ int main(int argc, char **argv) {
 
     waitpid(ovens_pid,0,0); //Levanta la finalizacion de prender los hornos
 
-    kill(supervisor_pid, SIGINT);  // mata al supervisor
     waitpid(call_center_pid, 0, 0);  // espera que termine call_center
     waitpid(kitchen_pid, 0, 0);  // espera que termine kitchen
     ovens.close_ovens();
     kill(delivery_pid, SIGINT);  // mata al delivery
     waitpid(delivery_pid, 0, 0);  // espera que termine delivery
+    kill(supervisor_pid, SIGINT);  // mata al supervisor
     waitpid(supervisor_pid, 0, 0);  // espera al supervisor
 
     //TODO: Ver bien donde ponerlo
