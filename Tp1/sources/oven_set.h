@@ -7,7 +7,7 @@
 
 #include <string>
 #include <list>
-#include <vector>
+#include <map>
 #include <unistd.h>
 
 #include "semaphore.h"
@@ -21,9 +21,8 @@
 class OvenSet {
 private:
     Semaphore ovens_sem;
-    std::vector<Shared_Memory<std::string *> *> ovens;
+    std::map<int, std::string> ovens;
     std::list<int> free_ovens;
-    std::list<int> ready_ovens;
 
     Semaphore free_ovens_semaphore;
     Semaphore occupied_ovens_semaphore;
@@ -39,7 +38,7 @@ public:
 
     void cook(std::string pizza, float time);
 
-    std::string remove();
+    std::string remove(int oven_number);
 
     void close_ovens();
 };

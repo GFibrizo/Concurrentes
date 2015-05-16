@@ -111,15 +111,6 @@ int launch_chefs(Semaphore &chefs, Semaphore& max_requests_semaphore, OvenSet & 
     return pid;
 }
 
-int ignite_ovens(OvenSet &ovens) {
-    int pid = fork();
-    if (pid == 0) {
-        ovens.start_ovens();
-        exit(EXIT_SUCCESS);
-    }
-    return pid;
-}
-
 int launch_delivery(Semaphore &cadets, OvenSet &ovens, Semaphore &occupied_ovens_semaphore,
                     Cash_Register &cash_register) {
     int pid = fork();
@@ -208,7 +199,6 @@ int main(int argc, char **argv) {
 
     Pipe pipe = Pipe();
     OvenSet ovens = OvenSet(config["Hornos"], free_ovens_semaphore, occupied_ovens_semaphore);
-    int ovens_pid = ignite_ovens(ovens);
 
     int call_center_pid = launch_call_center(recepcionists_semaphore,max_requests_semaphore, pipe);
     int kitchen_pid = launch_chefs(chefs_semaphore, max_requests_semaphore, ovens);
@@ -223,11 +213,11 @@ int main(int argc, char **argv) {
         cout << e << endl;
         exit(EXIT_FAILURE);
     }
+    ovens.start_ovens();
 
     Logger::log(__FILE__, Logger::INFO, "Inicia recepcion de pedidos");
     answer_calls(pipe, max_requests_semaphore);
 
-    waitpid(ovens_pid,0,0); //Levanta la finalizacion de prender los hornos
     waitpid(call_center_pid, 0, 0);  // espera que termine call_center
     waitpid(kitchen_pid, 0, 0);  // espera que termine kitchen
     ovens.close_ovens();

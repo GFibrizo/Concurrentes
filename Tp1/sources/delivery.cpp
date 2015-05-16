@@ -71,7 +71,7 @@ void Delivery::make_delivery(int oven_number) {
 void Delivery::simulate_delivery(int oven_number) {
     int pid = fork();
     if (pid == 0) {
-        string pizza = ovens.remove();
+        string pizza = ovens.remove(oven_number);
 #ifdef __DEBUG__
 	    Logger::log(__FILE__,Logger::DEBUG,"Sacada del horno "+to_string(oven_number)+": "+pizza);
 #endif
