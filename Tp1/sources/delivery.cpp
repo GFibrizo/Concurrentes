@@ -128,7 +128,6 @@ int Delivery::DeliverySIGINTHandler::handle_signal(int signal_number) {
         sigprocmask(SIG_BLOCK, &blocking_set, NULL);
         // Graceful Quit
         occupied_ovens.w(); //Espera que no haya hornos en uso
-        finished_fifo.close_fifo();
         return 0;
     }
     return -1;

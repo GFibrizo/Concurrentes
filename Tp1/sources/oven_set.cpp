@@ -30,13 +30,14 @@ void OvenSet::start_ovens() {
 }
 
 void OvenSet::close_ovens() {
-    int end = -1;
-    finished_fifo.write_fifo(static_cast<void *>(&end), sizeof(int));
+    //TODO ver: occupied_ovens_semaphore.w(); //wait for all ovens to finish
+    //int end = -1;
+    //finished_fifo.write_fifo(static_cast<void *>(&end), sizeof(int));
     finished_fifo_lock.lock(); //Espero a que terminen de usar la fifo las chicas del delivery
     finished_fifo.close_fifo();
     finished_fifo.remove();
 
-    wait();
+    wait(0);
 
     finished_fifo_lock.release();
 }
