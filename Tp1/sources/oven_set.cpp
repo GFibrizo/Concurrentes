@@ -65,6 +65,7 @@ void OvenSet::cook(string pizza, float time) {
 #ifdef __DEBUG__
         Logger::log(__FILE__,Logger::DEBUG,"Coccion finalizada: "+pizza+" en horno: "+std::to_string(n_oven));
 #endif
+        finished_fifo.close_fifo(); //Cierro el fifo
         exit(EXIT_SUCCESS);
     }
 }
