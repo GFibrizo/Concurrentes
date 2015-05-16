@@ -53,8 +53,15 @@ void OvenSet::cook(string pizza, float time) {
 
     int pid = fork();
     if (pid == 0) {
+        finished_fifo.open_fifo();
         sleep(time);
-        finished_fifo.write_fifo(static_cast<void *>(&n_oven), sizeof(int));
+        ssize_t return_value = finished_fifo.write_fifo(static_cast<void *>(&n_oven), sizeof(int));
+        if (return_value < 0)
+        {
+            int err = errno;
+            std::cout << "Error: " << strerror(err) << std::endl;
+            exit(EXIT_FAILURE);
+        }
 #ifdef __DEBUG__
         Logger::log(__FILE__,Logger::DEBUG,"Coccion finalizada: "+pizza+" en horno: "+std::to_string(n_oven));
 #endif

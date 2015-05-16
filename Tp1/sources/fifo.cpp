@@ -21,6 +21,7 @@ Fifo::~Fifo() {
 }
 
 void Fifo::close_fifo() {
+	std::cout << "Cerrada: cola " << std::to_string(fd) <<std::endl;
 	close(fd);
 	fd = -1;
 }

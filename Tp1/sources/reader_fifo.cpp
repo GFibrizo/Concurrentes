@@ -8,6 +8,9 @@ ReaderFifo::~ReaderFifo() {
 
 void ReaderFifo::open_fifo() {
 	fd = open(name.c_str(), O_RDONLY);
+
+	std::cout << "Open: cola " << std::to_string(fd) << " - " << name <<std::endl;
+
 	if (fd == -1) {
 		std::cerr << "Error al abrir el archivo para lectura" << std::endl;
 	}
