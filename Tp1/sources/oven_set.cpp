@@ -36,7 +36,7 @@ void OvenSet::close_ovens() {
     finished_fifo.close_fifo();
     finished_fifo.remove();
 
-    waitpid(-1, NULL, 0);
+    wait();
 
     finished_fifo_lock.release();
 }
