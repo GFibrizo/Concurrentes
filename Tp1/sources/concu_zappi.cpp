@@ -219,12 +219,24 @@ int main(int argc, char **argv) {
     answer_calls(pipe, max_requests_semaphore);
 
     waitpid(call_center_pid, 0, 0);  // espera que termine call_center
+#ifdef __DEBUG__
+    Logger::log(__FILE__,Logger::DEBUG,"Cerrado call center. Todas las empleadas se retiraron");
+#endif
     waitpid(kitchen_pid, 0, 0);  // espera que termine kitchen
+#ifdef __DEBUG__
+    Logger::log(__FILE__,Logger::DEBUG,"Cerrada cocina. Todos las cocineras se retiraron");
+#endif
     ovens.close_ovens();
     kill(delivery_pid, SIGINT);  // mata al delivery
     waitpid(delivery_pid, 0, 0);  // espera que termine delivery
+#ifdef __DEBUG__
+    Logger::log(__FILE__,Logger::DEBUG,"Cerrado el delivery. Todas las empleadas se retiraron");
+#endif
     kill(supervisor_pid, SIGINT);  // mata al supervisor
     waitpid(supervisor_pid, 0, 0);  // espera al supervisor
+#ifdef __DEBUG__
+    Logger::log(__FILE__,Logger::DEBUG,"Cerrada oficina. La supervisora se ha retirado");
+#endif
 
     //TODO: Ver bien donde ponerlo
     recepcionists_semaphore.remove();

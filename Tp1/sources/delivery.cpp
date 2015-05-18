@@ -128,6 +128,10 @@ int Delivery::DeliverySIGINTHandler::handle_signal(int signal_number) {
         sigprocmask(SIG_BLOCK, &blocking_set, NULL);
         // Graceful Quit
         occupied_ovens.w(); //Espera que no haya hornos en uso
+#ifdef __DEBUG__
+    Logger::log(__FILE__,Logger::DEBUG,"No quedan mas pizzas en el horno");
+#endif
+        finished_fifo.close_fifo();
         return 0;
     }
     return -1;
