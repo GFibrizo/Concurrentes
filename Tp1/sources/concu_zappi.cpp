@@ -136,7 +136,7 @@ void answer_calls(Pipe &pipe) {
     string line;
     cout << "Pedido: ";
     while (getline(cin, line)) {
-        int size = line.size();
+        ssize_t size = line.size();
         ssize_t wrote = pipe.write_pipe(static_cast<const void *>(&size), sizeof(int));
 
         if (wrote <= 0) {
@@ -145,7 +145,7 @@ void answer_calls(Pipe &pipe) {
 
         wrote = pipe.write_pipe(static_cast<const void *>(line.c_str()), size);
 
-        if (wrote == line.size()) {
+        if (wrote == size) {
 #ifdef __DEBUG__
 	Logger::log(__FILE__, Logger::DEBUG, "Llamado entrante: " + line);
 #endif
