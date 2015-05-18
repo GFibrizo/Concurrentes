@@ -25,12 +25,14 @@
 #include <sstream>
 #include <stdlib.h>
 
+#include "shared_memory.h"
 #include "call_center.h"
 #include "logger.h"
 #include "kitchen.h"
 #include "locknames.h"
 #include "delivery.h"
 #include "supervisor.h"
+#include "shared_memory_names.h"
 
 using std::string;
 using std::cout;
@@ -112,7 +114,7 @@ int launch_chefs(Semaphore &chefs, Semaphore& max_requests_semaphore, OvenSet & 
 }
 
 int launch_delivery(Semaphore &cadets, OvenSet &ovens, Semaphore &occupied_ovens_semaphore,
-                    Cash_Register &cash_register) {
+                    Shared_Memory<float> &cash_register) {
     int pid = fork();
     if (pid == 0) {
         Delivery delivery = Delivery(cadets, ovens, occupied_ovens_semaphore, cash_register);
@@ -122,7 +124,7 @@ int launch_delivery(Semaphore &cadets, OvenSet &ovens, Semaphore &occupied_ovens
     return pid;
 }
 
-int launch_supervisor(Cash_Register &cash_register, float checking_interval) {
+int launch_supervisor(Shared_Memory<float> &cash_register, float checking_interval) {
     int pid = fork();
     if (pid == 0) {
         Supervisor supervisor = Supervisor(cash_register, checking_interval);
@@ -200,13 +202,16 @@ int main(int argc, char **argv) {
     Pipe pipe = Pipe();
     OvenSet ovens = OvenSet(config["Hornos"], free_ovens_semaphore, occupied_ovens_semaphore);
 
+    Shared_Memory<float> cash_register = Shared_Memory<float>();
+
     int call_center_pid = launch_call_center(recepcionists_semaphore,max_requests_semaphore, pipe);
     int kitchen_pid = launch_chefs(chefs_semaphore, max_requests_semaphore, ovens);
 
     int delivery_pid = 0;
     int supervisor_pid = 0;
     try {
-        Cash_Register cash_register = Cash_Register();
+        //Cash_Register cash_register = Cash_Register();
+        cash_register.create(CASH_REGISTER_SM, 'a');
         delivery_pid = launch_delivery(cadets_semaphore, ovens, occupied_ovens_semaphore, cash_register);
         supervisor_pid = launch_supervisor(cash_register, config["Intervalo_Supervisora"]);
     } catch (std::string e) {
@@ -244,6 +249,8 @@ int main(int argc, char **argv) {
     cadets_semaphore.remove();
     free_ovens_semaphore.remove();
     occupied_ovens_semaphore.remove();
+
+    cash_register.free();
 
     Logger::close_logger();
     return 0;

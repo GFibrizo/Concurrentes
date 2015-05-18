@@ -28,6 +28,7 @@
 #include "reader_fifo.h"
 #include "event_handler.h"
 #include "signal_handler.h"
+#include "shared_memory.h"
 #include "cash_register.h"
 #include "oven_set.h"
 
@@ -43,7 +44,7 @@ private:
     ReaderFifo finished_fifo;
 
     Lock_File cash_register_lock;
-    Cash_Register cash_register;
+    Shared_Memory<float> cash_register;
 
 private:
     void simulate_delivery(int oven_number);
@@ -52,7 +53,7 @@ private:
 
 public:
     Delivery(Semaphore &cadets_semaphore, OvenSet &ovens, Semaphore &occupied_ovens_semaphore,
-             Cash_Register &cash_register);
+             Shared_Memory<float> &cash_register);
 
     void start_deliveries();
 

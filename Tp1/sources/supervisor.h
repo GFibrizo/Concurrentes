@@ -6,17 +6,18 @@
 #define REGISTER_SUPERVISOR_H
 
 #include "lock_file.h"
+#include "shared_memory.h"
 #include "cash_register.h"
 
 class Supervisor {
 
 private:
     Lock_File register_lock;
-    Cash_Register cash_register;
+    Shared_Memory<float> cash_register;
     float checking_interval;
 
 public:
-    Supervisor(Cash_Register &cash_register, float checking_interval);
+    Supervisor(Shared_Memory<float> &cash_register, float checking_interval);
 
     ~Supervisor();
 
