@@ -132,7 +132,7 @@ int launch_supervisor(Cash_Register &cash_register, float checking_interval) {
     return pid;
 }
 
-void answer_calls(Pipe &pipe, Semaphore &max_requests_semaphore) {
+void answer_calls(Pipe &pipe) {
     string line;
     cout << "Pedido: ";
     while (getline(cin, line)) {
@@ -216,7 +216,7 @@ int main(int argc, char **argv) {
     ovens.start_ovens();
 
     Logger::log(__FILE__, Logger::INFO, "Inicia recepcion de pedidos");
-    answer_calls(pipe, max_requests_semaphore);
+    answer_calls(pipe);
 
     waitpid(call_center_pid, 0, 0);  // espera que termine call_center
 #ifdef __DEBUG__
