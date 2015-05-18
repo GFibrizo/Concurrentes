@@ -97,7 +97,7 @@ void Delivery::simulate_delivery(int oven_number) {
 }
 
 void Delivery::start_deliveries() {
-    DeliverySIGINTHandler sigint_handler(occupied_ovens, finished_fifo);
+    DeliverySIGINTHandler sigint_handler(occupied_ovens, finished_fifo, ovens);
     SignalHandler::get_instance()->register_handler(SIGINT, &sigint_handler);
 
     int oven_number = 0;
@@ -115,8 +115,9 @@ void Delivery::start_deliveries() {
     finished_fifo_lock.release();
 }
 
-Delivery::DeliverySIGINTHandler::DeliverySIGINTHandler(Semaphore &occupied_ovens, ReaderFifo &finished_fifo)
-        : occupied_ovens(occupied_ovens), finished_fifo(finished_fifo) {
+Delivery::DeliverySIGINTHandler::DeliverySIGINTHandler(Semaphore &occupied_ovens, ReaderFifo &finished_fifo,
+                                                       OvenSet &oven_set)
+        : occupied_ovens(occupied_ovens), finished_fifo(finished_fifo), ovens(oven_set) {
 }
 
 int Delivery::DeliverySIGINTHandler::handle_signal(int signal_number) {
@@ -131,12 +132,13 @@ int Delivery::DeliverySIGINTHandler::handle_signal(int signal_number) {
         sigprocmask(SIG_BLOCK, &blocking_set, NULL);
         // Graceful Quit
         int pid = fork();
-        if (pid != 0){ //Hijo
-        occupied_ovens.w(); //Espera que no haya hornos en uso
+        if (pid != 0) { //Hijo
+            occupied_ovens.w(); //Espera que no haya hornos en uso
 #ifdef __DEBUG__
     Logger::log(__FILE__,Logger::DEBUG,"No quedan mas pizzas en el horno");
 #endif
-        finished_fifo.close_fifo();
+            ovens.turn_off_ovens();
+            finished_fifo.close_fifo();
             exit(EXIT_SUCCESS);
         }
         return 0;

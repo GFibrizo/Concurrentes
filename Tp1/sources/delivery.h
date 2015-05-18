@@ -47,10 +47,13 @@ private:
 
 private:
     void simulate_delivery(int oven_number);
+
     void make_delivery(int oven_number);
 
 public:
-    Delivery(Semaphore &cadets_semaphore, OvenSet &ovens, Semaphore &occupied_ovens_semaphore, Cash_Register &cash_register);
+    Delivery(Semaphore &cadets_semaphore, OvenSet &ovens, Semaphore &occupied_ovens_semaphore,
+             Cash_Register &cash_register);
+
     void start_deliveries();
 
 private:
@@ -59,9 +62,11 @@ private:
     private:
         Semaphore occupied_ovens;
         ReaderFifo finished_fifo;
+        OvenSet ovens;
 
     public:
-        DeliverySIGINTHandler(Semaphore &occupied_ovens, ReaderFifo &finished_fifo);
+        DeliverySIGINTHandler(Semaphore &occupied_ovens, ReaderFifo &finished_fifo, OvenSet &oven_set);
+
         int handle_signal(int signal_number);
     };
 

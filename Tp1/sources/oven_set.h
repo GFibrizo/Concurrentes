@@ -26,7 +26,7 @@ private:
 
     Semaphore free_ovens_semaphore;
     Semaphore occupied_ovens_semaphore;
-    Lock_File finished_fifo_lock;  // Creo que no había que usarlo acá, lo agregué por las dudas. - Bruno
+    Lock_File finished_fifo_lock;  //TODO: Creo que no había que usarlo acá, lo agregué por las dudas. - Bruno
     WriterFifo finished_fifo;
 
 public:
@@ -39,6 +39,8 @@ public:
     void cook(std::string pizza, float time);
 
     std::string remove(int oven_number);
+
+    void turn_off_ovens();
 
     void close_ovens();
 };

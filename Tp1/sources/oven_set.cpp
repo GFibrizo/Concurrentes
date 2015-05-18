@@ -64,9 +64,12 @@ void OvenSet::cook(string pizza, float time) {
     }
 }
 
-string OvenSet::remove(int n_oven) {
-    free_ovens_semaphore.v();
+void OvenSet::turn_off_ovens(){
+    //TODO: free shared memory
+}
 
+
+string OvenSet::remove(int n_oven) {
     string pizza(ovens[n_oven]);
     free_ovens.push_back(n_oven);
 
@@ -74,6 +77,7 @@ string OvenSet::remove(int n_oven) {
         Logger::log(__FILE__,Logger::DEBUG,"Pizza retirada: "+pizza);
 #endif
 
+    free_ovens_semaphore.v();
     occupied_ovens_semaphore.p();
     return pizza;
 }
