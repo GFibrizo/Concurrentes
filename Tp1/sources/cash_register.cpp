@@ -22,7 +22,7 @@ bool Cash_Register::is_empty() {
 bool Cash_Register::add_money(float money) {
     if (money < 0)
         return false; //Se puede cambiar por manejo de errores
-    cash.write(money);
+    cash.write(cash.read()+money);
     return  true;
 }
 

@@ -226,7 +226,7 @@ int main(int argc, char **argv) {
 #ifdef __DEBUG__
     Logger::log(__FILE__,Logger::DEBUG,"Cerrada cocina. Todos las cocineras se retiraron");
 #endif
-    ovens.close_ovens();
+    //ovens.close_ovens();
     kill(delivery_pid, SIGINT);  // mata al delivery
     waitpid(delivery_pid, 0, 0);  // espera que termine delivery
 #ifdef __DEBUG__

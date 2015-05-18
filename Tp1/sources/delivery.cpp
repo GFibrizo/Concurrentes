@@ -121,17 +121,24 @@ Delivery::DeliverySIGINTHandler::DeliverySIGINTHandler(Semaphore &occupied_ovens
 
 int Delivery::DeliverySIGINTHandler::handle_signal(int signal_number) {
     if (signal_number == SIGINT) {
+#ifdef __DEBUG__
+    Logger::log(__FILE__,Logger::DEBUG,"Notificado al delivery que solo queda lo que esta en el horno");
+#endif
         // Bloqueo de SIGINT
         sigset_t blocking_set;
         sigemptyset(&blocking_set);
         sigaddset(&blocking_set, SIGINT);
         sigprocmask(SIG_BLOCK, &blocking_set, NULL);
         // Graceful Quit
+        int pid = fork();
+        if (pid != 0){ //Hijo
         occupied_ovens.w(); //Espera que no haya hornos en uso
 #ifdef __DEBUG__
     Logger::log(__FILE__,Logger::DEBUG,"No quedan mas pizzas en el horno");
 #endif
         finished_fifo.close_fifo();
+            exit(EXIT_SUCCESS);
+        }
         return 0;
     }
     return -1;

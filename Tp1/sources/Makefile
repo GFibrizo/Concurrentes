@@ -7,7 +7,6 @@ DEBUG = ON
 
 #ifneq($(DEBUG),OFF)
 	CPPFLAGS += -D __DEBUG__
-	CPPLDFLAGS += -D __DEBUG__
 #endif
 
 EXEC = concu_zappi
@@ -60,7 +59,7 @@ delivery.o: delivery.h delivery.cpp
 	$(CC) $(CPPFLAGS) -c delivery.cpp
 
 $(EXEC): $(EXEC).cpp $(OBJECTS)
-	$(CC) $(CPPLDFLAGS) $(OBJECTS) $(EXEC).cpp -o $(EXEC)
+	$(CC) $(CPPFLAGS) $(CPPLDFLAGS) $(OBJECTS) $(EXEC).cpp -o $(EXEC)
 
 clean:
 	rm -f -r *.o *.save *.log  *~ $(EXEC)
