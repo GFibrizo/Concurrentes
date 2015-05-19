@@ -174,7 +174,7 @@ void answer_calls(Pipe &pipe) {
     pipe_lock.release();
 }
 
-int main(int argc, char **argv) {
+int main() {
     Logger::open_logger("run_log.log"); //TODO: Agregar opccion para sobreescribir
 
     Logger::log(__FILE__, Logger::INFO, "Inicio configuracion");
@@ -245,6 +245,7 @@ int main(int argc, char **argv) {
     //TODO: Ver bien donde ponerlo
     recepcionists_semaphore.remove();
     chefs_semaphore.remove();
+    max_requests_semaphore.remove();
     cadets_semaphore.remove();
     free_ovens_semaphore.remove();
     occupied_ovens_semaphore.remove();
