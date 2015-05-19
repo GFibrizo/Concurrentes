@@ -43,8 +43,8 @@ private:
     Semaphore aviable_requests;
 
 private:
-    void accept_call(std::string);
-    void simulate_call(std::string);
+    void accept_call(int order);
+    void simulate_call(int order);
 
 public:
     Call_Center(Semaphore&,Semaphore&,Pipe&);

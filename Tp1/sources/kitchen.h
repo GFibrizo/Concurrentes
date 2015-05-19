@@ -43,8 +43,8 @@ private:
     OvenSet& ovens;
 
 private:
-    void accept_order(std::string);
-    void simulate_cook(std::string);
+    void accept_order(int order);
+    void simulate_cook(int order);
 
 public:
     Kitchen(Semaphore &,Semaphore&, OvenSet&);

@@ -41,6 +41,7 @@ using std::endl;
 using std::ifstream;
 using std::stringstream;
 using std::map;
+using std::stoi;
 
 /*Funcion para cargar la configuracion del programa en un map*/
 void load_configurations(map<string, int> &config) {
@@ -138,16 +139,14 @@ void answer_calls(Pipe &pipe) {
     string line;
     cout << "Pedido: ";
     while (getline(cin, line)) {
-        ssize_t size = line.size();
-        ssize_t wrote = pipe.write_pipe(static_cast<const void *>(&size), sizeof(int));
+        int order = stoi(line);
+        ssize_t wrote = pipe.write_pipe(static_cast<void *>(&order), sizeof(int));
 
         if (wrote <= 0) {
             break; //TODO: Ver bien que hacer en este caso.
         }
 
-        wrote = pipe.write_pipe(static_cast<const void *>(line.c_str()), size);
-
-        if (wrote == size) {
+        if (wrote == sizeof(int)) {
 #ifdef __DEBUG__
 	Logger::log(__FILE__, Logger::DEBUG, "Llamado entrante: " + line);
 #endif

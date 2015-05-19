@@ -25,6 +25,7 @@
 #include "times.h"
 
 using std::string;
+using std::to_string;
 
 float generate_cooking_time() {
     static bool seeded = false;
@@ -35,20 +36,20 @@ float generate_cooking_time() {
     return OVEN_MIN_TIME + (rand() / (RAND_MAX / (OVEN_MAX_TIME - OVEN_MIN_TIME)));
 }
 
-void Kitchen::simulate_cook(std::string pizza) {
+void Kitchen::simulate_cook(int order) {
     int pid = fork();
     if (pid == 0) {
         //TODO: do something
 
 #ifdef __DEBUG__
-		Logger::log(__FILE__,Logger::DEBUG,"Pedido levantado, amasando: "+pizza);
+		Logger::log(__FILE__,Logger::DEBUG,"Pedido levantado, amasando: "+to_string(order));
 #endif
         sleep(COOKING_TIME);
 
-        ovens.cook(pizza, generate_cooking_time());
+        //ovens.cook(order, generate_cooking_time()); /FIXME reveer cuando esten los hornos
 
 #ifdef __DEBUG__
-		Logger::log(__FILE__,Logger::DEBUG,"Al horno: "+pizza);
+		Logger::log(__FILE__,Logger::DEBUG,"Al horno: "+to_string(order));
 #endif
         chefs.v(); //TODO: ver en que orden se deberia liberar esto
         exit(EXIT_SUCCESS);
@@ -56,30 +57,21 @@ void Kitchen::simulate_cook(std::string pizza) {
 }
 
 
-void Kitchen::accept_order(std::string pizza) {
+void Kitchen::accept_order(int order) {
     launched_process++;
     chefs.p();
-    simulate_cook(pizza);
+    simulate_cook(order);
 }
 
 void Kitchen::accept_orders() {
-    static const int BUFFSIZE = 200;
-    char buff[BUFFSIZE];
-    char len_buff[sizeof(int)];
-    while (requests_fifo.read_fifo(len_buff, sizeof(int)) > 0) {
+    int order;
+    while (requests_fifo.read_fifo(static_cast<void*>(&order), sizeof(int)) > 0) {
         max_requests.v();
-        int len = *(int *) len_buff;
-        if (len == 0) {
+        if (order == 0) {
             break;
         }
 
-        if (requests_fifo.read_fifo(buff, len) == 0) {
-            //TODO: Error
-        }
-
-        string pizza = buff;
-        pizza.resize(len);
-        accept_order(pizza);
+        accept_order(order);
     }
 
     requests_fifo.close_fifo();

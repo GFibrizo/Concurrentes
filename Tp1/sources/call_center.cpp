@@ -27,6 +27,7 @@
 #include <sys/wait.h>
 
 using std::string;
+using std::to_string;
 
 Call_Center::Call_Center(Semaphore &recepcionists_semaphore, Semaphore &max_requests_semaphore, Pipe &pipe)
         : recepcionist(recepcionists_semaphore),
@@ -39,52 +40,37 @@ Call_Center::Call_Center(Semaphore &recepcionists_semaphore, Semaphore &max_requ
     fifo.open_fifo();
 }
 
-void Call_Center::simulate_call(string request) {
+void Call_Center::simulate_call(int order) {
     int pid = fork();
     if (pid == 0) {
         //TODO: do something
         sleep(CALL_TIME);
 #ifdef __DEBUG__
-		Logger::log(__FILE__,Logger::DEBUG,"Pedido aceptado: "+request);
+		Logger::log(__FILE__,Logger::DEBUG,"Pedido aceptado: "+to_string(order));
 #endif
-        int len = request.size();
-        char *buffer = (char *) request.c_str();
-        fifo.write_fifo(static_cast<void *>(&len), sizeof(int)); //TODO: esto me hace un poco de ruido
-        fifo.write_fifo(static_cast<void *>(buffer), len);
+        fifo.write_fifo(static_cast<void *>(&order), sizeof(int));
         recepcionist.v(); //TODO: ver en que orden se deberia liberar esto
         exit(EXIT_SUCCESS);
     }
 }
 
-void Call_Center::accept_call(string request) {
+void Call_Center::accept_call(int order) {
     launched_process++;
     recepcionist.p();
-    simulate_call(request);
+    simulate_call(order);
 }
 
 void Call_Center::accept_calls() {
-    static const int BUFFSIZE = 200;
-    char buff[BUFFSIZE];
-    char len_buff[sizeof(int)];
-    while (internal_pipe.read_pipe(len_buff, sizeof(int)) > 0) {
-        int len = *(int *) len_buff;
-        if (len == 0) {
+    int order;
+    while (internal_pipe.read_pipe(static_cast<void*>(&order), sizeof(int)) > 0) {
+        if (order == 0) {
             break;
         }
 
-        if (internal_pipe.read_pipe(buff, len) == 0) {
-            //TODO: Error
-        }
-
-        //buff[len] = '\0'; //Agrega fin de linea donde va
-
-        string request = buff;
-        request.resize(len);
-
 #ifdef __DEBUG__
-        Logger::log(__FILE__,Logger::DEBUG,"Llamada atendiendose: "+request);
+        Logger::log(__FILE__,Logger::DEBUG,"Llamada atendiendose: "+to_string(order));
 #endif
-        accept_call(request);
+        accept_call(order);
     }
 
     pipe_lock.release(); //El pipe ya esta vacio
