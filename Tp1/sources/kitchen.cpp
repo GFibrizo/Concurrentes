@@ -46,7 +46,7 @@ void Kitchen::simulate_cook(int order) {
 #endif
         sleep(COOKING_TIME);
 
-        //ovens.cook(order, generate_cooking_time()); /FIXME reveer cuando esten los hornos
+        put_in_oven(order, generate_cooking_time());
 
 #ifdef __DEBUG__
 		Logger::log(__FILE__,Logger::DEBUG,"Al horno: "+to_string(order));
@@ -95,4 +95,34 @@ Kitchen::Kitchen(Semaphore &chefs_semaphore, Semaphore &max_requests_semaphore, 
     request_fifo_lock.lock();
     requests_fifo.open_fifo();
     launched_process = 0;
+}
+
+void Kitchen::put_in_oven(int order, float time) {
+/*
+        #wait till free oven
+        free_ovens_semaphore.p();
+        occupied_ovens_semaphore.v();
+*/
+    int oven_number = 0;
+    //TODO: LOCK
+    int pizza = ovens[oven_number].read();
+    while (pizza != 0) {
+        oven_number++;
+        pizza = ovens[oven_number].read();
+    }
+    ovens[oven_number].write(order);
+    //TODO: UNLOCK
+
+    int pid = fork();
+    if (pid == 0) {
+        //finished_fifo.open_fifo();
+        sleep(time);
+        //finished_fifo.write_fifo(static_cast<void*>(&n_oven), sizeof(int));
+#ifdef __DEBUG__
+        Logger::log(__FILE__, Logger::DEBUG,
+                    "Coccion finalizada: " + std::to_string(pizza) + " en horno: " + std::to_string(oven_number));
+#endif
+        //finished_fifo.close_fifo(); //Cierro el fifo
+        exit(EXIT_SUCCESS);
+    }
 }
