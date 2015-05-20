@@ -135,6 +135,13 @@ int launch_supervisor(Shared_Memory<float> &cash_register, float checking_interv
     return pid;
 }
 
+void initialize_ovens(Shared_Memory<int>[config["Hornos"]] &ovens,int ovens_size){
+    for (int i=0;i<ovens_size;i++){
+        ovens[i].create(__FILE__,i);
+        ovens[i].write(0);
+    }
+}
+
 void answer_calls(Pipe &pipe) {
     string line;
     cout << "Pedido: ";
@@ -199,7 +206,8 @@ int main() {
     Semaphore occupied_ovens_semaphore = Semaphore("Occupied Ovens", 0);  // Hornos -> Delivery
 
     Pipe pipe = Pipe();
-    OvenSet ovens = OvenSet(config["Hornos"], free_ovens_semaphore, occupied_ovens_semaphore);
+    Shared_Memory<int>[config["Hornos"]] ovens;
+    initialize_ovens(ovens,config["Hornos"]);
 
     Shared_Memory<float> cash_register = Shared_Memory<float>();
 
@@ -217,7 +225,6 @@ int main() {
         cout << e << endl;
         exit(EXIT_FAILURE);
     }
-    ovens.start_ovens();
 
     Logger::log(__FILE__, Logger::INFO, "Inicia recepcion de pedidos");
     answer_calls(pipe);
