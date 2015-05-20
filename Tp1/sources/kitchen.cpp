@@ -98,20 +98,20 @@ Kitchen::Kitchen(Semaphore &chefs_semaphore, Semaphore &max_requests_semaphore, 
 }
 
 void Kitchen::put_in_oven(int order, float time) {
-/*
-        #wait till free oven
-        free_ovens_semaphore.p();
-        occupied_ovens_semaphore.v();
-*/
+
+    free_ovens_semaphore.p();
+    occupied_ovens_semaphore.v();
+
     int oven_number = 0;
-    //TODO: LOCK
+    
+    ovens_lock.lock();
     int pizza = ovens[oven_number].read();
     while (pizza != 0) {
         oven_number++;
         pizza = ovens[oven_number].read();
     }
     ovens[oven_number].write(order);
-    //TODO: UNLOCK
+    ovens_lock.lock();
 
     int pid = fork();
     if (pid == 0) {
