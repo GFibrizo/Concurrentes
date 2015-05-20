@@ -65,7 +65,7 @@ void Kitchen::accept_order(int order) {
 
 void Kitchen::accept_orders() {
     int order;
-    while (requests_fifo.read_fifo(static_cast<void*>(&order), sizeof(int)) > 0) {
+    while (requests_fifo.read_fifo(static_cast<void *>(&order), sizeof(int)) > 0) {
         max_requests.v();
         if (order == 0) {
             break;

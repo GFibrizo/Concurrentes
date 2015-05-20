@@ -44,10 +44,12 @@ private:
 
 private:
     void accept_order(int order);
+
     void simulate_cook(int order);
 
 public:
-    Kitchen(Semaphore &, Semaphore&, Shared_Memory<int>*);
+    Kitchen(Semaphore &, Semaphore &, Shared_Memory<int> *);
+
     void accept_orders();
 };
 
