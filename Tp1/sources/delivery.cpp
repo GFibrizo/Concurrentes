@@ -122,7 +122,7 @@ void Delivery::start_deliveries() {
 }
 
 Delivery::DeliverySIGINTHandler::DeliverySIGINTHandler(Semaphore &occupied_ovens, ReaderFifo &finished_fifo)
-        : occupied_ovens(occupied_ovens), finished_fifo(finished_fifo){
+        : occupied_ovens(occupied_ovens), finished_fifo(finished_fifo) {
 }
 
 int Delivery::DeliverySIGINTHandler::handle_signal(int signal_number) {
