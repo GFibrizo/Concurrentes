@@ -43,8 +43,10 @@ private:
     Shared_Memory<int> *ovens;
 
     //Cosas que maneja para los hornos
-    //Semaphore free_ovens_semaphore;
-    //Semaphore occupied_ovens_semaphore;
+    Semaphore free_ovens_semaphore;
+    Semaphore occupied_ovens_semaphore;
+
+    Lock_File ovens_lock;
     //Lock_File finished_fifo_lock;  //TODO: Creo que no había que usarlo acá, lo agregué por las dudas. - Bruno
     //WriterFifo finished_fifo;
 
@@ -56,7 +58,7 @@ private:
     void put_in_oven(int order, float time);
 
 public:
-    Kitchen(Semaphore &, Semaphore &, Shared_Memory<int> *);
+    Kitchen(Semaphore &, Semaphore &, Shared_Memory<int> *, Semaphore &, Semaphore &);
 
     void accept_orders();
 };
