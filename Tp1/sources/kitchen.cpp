@@ -86,6 +86,9 @@ void Kitchen::accept_orders() {
 		Logger::log(__FILE__,Logger::DEBUG,"Amasados todos los pedidos");
 #endif
 
+    occupied_ovens_semaphore.w();
+    finished_fifo.close_fifo();
+    finished_fifo.remove();
 }
 
 Kitchen::Kitchen(Semaphore &chefs_semaphore, Semaphore &max_requests_semaphore, Shared_Memory<int> *ovens,Semaphore &free_ovens_semaphore, Semaphore &occupied_ovens_semaphore) :
