@@ -103,11 +103,11 @@ int launch_call_center(Semaphore &recepcionists, Semaphore &max_requests_semapho
     return pid;
 }
 
-int launch_chefs(Semaphore &chefs, Semaphore &max_requests_semaphore, Shared_Memory<int> *ovens) {
+int launch_chefs(Semaphore &chefs, Semaphore &max_requests_semaphore, Shared_Memory<int> *ovens, Semaphore &free_ovens_semaphore, Semaphore &occupied_ovens_semaphore) {
 
     int pid = fork();
     if (pid == 0) {
-        Kitchen kitchen = Kitchen(chefs, max_requests_semaphore, ovens);
+        Kitchen kitchen = Kitchen(chefs, max_requests_semaphore, ovens,free_ovens_semaphore,occupied_ovens_semaphore);
         kitchen.accept_orders();
         exit(EXIT_SUCCESS);
     }
@@ -212,7 +212,7 @@ int main() {
     Shared_Memory<float> cash_register = Shared_Memory<float>();
 
     int call_center_pid = launch_call_center(recepcionists_semaphore, max_requests_semaphore, pipe);
-    int kitchen_pid = launch_chefs(chefs_semaphore, max_requests_semaphore, ovens);
+    int kitchen_pid = launch_chefs(chefs_semaphore, max_requests_semaphore, ovens,free_ovens_semaphore,occupied_ovens_semaphore);
 
     int delivery_pid = 0;
     int supervisor_pid = 0;
