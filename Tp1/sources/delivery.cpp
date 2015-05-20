@@ -24,6 +24,7 @@
 
 #include "logger.h"
 #include "times.h"
+#include "shared_memory_names.h"
 
 #define  MIN_PAYMENT 50
 #define  MAX_PAYMENT 100
@@ -73,8 +74,10 @@ void Delivery::simulate_delivery(int oven_number) {
     int pid = fork();
     if (pid == 0) {
         //FIXME rehacer cuando esten los hornos
-        //string order = ovens.remove(oven_number);
-        int order = oven_number;
+        Shared_Memory<int> ovens_memory(OVENS_SM, 'b', ovens.get_ovens_number());
+        int order = ovens_memory.read(oven_number);
+        ovens_memory.write(INVALID_PIZZA, oven_number);
+        ovens.remove(oven_number);
         ///////////////////////////////////////
 #ifdef __DEBUG__
 	    Logger::log(__FILE__, Logger::DEBUG, "Sacada del horno "+to_string(oven_number)+": "+to_string(order));

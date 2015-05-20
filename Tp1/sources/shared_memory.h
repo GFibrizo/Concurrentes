@@ -9,37 +9,42 @@
 #include <iostream>
 #include <errno.h>
 
+#define DEFAULT_SIZE 1
+#define DEFAULT_POSITION DEFAULT_SIZE -1
+
 template<class T> class Shared_Memory {
 
 private:
 	int sharedm_id;
 	T* data_pointer;
+	int shared_size;
 
 	int attached_process() const;
 
 public:
 	Shared_Memory();
-	void create(const std::string &file, const char salt);
+
+	void create(const std::string& file, const char salt, const int sm_size = DEFAULT_SIZE);
 	void free();
 
-	Shared_Memory(const std::string &file, const char salt);
-	Shared_Memory(const Shared_Memory &origin);
+	Shared_Memory(const std::string& file, const char salt, const int sm_size = DEFAULT_SIZE);
+	Shared_Memory(const Shared_Memory& origin);
 	~Shared_Memory();
-	Shared_Memory<T>& operator=(const Shared_Memory &origin);
-	void write(const T &data);
-	T read() const;
+	Shared_Memory<T>& operator=(const Shared_Memory& origin);
+	void write(const T& dato, const int position = DEFAULT_POSITION);
+	T read(const int position = DEFAULT_POSITION) const;
 };
 
 template<class T> Shared_Memory<T>::Shared_Memory() :
-		sharedm_id(0), data_pointer(NULL) {
+		sharedm_id(0), data_pointer(NULL), shared_size(0) {
 }
 
-template<class T> void Shared_Memory<T>::create(const std::string &file,
-		const char salt) {
+template<class T> void Shared_Memory<T>::create(const std::string& file,
+		const char salt, const int sm_size) {
 	key_t key = ftok(file.c_str(), salt);
 
 	if (key > 0) {
-		this->sharedm_id = shmget(key, sizeof(T), 0644 | IPC_CREAT);
+		this->sharedm_id = shmget(key, sm_size * sizeof(T), 0644 | IPC_CREAT);
 
 		if (this->sharedm_id > 0) {
 			void* tmpPtr = shmat(this->sharedm_id, NULL, 0);
@@ -57,6 +62,7 @@ template<class T> void Shared_Memory<T>::create(const std::string &file,
 		std::string error_msg = std::string("Error en ftok(): ") + std::string(strerror(errno));
 		throw error_msg;
 	}
+	shared_size = sm_size;
 }
 
 template<class T> void Shared_Memory<T>::free() {
@@ -72,11 +78,13 @@ template<class T> void Shared_Memory<T>::free() {
 	}
 }
 
-template<class T> Shared_Memory<T>::Shared_Memory(const std::string &file, const char salt) : sharedm_id(0), data_pointer(NULL) {
+template<class T> Shared_Memory<T>::Shared_Memory(const std::string& file,
+		const char salt, const int sm_size) :
+		sharedm_id(0), data_pointer(NULL) {
 	key_t key = ftok(file.c_str(), salt);
 
 	if (key > 0) {
-		this->sharedm_id = shmget(key, sizeof(T), 0644 | IPC_CREAT);
+		this->sharedm_id = shmget(key, sm_size * sizeof(T), 0644 | IPC_CREAT);
 
 		if (this->sharedm_id > 0) {
 			void* tmp_ptr = shmat(this->sharedm_id, NULL, 0);
@@ -94,10 +102,12 @@ template<class T> Shared_Memory<T>::Shared_Memory(const std::string &file, const
 		std::string error_msg = std::string("Error en ftok(): ") + std::string(strerror(errno));
 		throw error_msg;
 	}
+	shared_size = sm_size;
 }
 
-template<class T> Shared_Memory<T>::Shared_Memory(const Shared_Memory &origin) : sharedm_id(origin.sharedm_id) {
-	void* tmp_ptr = shmat(origin.sharedm_id, NULL, 0);
+template<class T> Shared_Memory<T>::Shared_Memory(const Shared_Memory& origin) :
+		sharedm_id(origin.sharedm_id), shared_size(origin.shared_size) {
+	void* tmpPtr = shmat(origin.sharedm_id, NULL, 0);
 
 	if (tmp_ptr != (void*) -1) {
 		this->data_pointer = static_cast<T*>(tmp_ptr);
@@ -121,6 +131,7 @@ template<class T> Shared_Memory<T>::~Shared_Memory() {
 
 template<class T> Shared_Memory<T>& Shared_Memory<T>::operator=(const Shared_Memory &origin) {
 	this->sharedm_id = origin.sharedm_id;
+	this->shared_size = origin.shared_size;
 	void* tmp_ptr = shmat(this->sharedm_id, NULL, 0);
 
 	if (tmp_ptr != (void*) -1) {
@@ -133,12 +144,22 @@ template<class T> Shared_Memory<T>& Shared_Memory<T>::operator=(const Shared_Mem
 	return *this;
 }
 
-template<class T> void Shared_Memory<T>::write(const T &data) {
-	*(this->data_pointer) = data;
+template<class T> void Shared_Memory<T>::write(const T& data, const int position) {
+	if (position + 1 > shared_size) {
+		std::string message = std::string("Posicion fuera de rango: ")
+							  + std::string(strerror(errno));
+		throw message;
+	}
+	*(this->data_pointer + position) = data;
 }
 
-template<class T> T Shared_Memory<T>::read() const {
-	return *(this->data_pointer);
+template<class T> T Shared_Memory<T>::read(const int position) const {
+	if (position + 1 > shared_size) {
+		std::string message = std::string("Posicion fuera de rango: ")
+							  + std::string(strerror(errno));
+		throw message;
+	}
+	return *(this->data_pointer + position);
 }
 
 template<class T> int Shared_Memory<T>::attached_process() const {

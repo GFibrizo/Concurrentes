@@ -92,6 +92,12 @@ bool is_full_configured(map<string, int> config) {
     return true;
 }
 
+void initialize_ovens(Shared_Memory<int> &ovens, int ovens_number) {
+    for (int i = 0; i < ovens_number; i++) {
+        ovens.write(INVALID_PIZZA, i);
+    }
+}
+
 int launch_call_center(Semaphore &recepcionists, Semaphore &max_requests_semaphore, Pipe &pipe) {
 
     int pid = fork();
@@ -202,6 +208,8 @@ int main() {
     OvenSet ovens = OvenSet(config["Hornos"], free_ovens_semaphore, occupied_ovens_semaphore);
 
     Shared_Memory<float> cash_register = Shared_Memory<float>();
+    Shared_Memory<int> oven_memory = Shared_Memory<int>();
+    initialize_ovens(oven_memory, config["Hornos"]);
 
     int call_center_pid = launch_call_center(recepcionists_semaphore,max_requests_semaphore, pipe);
     int kitchen_pid = launch_chefs(chefs_semaphore, max_requests_semaphore, ovens);

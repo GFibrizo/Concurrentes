@@ -12,14 +12,11 @@
 using std::string;
 
 OvenSet::OvenSet(int ovens_number, Semaphore &free_ovens_sem, Semaphore &occupied_ovens_sem) :
-        ovens_sem("ovens", ovens_number),
         free_ovens_semaphore(free_ovens_sem),
         occupied_ovens_semaphore(occupied_ovens_sem),
         finished_fifo_lock(FINISHED_FIFO_LOCK),
-        finished_fifo(FINISHED_FIFO) {
-    for (int i = 0; i < ovens_number; i++) {
-        free_ovens.push_back(i);
-    }
+        finished_fifo(FINISHED_FIFO),
+        ovens_number(ovens_number) {
 }
 
 OvenSet::~OvenSet() {
@@ -42,22 +39,19 @@ void OvenSet::close_ovens() {
     finished_fifo_lock.release();
 }
 
-void OvenSet::cook(string pizza, float time) {
+void OvenSet::ask_use_permission(){
     free_ovens_semaphore.p();
     occupied_ovens_semaphore.v();
+}
 
-    int n_oven = free_ovens.front();
-    free_ovens.pop_front();
-
-    ovens[n_oven] = pizza;
-
+void OvenSet::cook(int n_oven, float time) {
     int pid = fork();
     if (pid == 0) {
         finished_fifo.open_fifo();
         sleep(time);
-        finished_fifo.write_fifo(static_cast<void*>(&n_oven), sizeof(int));
+        finished_fifo.write_fifo(static_cast<void *>(&n_oven), sizeof(int));
 #ifdef __DEBUG__
-        Logger::log(__FILE__,Logger::DEBUG,"Coccion finalizada: "+pizza+" en horno: "+std::to_string(n_oven));
+        Logger::log(__FILE__,Logger::DEBUG,"Coccion finalizada en horno: "+std::to_string(n_oven));
 #endif
         finished_fifo.close_fifo(); //Cierro el fifo
         exit(EXIT_SUCCESS);
@@ -68,18 +62,15 @@ void OvenSet::turn_off_ovens(){
     //TODO: free shared memory
 }
 
-
-string OvenSet::remove(int n_oven) {
-    string pizza(ovens[n_oven]);
-    free_ovens.push_back(n_oven);
-
+void OvenSet::remove(int oven_number) {
 #ifdef __DEBUG__
-        Logger::log(__FILE__,Logger::DEBUG,"Pizza retirada: "+pizza);
+        Logger::log(__FILE__,Logger::DEBUG,"Pizza retirada de horno: "+oven_number);
 #endif
 
     free_ovens_semaphore.v();
     occupied_ovens_semaphore.p();
-    return pizza;
 }
 
-
+int OvenSet::get_ovens_number() {
+    return ovens_number;
+}
