@@ -49,7 +49,7 @@ int generate_payment_amount() {
     return MIN_PAYMENT + (rand() / (RAND_MAX / (MAX_PAYMENT - MIN_PAYMENT)));
 }
 
-Delivery::Delivery(Semaphore &cadets_semaphore, OvenSet &ovens, Semaphore &occupied_ovens_semaphore,
+Delivery::Delivery(Semaphore &cadets_semaphore, Shared_Memory<int> *ovens, Semaphore &occupied_ovens_semaphore,
                    Shared_Memory<float> &cash_register)
         : cadets(cadets_semaphore),
           ovens(ovens),
@@ -101,7 +101,7 @@ void Delivery::simulate_delivery(int oven_number) {
 }
 
 void Delivery::start_deliveries() {
-    DeliverySIGINTHandler sigint_handler(occupied_ovens, finished_fifo, ovens);
+    DeliverySIGINTHandler sigint_handler(occupied_ovens, finished_fifo);
     SignalHandler::get_instance()->register_handler(SIGINT, &sigint_handler);
 
     int oven_number = 0;
@@ -121,9 +121,8 @@ void Delivery::start_deliveries() {
     std::cout << "Estamos listos" << std::endl;
 }
 
-Delivery::DeliverySIGINTHandler::DeliverySIGINTHandler(Semaphore &occupied_ovens, ReaderFifo &finished_fifo,
-                                                       OvenSet &oven_set)
-        : occupied_ovens(occupied_ovens), finished_fifo(finished_fifo), ovens(oven_set) {
+Delivery::DeliverySIGINTHandler::DeliverySIGINTHandler(Semaphore &occupied_ovens, ReaderFifo &finished_fifo)
+        : occupied_ovens(occupied_ovens), finished_fifo(finished_fifo){
 }
 
 int Delivery::DeliverySIGINTHandler::handle_signal(int signal_number) {
@@ -144,8 +143,6 @@ int Delivery::DeliverySIGINTHandler::handle_signal(int signal_number) {
 #ifdef __DEBUG__
     Logger::log(__FILE__, Logger::DEBUG, "No quedan mas pizzas en el horno");
 #endif
-            std::cout << "Apagamos los hornos" << std::endl;
-            ovens.turn_off_ovens();
             finished_fifo.close_fifo();
             exit(EXIT_SUCCESS);
         }

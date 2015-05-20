@@ -37,7 +37,7 @@ class Delivery {
 private:
     size_t launched_process = 0;
     Semaphore cadets;
-    OvenSet ovens;
+    Shared_Memory<int> *ovens;
     Semaphore occupied_ovens;
 
     Lock_File finished_fifo_lock;
@@ -52,7 +52,7 @@ private:
     void make_delivery(int oven_number);
 
 public:
-    Delivery(Semaphore &cadets_semaphore, OvenSet &ovens, Semaphore &occupied_ovens_semaphore,
+    Delivery(Semaphore &cadets_semaphore, Shared_Memory<int> *ovens, Semaphore &occupied_ovens_semaphore,
              Shared_Memory<float> &cash_register);
 
     void start_deliveries();
@@ -63,10 +63,9 @@ private:
     private:
         Semaphore occupied_ovens;
         ReaderFifo finished_fifo;
-        OvenSet ovens;
 
     public:
-        DeliverySIGINTHandler(Semaphore &occupied_ovens, ReaderFifo &finished_fifo, OvenSet &oven_set);
+        DeliverySIGINTHandler(Semaphore &occupied_ovens, ReaderFifo &finished_fifo);
 
         int handle_signal(int signal_number);
     };
