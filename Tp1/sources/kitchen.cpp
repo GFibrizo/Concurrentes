@@ -88,10 +88,10 @@ void Kitchen::accept_orders() {
 
 }
 
-Kitchen::Kitchen(Semaphore &chefs_semaphore, Semaphore &max_requests_semaphore, OvenSet &ovenSet) :
+Kitchen::Kitchen(Semaphore &chefs_semaphore, Semaphore &max_requests_semaphore, Shared_Memory<int> *ovens) :
         chefs(chefs_semaphore), request_fifo_lock(REQUEST_FIFO_LOCK),
         requests_fifo(REQUEST_PIPE), max_requests(max_requests_semaphore),
-        ovens(ovenSet) {
+        ovens(ovens) {
     request_fifo_lock.lock();
     requests_fifo.open_fifo();
     launched_process = 0;
