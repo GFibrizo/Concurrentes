@@ -47,7 +47,7 @@ private:
     void simulate_cook(int order);
 
 public:
-    Kitchen(Semaphore &,Semaphore&, OvenSet&);
+    Kitchen(Semaphore &, Semaphore&, OvenSet&);
     void accept_orders();
 };
 

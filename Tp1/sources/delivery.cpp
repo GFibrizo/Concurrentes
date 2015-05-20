@@ -40,12 +40,13 @@ float generate_deliver_time() {
     return DELIVERY_MIN_TIME + (rand() / (RAND_MAX / (DELIVERY_MAX_TIME - DELIVERY_MIN_TIME)));
 }
 
-int generate_payment_amount(std::string pizza) {
-    int key = 0;
-    for (unsigned int i = 0; i < pizza.length(); i++) {
-        key += int(pizza[i]) * (i + 1);
+int generate_payment_amount() {
+    static bool seeded = false;
+    if (!seeded) {
+        srand(time(NULL));
+        seeded = true;
     }
-    return MIN_PAYMENT + (key % (MAX_PAYMENT - MIN_PAYMENT));
+    return MIN_PAYMENT + (rand() / (RAND_MAX / (MAX_PAYMENT - MIN_PAYMENT)));
 }
 
 Delivery::Delivery(Semaphore &cadets_semaphore, OvenSet &ovens, Semaphore &occupied_ovens_semaphore,
@@ -71,25 +72,28 @@ void Delivery::make_delivery(int oven_number) {
 void Delivery::simulate_delivery(int oven_number) {
     int pid = fork();
     if (pid == 0) {
-        string pizza = ovens.remove(oven_number);
+        //FIXME rehacer cuando esten los hornos
+        //string order = ovens.remove(oven_number);
+        int order = oven_number;
+        ///////////////////////////////////////
 #ifdef __DEBUG__
-	    Logger::log(__FILE__,Logger::DEBUG,"Sacada del horno "+to_string(oven_number)+": "+pizza);
+	    Logger::log(__FILE__, Logger::DEBUG, "Sacada del horno "+to_string(oven_number)+": "+to_string(order));
 #endif
         occupied_ovens.p();
 
         float deliver_time = generate_deliver_time();
         sleep(deliver_time);
 
-        int payment = generate_payment_amount(pizza);
+        int payment = generate_payment_amount();
 #ifdef __DEBUG__
-	    Logger::log(__FILE__,Logger::DEBUG,"Se entrego "+pizza+". Tiempo: "+to_string(deliver_time)+". Pago: "+to_string(payment));
+	    Logger::log(__FILE__, Logger::DEBUG, "Se entrego "+to_string(order)+". Tiempo: "+to_string(deliver_time)+". Pago: "+to_string(payment));
 #endif
 
         cash_register_lock.lock();
         cash_register.write(cash_register.read() + payment);
         cash_register_lock.release();
 #ifdef __DEBUG__
-	    Logger::log(__FILE__,Logger::DEBUG,"Se deja en la caja: "+to_string(payment));
+	    Logger::log(__FILE__, Logger::DEBUG, "Se deja en la caja: "+to_string(payment));
 #endif
         cadets.v();
         exit(EXIT_SUCCESS);
@@ -125,7 +129,7 @@ Delivery::DeliverySIGINTHandler::DeliverySIGINTHandler(Semaphore &occupied_ovens
 int Delivery::DeliverySIGINTHandler::handle_signal(int signal_number) {
     if (signal_number == SIGINT) {
 #ifdef __DEBUG__
-    Logger::log(__FILE__,Logger::DEBUG,"Notificado al delivery que solo queda lo que esta en el horno");
+    Logger::log(__FILE__, Logger::DEBUG, "Notificado al delivery que solo queda lo que esta en el horno");
 #endif
         // Bloqueo de SIGINT
         sigset_t blocking_set;
@@ -138,7 +142,7 @@ int Delivery::DeliverySIGINTHandler::handle_signal(int signal_number) {
             std::cout << "A esperar que se termine de cocinar todo" << std::endl;
             occupied_ovens.w(); //Espera que no haya hornos en uso
 #ifdef __DEBUG__
-    Logger::log(__FILE__,Logger::DEBUG,"No quedan mas pizzas en el horno");
+    Logger::log(__FILE__, Logger::DEBUG, "No quedan mas pizzas en el horno");
 #endif
             std::cout << "Apagamos los hornos" << std::endl;
             ovens.turn_off_ovens();
