@@ -11,5 +11,6 @@
 #define REQUEST_FIFO_LOCK "/tmp/request_fifo_lock"
 #define FINISHED_FIFO_LOCK "/tmp/finished_fifo_lock"
 #define CASH_REGISTER_LOCK "/tmp/cash_register_lock"
+#define OVEN_LOCK "/tmp/ovens_lock"
 
 #endif //CONCU_ZAPPI_LOCKNAMES_H
