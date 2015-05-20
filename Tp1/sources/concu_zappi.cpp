@@ -103,7 +103,7 @@ int launch_call_center(Semaphore &recepcionists, Semaphore &max_requests_semapho
     return pid;
 }
 
-int launch_chefs(Semaphore &chefs, Semaphore& max_requests_semaphore, OvenSet & ovens) {
+int launch_chefs(Semaphore &chefs, Semaphore& max_requests_semaphore, Shared_Memory<int>* ovens) {
 
     int pid = fork();
     if (pid == 0) {
@@ -114,7 +114,7 @@ int launch_chefs(Semaphore &chefs, Semaphore& max_requests_semaphore, OvenSet & 
     return pid;
 }
 
-int launch_delivery(Semaphore &cadets, OvenSet &ovens, Semaphore &occupied_ovens_semaphore,
+int launch_delivery(Semaphore &cadets, Shared_Memory<int>* ovens, Semaphore &occupied_ovens_semaphore,
                     Shared_Memory<float> &cash_register) {
     int pid = fork();
     if (pid == 0) {
@@ -135,7 +135,7 @@ int launch_supervisor(Shared_Memory<float> &cash_register, float checking_interv
     return pid;
 }
 
-void initialize_ovens(Shared_Memory<int>[config["Hornos"]] &ovens,int ovens_size){
+void initialize_ovens(Shared_Memory<int>* ovens,int ovens_size){
     for (int i=0;i<ovens_size;i++){
         ovens[i].create(__FILE__,i);
         ovens[i].write(0);
@@ -206,7 +206,7 @@ int main() {
     Semaphore occupied_ovens_semaphore = Semaphore("Occupied Ovens", 0);  // Hornos -> Delivery
 
     Pipe pipe = Pipe();
-    Shared_Memory<int>[config["Hornos"]] ovens;
+    Shared_Memory<int>* ovens= new Shared_Memory<int>[config["Hornos"]];
     initialize_ovens(ovens,config["Hornos"]);
 
     Shared_Memory<float> cash_register = Shared_Memory<float>();
