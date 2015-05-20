@@ -19,14 +19,14 @@ private:
 
 public:
 	Shared_Memory();
-	void create(const std::string& archivo, const char letra);
+	void create(const std::string &file, const char salt);
 	void free();
 
-	Shared_Memory(const std::string& archivo, const char letra);
-	Shared_Memory(const Shared_Memory& origen);
+	Shared_Memory(const std::string &file, const char salt);
+	Shared_Memory(const Shared_Memory &origin);
 	~Shared_Memory();
-	Shared_Memory<T>& operator=(const Shared_Memory& origen);
-	void write(const T& dato);
+	Shared_Memory<T>& operator=(const Shared_Memory &origin);
+	void write(const T &data);
 	T read() const;
 };
 
@@ -34,31 +34,28 @@ template<class T> Shared_Memory<T>::Shared_Memory() :
 		sharedm_id(0), data_pointer(NULL) {
 }
 
-template<class T> void Shared_Memory<T>::create(const std::string& archivo,
-		const char letra) {
-	key_t clave = ftok(archivo.c_str(), letra);
+template<class T> void Shared_Memory<T>::create(const std::string &file,
+		const char salt) {
+	key_t key = ftok(file.c_str(), salt);
 
-	if (clave > 0) {
-		this->sharedm_id = shmget(clave, sizeof(T), 0644 | IPC_CREAT);
+	if (key > 0) {
+		this->sharedm_id = shmget(key, sizeof(T), 0644 | IPC_CREAT);
 
 		if (this->sharedm_id > 0) {
 			void* tmpPtr = shmat(this->sharedm_id, NULL, 0);
 			if (tmpPtr != (void*) -1) {
 				this->data_pointer = static_cast<T*>(tmpPtr);
 			} else {
-				std::string mensaje = std::string("Error en shmat(): ")
-						+ std::string(strerror(errno));
-				throw mensaje;
+				std::string error_msg = std::string("Error en shmat(): ") + std::string(strerror(errno));
+				throw error_msg;
 			}
 		} else {
-			std::string mensaje = std::string("Error en shmget(): ")
-					+ std::string(strerror(errno));
-			throw mensaje;
+			std::string error_msg = std::string("Error en shmget(): ") + std::string(strerror(errno));
+			throw error_msg;
 		}
 	} else {
-		std::string mensaje = std::string("Error en ftok(): ")
-				+ std::string(strerror(errno));
-		throw mensaje;
+		std::string error_msg = std::string("Error en ftok(): ") + std::string(strerror(errno));
+		throw error_msg;
 	}
 }
 
@@ -66,65 +63,55 @@ template<class T> void Shared_Memory<T>::free() {
 	int errorDt = shmdt((void *) this->data_pointer);
 
 	if (errorDt != -1) {
-		int procAdosados = this->attached_process();
-		if (procAdosados == 0) {
+		if (this->attached_process() == 0) {
 			shmctl(this->sharedm_id, IPC_RMID, NULL);
 		}
 	} else {
-		std::string mensaje = std::string("Error en shmdt(): ")
-				+ std::string(strerror(errno));
-		throw mensaje;
+		std::string error_msg = std::string("Error en shmdt(): ") + std::string(strerror(errno));
+		throw error_msg;
 	}
 }
 
-template<class T> Shared_Memory<T>::Shared_Memory(const std::string& archivo,
-		const char letra) :
-		sharedm_id(0), data_pointer(NULL) {
-	key_t clave = ftok(archivo.c_str(), letra);
+template<class T> Shared_Memory<T>::Shared_Memory(const std::string &file, const char salt) : sharedm_id(0), data_pointer(NULL) {
+	key_t key = ftok(file.c_str(), salt);
 
-	if (clave > 0) {
-		this->sharedm_id = shmget(clave, sizeof(T), 0644 | IPC_CREAT);
+	if (key > 0) {
+		this->sharedm_id = shmget(key, sizeof(T), 0644 | IPC_CREAT);
 
 		if (this->sharedm_id > 0) {
-			void* tmpPtr = shmat(this->sharedm_id, NULL, 0);
-			if (tmpPtr != (void*) -1) {
-				this->data_pointer = static_cast<T*>(tmpPtr);
+			void* tmp_ptr = shmat(this->sharedm_id, NULL, 0);
+			if (tmp_ptr != (void*) -1) {
+				this->data_pointer = static_cast<T*>(tmp_ptr);
 			} else {
-				std::string mensaje = std::string("Error en shmat(): ")
-						+ std::string(strerror(errno));
-				throw mensaje;
+				std::string error_msg = std::string("Error en shmat(): ") + std::string(strerror(errno));
+				throw error_msg;
 			}
 		} else {
-			std::string mensaje = std::string("Error en shmget(): ")
-					+ std::string(strerror(errno));
-			throw mensaje;
+			std::string error_msg = std::string("Error en shmget(): ") + std::string(strerror(errno));
+			throw error_msg;
 		}
 	} else {
-		std::string mensaje = std::string("Error en ftok(): ")
-				+ std::string(strerror(errno));
-		throw mensaje;
+		std::string error_msg = std::string("Error en ftok(): ") + std::string(strerror(errno));
+		throw error_msg;
 	}
 }
 
-template<class T> Shared_Memory<T>::Shared_Memory(const Shared_Memory& origen) :
-		sharedm_id(origen.sharedm_id) {
-	void* tmpPtr = shmat(origen.sharedm_id, NULL, 0);
+template<class T> Shared_Memory<T>::Shared_Memory(const Shared_Memory &origin) : sharedm_id(origin.sharedm_id) {
+	void* tmp_ptr = shmat(origin.sharedm_id, NULL, 0);
 
-	if (tmpPtr != (void*) -1) {
-		this->data_pointer = static_cast<T*>(tmpPtr);
+	if (tmp_ptr != (void*) -1) {
+		this->data_pointer = static_cast<T*>(tmp_ptr);
 	} else {
-		std::string mensaje = std::string("Error en shmat(): ")
-				+ std::string(strerror(errno));
-		throw mensaje;
+		std::string error_msg = std::string("Error en shmat(): ") + std::string(strerror(errno));
+		throw error_msg;
 	}
 }
 
 template<class T> Shared_Memory<T>::~Shared_Memory() {
-	int errorDt = shmdt(static_cast<void*>(this->data_pointer));
+	int error = shmdt(static_cast<void*>(this->data_pointer));
 
-	if (errorDt != -1) {
-		int procAdosados = this->attached_process();
-		if (procAdosados == 0) {
+	if (error != -1) {
+		if (this->attached_process() == 0) {
 			shmctl(this->sharedm_id, IPC_RMID, NULL);
 		}
 	} else {
@@ -132,24 +119,22 @@ template<class T> Shared_Memory<T>::~Shared_Memory() {
 	}
 }
 
-template<class T> Shared_Memory<T>& Shared_Memory<T>::operator=(
-		const Shared_Memory& origen) {
-	this->sharedm_id = origen.sharedm_id;
-	void* tmpPtr = shmat(this->sharedm_id, NULL, 0);
+template<class T> Shared_Memory<T>& Shared_Memory<T>::operator=(const Shared_Memory &origin) {
+	this->sharedm_id = origin.sharedm_id;
+	void* tmp_ptr = shmat(this->sharedm_id, NULL, 0);
 
-	if (tmpPtr != (void*) -1) {
-		this->data_pointer = static_cast<T*>(tmpPtr);
+	if (tmp_ptr != (void*) -1) {
+		this->data_pointer = static_cast<T*>(tmp_ptr);
 	} else {
-		std::string mensaje = std::string("Error en shmat(): ")
-				+ std::string(strerror(errno));
-		throw mensaje;
+		std::string error_msg = std::string("Error en shmat(): ") + std::string(strerror(errno));
+		throw error_msg;
 	}
 
 	return *this;
 }
 
-template<class T> void Shared_Memory<T>::write(const T& dato) {
-	*(this->data_pointer) = dato;
+template<class T> void Shared_Memory<T>::write(const T &data) {
+	*(this->data_pointer) = data;
 }
 
 template<class T> T Shared_Memory<T>::read() const {
@@ -157,9 +142,9 @@ template<class T> T Shared_Memory<T>::read() const {
 }
 
 template<class T> int Shared_Memory<T>::attached_process() const {
-	shmid_ds estado;
-	shmctl(this->sharedm_id, IPC_STAT, &estado);
-	return estado.shm_nattch;
+	shmid_ds status;
+	shmctl(this->sharedm_id, IPC_STAT, &status);
+	return status.shm_nattch;
 }
 
 #endif
