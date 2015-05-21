@@ -37,7 +37,7 @@ template<class T> Shared_Memory<T>::Shared_Memory() :
 template<class T> void Shared_Memory<T>::create(const std::string &file,
 		const char salt) {
 	key_t key = ftok(file.c_str(), salt);
-
+	shared_size = sm_size;
 	if (key > 0) {
 		this->sharedm_id = shmget(key, sizeof(T), 0644 | IPC_CREAT);
 
