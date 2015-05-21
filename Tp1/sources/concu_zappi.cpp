@@ -144,7 +144,7 @@ void initialize_ovens(Shared_Memory<int> *ovens, int ovens_size) {
     }
 }
 
-void answer_calls(Pipe &pipe) {
+void answer_calls(Pipe &pipe, Semaphore &max_requests_semaphore) {
     string line;
     cout << "Pedido: ";
     while (getline(cin, line)) {
@@ -166,6 +166,7 @@ void answer_calls(Pipe &pipe) {
 			"Pedido rechazado: " + line + " [Telefono ocupado]");
 #endif
         }
+        max_requests_semaphore.p();
         cout << "Pedido: ";
     }
 
@@ -202,7 +203,8 @@ int main() {
 
     Semaphore recepcionists_semaphore = Semaphore(RECEPCIONIST_SEM, config["Recepcionistas"]);
     Semaphore chefs_semaphore = Semaphore(CHEFS_SEM, config["Cocineras"]);
-    Semaphore max_requests_semaphore = Semaphore(REQUEST_SEM, config["Cocineras"] * 2);
+    Semaphore max_requests_semaphore = Semaphore(REQUEST_SEM, config["Cocineras"] * 2 -
+                                                              1); //El primer llamado siempre se atiende por defecto
     Semaphore cadets_semaphore = Semaphore(CADETS_SEM, config["Cadetas"]);
     Semaphore free_ovens_semaphore = Semaphore(FREE_OVENS_SEM, config["Hornos"]);  // Cocina -> Hornos
     Semaphore occupied_ovens_semaphore = Semaphore(OCCUPIED_OVENS_SEM, 0);  // Hornos -> Delivery
@@ -230,7 +232,7 @@ int main() {
     }
 
     Logger::log(__FILE__, Logger::INFO, "Inicia recepcion de pedidos");
-    answer_calls(pipe);
+    answer_calls(pipe, max_requests_semaphore);
 
     waitpid(call_center_pid, 0, 0);  // espera que termine call_center
 #ifdef __DEBUG__
