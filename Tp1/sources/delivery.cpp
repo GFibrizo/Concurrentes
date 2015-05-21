@@ -24,6 +24,7 @@
 
 #include "logger.h"
 #include "times.h"
+#include "shared_memory_names.h"
 
 #define  MIN_PAYMENT 50
 #define  MAX_PAYMENT 100
@@ -120,8 +121,6 @@ void Delivery::start_deliveries() {
 
     std::cout << "Hay que esperar " << to_string(launched_process) << " hijos" << std::endl;
     for (size_t i = 0; i < launched_process; i++) {
-                Logger::log(__FILE__, Logger::DEBUG, "hijo");
-
         wait(0); // Espera que terminen todas las entregas
     }
 }

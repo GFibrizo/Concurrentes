@@ -23,6 +23,7 @@
 #include "kitchen.h"
 #include "logger.h"
 #include "times.h"
+#include "shared_memory_names.h"
 
 using std::string;
 using std::to_string;
@@ -45,11 +46,11 @@ void Kitchen::simulate_cook(int order) {
 #endif
         sleep(COOKING_TIME);
 
-        put_in_oven(order, generate_cooking_time());
-
 #ifdef __DEBUG__
 		Logger::log(__FILE__,Logger::DEBUG,"Al horno: "+to_string(order));
 #endif
+        put_in_oven(order, generate_cooking_time());
+
         exit(EXIT_SUCCESS);
     }
 }
