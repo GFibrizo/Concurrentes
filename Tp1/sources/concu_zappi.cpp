@@ -241,9 +241,13 @@ int main() {
     answer_calls(pipe, max_requests_semaphore);
 
     waitpid(call_center_pid, 0, 0);  // espera que termine call_center
+    recepcionists_semaphore.remove();
 #ifdef __DEBUG__
     Logger::log(__FILE__,Logger::DEBUG,"Cerrado call center. Todas las empleadas se retiraron");
 #endif
+
+    chefs_semaphore.remove();
+    max_requests_semaphore.remove();
     waitpid(kitchen_pid, 0, 0);  // espera que termine kitchen
 #ifdef __DEBUG__
     Logger::log(__FILE__,Logger::DEBUG,"Cerrada cocina. Todos las cocineras se retiraron");
@@ -251,12 +255,15 @@ int main() {
 
     kill(delivery_pid, SIGINT);  // mata al delivery
     waitpid(delivery_pid, 0, 0);  // espera que termine delivery
+    cadets_semaphore.remove();
 #ifdef __DEBUG__
     Logger::log(__FILE__,Logger::DEBUG,"Cerrado el delivery. Todas las empleadas se retiraron");
 #endif
 
     turn_off_ovens(ovens, config["Hornos"]);
     delete[](ovens);
+    free_ovens_semaphore.remove();
+    occupied_ovens_semaphore.remove();
 #ifdef __DEBUG__
     Logger::log(__FILE__,Logger::DEBUG,"Liberada la cocina. Todos los hornos se apagaron");
 #endif
@@ -268,15 +275,8 @@ int main() {
 #endif
 
     //TODO: Ver bien donde ponerlo
-    recepcionists_semaphore.remove();
-    chefs_semaphore.remove();
-    max_requests_semaphore.remove();
-    cadets_semaphore.remove();
-    free_ovens_semaphore.remove();
-    occupied_ovens_semaphore.remove();
-
     cash_register.free();
-
     Logger::close_logger();
+
     return 0;
 }
