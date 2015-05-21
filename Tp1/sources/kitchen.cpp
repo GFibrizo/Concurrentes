@@ -96,7 +96,7 @@ Kitchen::Kitchen(Semaphore &chefs_semaphore, Semaphore &max_requests_semaphore, 
         chefs(chefs_semaphore), request_fifo_lock(REQUEST_FIFO_LOCK),
         requests_fifo(REQUEST_PIPE), max_requests(max_requests_semaphore),
         ovens(ovens), free_ovens_semaphore(free_ovens_semaphore), occupied_ovens_semaphore(occupied_ovens_semaphore),
-        ovens_lock(OVEN_LOCK), finished_fifo_lock(FINISHED_FIFO_LOCK), finished_fifo(FINISHED_FIFO) {
+        ovens_lock(OVEN_LOCK), finished_fifo(FINISHED_FIFO) {
     request_fifo_lock.lock();
     requests_fifo.open_fifo();
     launched_process = 0;
