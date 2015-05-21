@@ -28,7 +28,7 @@ int Semaphore::p() const {
 	struct sembuf operation;
 	operation.sem_num = 0;	// numero de semaforo
 	operation.sem_op  = -1;	// restar 1 al semaforo
-	operation.sem_flg = SEM_UNDO;
+	operation.sem_flg = 0;
 
 	int res = semop(this->id, &operation, 1); //FIXME
 	return res;
@@ -38,7 +38,7 @@ int Semaphore::v() const {
 	struct sembuf operation;
 	operation.sem_num = 0;	// numero de semaforo
 	operation.sem_op  = 1;	// sumar 1 al semaforo
-	operation.sem_flg = SEM_UNDO;
+	operation.sem_flg = 0;
 
 	int res = semop(this->id,&operation, 1); //FIXME
 	return res;
@@ -48,7 +48,7 @@ int Semaphore::w() const {
 	struct sembuf operation;
 	operation.sem_num = 0;	// numero de semaforo
 	operation.sem_op  = 0;	// espera a que sea 0
-	operation.sem_flg = SEM_UNDO;
+	operation.sem_flg = 0;
 
 	int res = semop(this->id,&operation, 1); //FIXME
 	return res;

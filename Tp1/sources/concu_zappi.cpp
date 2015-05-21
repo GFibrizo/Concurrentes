@@ -146,6 +146,7 @@ void ignite_ovens(Shared_Memory<int> *ovens, int ovens_size) {
 
 void turn_off_ovens(Shared_Memory<int> *ovens, int ovens_size) {
     for (int i = 0; i < ovens_size; i++) {
+        std::cout << "Limpiando horno " << std::to_string(i) << std::endl;
         ovens[i].free();
     }
 }
@@ -206,7 +207,6 @@ int main() {
     }
     Logger::log(__FILE__, Logger::INFO, "Configuracion exitosa");
 
-
     Semaphore recepcionists_semaphore = Semaphore(RECEPCIONIST_SEM, config["Recepcionistas"]);
     Semaphore chefs_semaphore = Semaphore(CHEFS_SEM, config["Cocineras"]);
     Semaphore max_requests_semaphore = Semaphore(REQUEST_SEM, config["Cocineras"] * 2 -
@@ -260,8 +260,9 @@ int main() {
     Logger::log(__FILE__,Logger::DEBUG,"Cerrado el delivery. Todas las empleadas se retiraron");
 #endif
 
-    turn_off_ovens(ovens, config["Hornos"]);
-    delete[](ovens);
+    //turn_off_ovens(ovens, config["Hornos"]);
+    std::cout << "Terminó de limpiar los hornos" << std::endl;
+    delete[] ovens;
     free_ovens_semaphore.remove();
     occupied_ovens_semaphore.remove();
 #ifdef __DEBUG__
@@ -275,7 +276,7 @@ int main() {
 #endif
 
     //TODO: Ver bien donde ponerlo
-    cash_register.free();
+    //cash_register.free();
     Logger::close_logger();
 
     return 0;
