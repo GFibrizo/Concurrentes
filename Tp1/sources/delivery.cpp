@@ -67,9 +67,7 @@ Delivery::Delivery(Semaphore &cadets_semaphore, Shared_Memory<int> *ovens, Semap
 
 void Delivery::make_delivery(int oven_number) {
     launched_process++;
-    std::cout << "Va a tomar cadeta" << std::endl;
     cadets.p();
-    std::cout << "Tomo cadeta" << std::endl;
     simulate_delivery(oven_number);
 }
 
@@ -101,7 +99,6 @@ void Delivery::simulate_delivery(int oven_number) {
 	    Logger::log(__FILE__, Logger::DEBUG, "Se deja en la caja: "+to_string(payment));
 #endif
         cadets.v();
-        std::cout << "Libero cadeta" << std::endl;
         exit(EXIT_SUCCESS);
     }
 }
@@ -121,7 +118,6 @@ void Delivery::start_deliveries() {
     finished_fifo.close_fifo();
     finished_fifo_lock.release();
 
-    std::cout << "Hay que esperar " << to_string(launched_process) << " hijos" << std::endl;
     for (size_t i = 0; i < launched_process; i++) {
         wait(0); // Espera que terminen todas las entregas
     }
