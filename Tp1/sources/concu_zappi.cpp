@@ -260,12 +260,13 @@ int main() {
     Logger::log(__FILE__,Logger::DEBUG,"Cerrado el delivery. Todas las empleadas se retiraron");
 #endif
 
-    turn_off_ovens(ovens, config["Hornos"]);
-    delete[](ovens);
+
+    //turn_off_ovens(ovens, config["Hornos"]);
+    //delete[](ovens);
     free_ovens_semaphore.remove();
     occupied_ovens_semaphore.remove();
 #ifdef __DEBUG__
-    Logger::log(__FILE__,Logger::DEBUG,"Liberada la cocina. Todos los hornos se apagaron");
+    //Logger::log(__FILE__,Logger::DEBUG,"Liberada la cocina. Todos los hornos se terminaron de usar");
 #endif
 
     kill(supervisor_pid, SIGINT);  // mata al supervisor
@@ -275,7 +276,8 @@ int main() {
 #endif
 
     //TODO: Ver bien donde ponerlo
-    cash_register.free();
+    delete[] ovens;  //Si se pone antes que termine el supervisor, figura que todavía tiene procesos attached
+    //cash_register.free();
     Logger::close_logger();
 
     return 0;
