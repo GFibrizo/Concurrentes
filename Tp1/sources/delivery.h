@@ -1,7 +1,10 @@
 /**
  delivery.h
 
- Copyright 2015 Gaston Martinez Gaston.martinez.90@gmail.com
+ Copyright 2015
+ Debora Martin debbie1new.world@gmail.com
+ Gaston Martinez gaston.martinez.90@gmail.com
+ Bruno Merlo Schurmann bruno290@gmail.com
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -29,8 +32,9 @@
 #include "event_handler.h"
 #include "signal_handler.h"
 #include "shared_memory.h"
+#include "locknames.h"
+#include "pipenames.h"
 #include "cash_register.h"
-#include "oven_set.h"
 
 class Delivery {
 
@@ -43,7 +47,6 @@ private:
     Semaphore occupied_ovens;
     Lock_File ovens_lock;
 
-    Lock_File finished_fifo_lock;
     ReaderFifo finished_fifo;
 
     Lock_File cash_register_lock;

@@ -39,7 +39,7 @@ void Supervisor::start_checking_register() {
     register_lock.lock();
     int register_amount = cash_register.read();
     if (register_amount == 0) {
-        Logger::log(__FILE__, Logger::INFO, "La caja esta vacia");
+        Logger::log(__FILE__, Logger::INFO, "Cerrada la caja. La caja esta vacia");
     } else {
         Logger::log(__FILE__, Logger::INFO, "Cerrada la caja. Saldo: " + to_string(register_amount));
     }

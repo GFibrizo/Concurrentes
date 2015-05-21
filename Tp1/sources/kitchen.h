@@ -27,7 +27,10 @@
 #include "lock_file.h"
 #include "semaphore.h"
 #include "reader_fifo.h"
-#include "oven_set.h"
+#include "writer_fifo.h"
+#include "shared_memory.h"
+#include "locknames.h"
+#include "pipenames.h"
 
 class Kitchen {
 

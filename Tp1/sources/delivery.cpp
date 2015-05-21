@@ -56,11 +56,9 @@ Delivery::Delivery(Semaphore &cadets_semaphore, Shared_Memory<int> *ovens, Semap
           free_ovens(free_ovens_semaphore),
           occupied_ovens(occupied_ovens_semaphore),
           ovens_lock(OVEN_LOCK),
-          finished_fifo_lock(FINISHED_FIFO_LOCK),
           finished_fifo(FINISHED_FIFO),
           cash_register_lock(CASH_REGISTER_LOCK),
           cash_register(cash_register) {
-    finished_fifo_lock.lock();
     finished_fifo.open_fifo();
     launched_process = 0;
 }
@@ -116,7 +114,6 @@ void Delivery::start_deliveries() {
     launched_process++;  // El hijo que hace occupied_ovens.w()
 
     finished_fifo.close_fifo();
-    finished_fifo_lock.release();
 
     for (size_t i = 0; i < launched_process; i++) {
         wait(0); // Espera que terminen todas las entregas
