@@ -39,6 +39,7 @@ private:
     Semaphore cadets;
 
     Shared_Memory<int> *ovens;
+    Semaphore free_ovens;
     Semaphore occupied_ovens;
     Lock_File ovens_lock;
 
@@ -54,8 +55,8 @@ private:
     void make_delivery(int oven_number);
 
 public:
-    Delivery(Semaphore &cadets_semaphore, Shared_Memory<int> *ovens, Semaphore &occupied_ovens_semaphore,
-             Shared_Memory<float> &cash_register);
+    Delivery(Semaphore &cadets_semaphore, Shared_Memory<int> *ovens, Semaphore &free_ovens_semaphore,
+             Semaphore &occupied_ovens_semaphore, Shared_Memory<float> &cash_register);
 
     void start_deliveries();
 

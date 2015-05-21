@@ -49,10 +49,11 @@ int generate_payment_amount() {
     return MIN_PAYMENT + (rand() / (RAND_MAX / (MAX_PAYMENT - MIN_PAYMENT)));
 }
 
-Delivery::Delivery(Semaphore &cadets_semaphore, Shared_Memory<int> *ovens, Semaphore &occupied_ovens_semaphore,
-                   Shared_Memory<float> &cash_register)
+Delivery::Delivery(Semaphore &cadets_semaphore, Shared_Memory<int> *ovens, Semaphore &free_ovens_semaphore,
+                   Semaphore &occupied_ovens_semaphore, Shared_Memory<float> &cash_register)
         : cadets(cadets_semaphore),
           ovens(ovens),
+          free_ovens(free_ovens_semaphore),
           occupied_ovens(occupied_ovens_semaphore),
           ovens_lock(OVEN_LOCK),
           finished_fifo_lock(FINISHED_FIFO_LOCK),
@@ -66,7 +67,9 @@ Delivery::Delivery(Semaphore &cadets_semaphore, Shared_Memory<int> *ovens, Semap
 
 void Delivery::make_delivery(int oven_number) {
     launched_process++;
+    std::cout << "Va a tomar cadeta" << std::endl;
     cadets.p();
+    std::cout << "Tomo cadeta" << std::endl;
     simulate_delivery(oven_number);
 }
 
@@ -81,6 +84,7 @@ void Delivery::simulate_delivery(int oven_number) {
 	    Logger::log(__FILE__, Logger::DEBUG, "Sacada del horno "+to_string(oven_number)+": "+to_string(order));
 #endif
         occupied_ovens.p();
+        free_ovens.v();
 
         float deliver_time = generate_deliver_time();
         sleep(deliver_time);
@@ -97,6 +101,7 @@ void Delivery::simulate_delivery(int oven_number) {
 	    Logger::log(__FILE__, Logger::DEBUG, "Se deja en la caja: "+to_string(payment));
 #endif
         cadets.v();
+        std::cout << "Libero cadeta" << std::endl;
         exit(EXIT_SUCCESS);
     }
 }
