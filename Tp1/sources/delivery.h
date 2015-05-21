@@ -1,6 +1,4 @@
 /**
- delivery.h
-
  Copyright 2015
  Debora Martin debbie1new.world@gmail.com
  Gaston Martinez gaston.martinez.90@gmail.com
@@ -34,7 +32,6 @@
 #include "shared_memory.h"
 #include "locknames.h"
 #include "pipenames.h"
-#include "cash_register.h"
 
 class Delivery {
 

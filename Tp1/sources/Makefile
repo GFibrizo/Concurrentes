@@ -12,7 +12,7 @@ DEBUG = ON
 EXEC = concu_zappi
 
 CONCURRENT_OBJECTS = lock_file.o pipe.o semaphore.o fifo.o reader_fifo.o writer_fifo.o signal_handler.o
-OBJECTS = $(CONCURRENT_OBJECTS) logger.o call_center.o kitchen.o delivery.o cash_register.o supervisor.o
+OBJECTS = $(CONCURRENT_OBJECTS) logger.o call_center.o kitchen.o delivery.o supervisor.o
 
 all: $(EXEC) 
 
@@ -39,9 +39,6 @@ writer_fifo.o: writer_fifo.h writer_fifo.cpp
 
 signal_handler.o: signal_handler.h signal_handler.cpp
 	$(CC) $(CPPFLAGS) -c signal_handler.cpp
-
-cash_register.o: cash_register.h cash_register.cpp
-	$(CC) $(CPPFLAGS) -c cash_register.cpp
 
 supervisor.o: supervisor.h supervisor.cpp
 	$(CC) $(CPPFLAGS) -c supervisor.cpp

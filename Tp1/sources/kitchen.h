@@ -1,7 +1,8 @@
 /**
- kitchen.h
-
- Copyright 2015 Gaston Martinez Gaston.martinez.90@gmail.com
+ Copyright 2015
+ Debora Martin debbie1new.world@gmail.com
+ Gaston Martinez gaston.martinez.90@gmail.com
+ Bruno Merlo Schurmann bruno290@gmail.com
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -15,7 +16,7 @@
 
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses
- */
+*/
 
 #ifndef KITCHEN_H
 #define KITCHEN_H
