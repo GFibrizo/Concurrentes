@@ -125,7 +125,7 @@ void Kitchen::put_in_oven(int order, float time) {
         finished_fifo.write_fifo(static_cast<void *>(&oven_number), sizeof(int));
 #ifdef __DEBUG__
         Logger::log(__FILE__, Logger::DEBUG,
-                    "Coccion finalizada: " + std::to_string(pizza) + " en horno: " + std::to_string(oven_number));
+                    "Coccion finalizada: " + std::to_string(order) + " en horno: " + std::to_string(oven_number));
 #endif
         exit(EXIT_SUCCESS);
     }
