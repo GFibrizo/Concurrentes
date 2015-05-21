@@ -116,11 +116,11 @@ int launch_chefs(Semaphore &chefs, Semaphore &max_requests_semaphore, Shared_Mem
     return pid;
 }
 
-int launch_delivery(Semaphore &cadets, Shared_Memory<int> *ovens, Semaphore &occupied_ovens_semaphore,
-                    Shared_Memory<float> &cash_register) {
+int launch_delivery(Semaphore &cadets, Shared_Memory<int> *ovens, Semaphore &free_ovens_semaphore,
+                    Semaphore &occupied_ovens_semaphore, Shared_Memory<float> &cash_register) {
     int pid = fork();
     if (pid == 0) {
-        Delivery delivery = Delivery(cadets, ovens, occupied_ovens_semaphore, cash_register);
+        Delivery delivery = Delivery(cadets, ovens, free_ovens_semaphore, occupied_ovens_semaphore, cash_register);
         delivery.start_deliveries();
         exit(EXIT_SUCCESS);
     }
@@ -224,7 +224,7 @@ int main() {
     try {
         //Cash_Register cash_register = Cash_Register();
         cash_register.create(CASH_REGISTER_SM, 'a');
-        delivery_pid = launch_delivery(cadets_semaphore, ovens, occupied_ovens_semaphore, cash_register);
+        delivery_pid = launch_delivery(cadets_semaphore, ovens, free_ovens_semaphore, occupied_ovens_semaphore, cash_register);
         supervisor_pid = launch_supervisor(cash_register, config["Intervalo_Supervisora"]);
     } catch (std::string e) {
         cout << e << endl;
