@@ -83,7 +83,7 @@ void Delivery::simulate_delivery(int oven_number) {
 #ifdef __DEBUG__
 	    Logger::log(__FILE__, Logger::DEBUG, "Sacada del horno "+to_string(oven_number)+": "+to_string(order));
 #endif
-//        occupied_ovens.p();
+        occupied_ovens.p();
         free_ovens.v();
 
         float deliver_time = generate_deliver_time();
@@ -107,8 +107,7 @@ void Delivery::simulate_delivery(int oven_number) {
 }
 
 void Delivery::start_deliveries() {
-//    DeliverySIGINTHandler sigint_handler(occupied_ovens, finished_fifo);
-    DeliverySIGINTHandler sigint_handler(free_ovens, finished_fifo);
+    DeliverySIGINTHandler sigint_handler(occupied_ovens, finished_fifo);
     SignalHandler::get_instance()->register_handler(SIGINT, &sigint_handler);
 
     int oven_number = 0;
