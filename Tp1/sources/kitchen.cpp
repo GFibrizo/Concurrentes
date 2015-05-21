@@ -39,7 +39,6 @@ float generate_cooking_time() {
 void Kitchen::simulate_cook(int order) {
     int pid = fork();
     if (pid == 0) {
-        //TODO: do something
 
 #ifdef __DEBUG__
 		Logger::log(__FILE__,Logger::DEBUG,"Pedido levantado, amasando: "+to_string(order));
@@ -51,7 +50,6 @@ void Kitchen::simulate_cook(int order) {
 #ifdef __DEBUG__
 		Logger::log(__FILE__,Logger::DEBUG,"Al horno: "+to_string(order));
 #endif
-//        chefs.v(); //TODO: ver en que orden se deberia liberar esto
         exit(EXIT_SUCCESS);
     }
 }
@@ -86,7 +84,6 @@ void Kitchen::accept_orders() {
 		Logger::log(__FILE__,Logger::DEBUG,"Amasados todos los pedidos");
 #endif
 
-//    occupied_ovens_semaphore.w();
     free_ovens_semaphore.w();
 
     finished_fifo.close_fifo();
@@ -94,10 +91,10 @@ void Kitchen::accept_orders() {
 }
 
 Kitchen::Kitchen(Semaphore &chefs_semaphore, Semaphore &max_requests_semaphore, Shared_Memory<int> *ovens,
-                 Semaphore &free_ovens_semaphore, Semaphore &occupied_ovens_semaphore) :
+                 Semaphore &free_ovens_semaphore) :
         chefs(chefs_semaphore), request_fifo_lock(REQUEST_FIFO_LOCK),
         requests_fifo(REQUEST_PIPE), max_requests(max_requests_semaphore),
-        ovens(ovens), free_ovens_semaphore(free_ovens_semaphore), occupied_ovens_semaphore(occupied_ovens_semaphore),
+        ovens(ovens), free_ovens_semaphore(free_ovens_semaphore),
         ovens_lock(OVEN_LOCK), finished_fifo(FINISHED_FIFO) {
     request_fifo_lock.lock();
     requests_fifo.open_fifo();
@@ -106,9 +103,7 @@ Kitchen::Kitchen(Semaphore &chefs_semaphore, Semaphore &max_requests_semaphore, 
 }
 
 void Kitchen::put_in_oven(int order, float time) {
-
     free_ovens_semaphore.p();
-//    occupied_ovens_semaphore.v();
 
     int oven_number = 0;
 
@@ -122,14 +117,10 @@ void Kitchen::put_in_oven(int order, float time) {
     ovens_lock.release();
 
     chefs.v();
-//    int pid = fork();
-//    if (pid == 0) {
-        sleep(time);
-        finished_fifo.write_fifo(static_cast<void *>(&oven_number), sizeof(int));
+    sleep(time);
+    finished_fifo.write_fifo(static_cast<void *>(&oven_number), sizeof(int));
 #ifdef __DEBUG__
-        Logger::log(__FILE__, Logger::DEBUG,
-                    "Coccion finalizada: " + std::to_string(order) + " en horno: " + std::to_string(oven_number));
+    Logger::log(__FILE__, Logger::DEBUG,
+                "Coccion finalizada: " + std::to_string(order) + " en horno: " + std::to_string(oven_number));
 #endif
-//        exit(EXIT_SUCCESS);
-//    }
 }

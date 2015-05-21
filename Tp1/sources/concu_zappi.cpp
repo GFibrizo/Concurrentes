@@ -105,11 +105,11 @@ int launch_call_center(Semaphore &recepcionists, Semaphore &max_requests_semapho
 }
 
 int launch_chefs(Semaphore &chefs, Semaphore &max_requests_semaphore, Shared_Memory<int> *ovens,
-                 Semaphore &free_ovens_semaphore, Semaphore &occupied_ovens_semaphore) {
+                 Semaphore &free_ovens_semaphore) {
 
     int pid = fork();
     if (pid == 0) {
-        Kitchen kitchen = Kitchen(chefs, max_requests_semaphore, ovens, free_ovens_semaphore, occupied_ovens_semaphore);
+        Kitchen kitchen = Kitchen(chefs, max_requests_semaphore, ovens, free_ovens_semaphore);
         kitchen.accept_orders();
         exit(EXIT_SUCCESS);
     }
@@ -117,10 +117,10 @@ int launch_chefs(Semaphore &chefs, Semaphore &max_requests_semaphore, Shared_Mem
 }
 
 int launch_delivery(Semaphore &cadets, Shared_Memory<int> *ovens, Semaphore &free_ovens_semaphore,
-                    Semaphore &occupied_ovens_semaphore, Shared_Memory<float> &cash_register) {
+                    Shared_Memory<float> &cash_register) {
     int pid = fork();
     if (pid == 0) {
-        Delivery delivery = Delivery(cadets, ovens, free_ovens_semaphore, occupied_ovens_semaphore, cash_register);
+        Delivery delivery = Delivery(cadets, ovens, free_ovens_semaphore, cash_register);
         delivery.start_deliveries();
         exit(EXIT_SUCCESS);
     }
@@ -213,7 +213,6 @@ int main() {
                                                               1); //El primer llamado siempre se atiende por defecto
     Semaphore cadets_semaphore = Semaphore(CADETS_SEM, config["Cadetas"]);
     Semaphore free_ovens_semaphore = Semaphore(FREE_OVENS_SEM, config["Hornos"]);  // Cocina -> Hornos
-    Semaphore occupied_ovens_semaphore = Semaphore(OCCUPIED_OVENS_SEM, 0);  // Hornos -> Delivery
 
     Pipe pipe = Pipe();
     Shared_Memory<int> *ovens = new Shared_Memory<int>[config["Hornos"]];
@@ -222,15 +221,14 @@ int main() {
     Shared_Memory<float> cash_register = Shared_Memory<float>();
 
     int call_center_pid = launch_call_center(recepcionists_semaphore, max_requests_semaphore, pipe);
-    int kitchen_pid = launch_chefs(chefs_semaphore, max_requests_semaphore, ovens, free_ovens_semaphore,
-                                   occupied_ovens_semaphore);
+    int kitchen_pid = launch_chefs(chefs_semaphore, max_requests_semaphore, ovens, free_ovens_semaphore);
 
     int delivery_pid = 0;
     int supervisor_pid = 0;
     try {
         //Cash_Register cash_register = Cash_Register();
         cash_register.create(CASH_REGISTER_SM, 'a');
-        delivery_pid = launch_delivery(cadets_semaphore, ovens, free_ovens_semaphore, occupied_ovens_semaphore, cash_register);
+        delivery_pid = launch_delivery(cadets_semaphore, ovens, free_ovens_semaphore, cash_register);
         supervisor_pid = launch_supervisor(cash_register, config["Intervalo_Supervisora"]);
     } catch (std::string e) {
         cout << e << endl;
@@ -263,7 +261,6 @@ int main() {
     turn_off_ovens(ovens, config["Hornos"]);
     delete[](ovens);
     free_ovens_semaphore.remove();
-    occupied_ovens_semaphore.remove();
 #ifdef __DEBUG__
     Logger::log(__FILE__,Logger::DEBUG,"Liberada la cocina. Todos los hornos se apagaron");
 #endif

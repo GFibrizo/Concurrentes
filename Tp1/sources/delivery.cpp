@@ -50,11 +50,10 @@ int generate_payment_amount() {
 }
 
 Delivery::Delivery(Semaphore &cadets_semaphore, Shared_Memory<int> *ovens, Semaphore &free_ovens_semaphore,
-                   Semaphore &occupied_ovens_semaphore, Shared_Memory<float> &cash_register)
+                   Shared_Memory<float> &cash_register)
         : cadets(cadets_semaphore),
           ovens(ovens),
           free_ovens(free_ovens_semaphore),
-          occupied_ovens(occupied_ovens_semaphore),
           ovens_lock(OVEN_LOCK),
           finished_fifo_lock(FINISHED_FIFO_LOCK),
           finished_fifo(FINISHED_FIFO),
@@ -83,7 +82,6 @@ void Delivery::simulate_delivery(int oven_number) {
 #ifdef __DEBUG__
 	    Logger::log(__FILE__, Logger::DEBUG, "Sacada del horno "+to_string(oven_number)+": "+to_string(order));
 #endif
-//        occupied_ovens.p();
         free_ovens.v();
 
         float deliver_time = generate_deliver_time();
@@ -107,29 +105,29 @@ void Delivery::simulate_delivery(int oven_number) {
 }
 
 void Delivery::start_deliveries() {
-//    DeliverySIGINTHandler sigint_handler(occupied_ovens, finished_fifo);
     DeliverySIGINTHandler sigint_handler(free_ovens, finished_fifo);
     SignalHandler::get_instance()->register_handler(SIGINT, &sigint_handler);
 
     int oven_number = 0;
-    //char *buffer = (char *) &oven_number;
     while (finished_fifo.read_fifo(static_cast<void*>(&oven_number), sizeof(int)) > 0) {
         make_delivery(oven_number);
 
     }
-    launched_process++;  // El hijo que hace occupied_ovens.w()
+    launched_process++;  // El hijo que hace free_ovens.w()
 
     finished_fifo.close_fifo();
     finished_fifo_lock.release();
 
     std::cout << "Hay que esperar " << to_string(launched_process) << " hijos" << std::endl;
     for (size_t i = 0; i < launched_process; i++) {
+                Logger::log(__FILE__, Logger::DEBUG, "hijo");
+
         wait(0); // Espera que terminen todas las entregas
     }
 }
 
-Delivery::DeliverySIGINTHandler::DeliverySIGINTHandler(Semaphore &occupied_ovens, ReaderFifo &finished_fifo)
-        : occupied_ovens(occupied_ovens), finished_fifo(finished_fifo) {
+Delivery::DeliverySIGINTHandler::DeliverySIGINTHandler(Semaphore &free_ovens, ReaderFifo &finished_fifo)
+        : free_ovens(free_ovens), finished_fifo(finished_fifo) {
 }
 
 int Delivery::DeliverySIGINTHandler::handle_signal(int signal_number) {
@@ -145,7 +143,7 @@ int Delivery::DeliverySIGINTHandler::handle_signal(int signal_number) {
         // Graceful Quit
         int pid = fork();
         if (pid == 0) { //Hijo
-            occupied_ovens.w(); //Espera que no haya hornos en uso
+            free_ovens.w(); //Espera que no haya hornos en uso
 #ifdef __DEBUG__
     Logger::log(__FILE__, Logger::DEBUG, "No quedan mas pizzas en el horno");
 #endif

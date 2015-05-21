@@ -47,7 +47,7 @@ int Semaphore::v() const {
 int Semaphore::w() const {
 	struct sembuf operation;
 	operation.sem_num = 0;	// numero de semaforo
-	operation.sem_op  = 0;	// espera a que sea 0
+	operation.sem_op  = initial_value;	// espera a que sea 0
 	operation.sem_flg = SEM_UNDO;
 
 	int res = semop(this->id,&operation, 1); //FIXME

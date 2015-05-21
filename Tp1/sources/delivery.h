@@ -40,7 +40,6 @@ private:
 
     Shared_Memory<int> *ovens;
     Semaphore free_ovens;
-    Semaphore occupied_ovens;
     Lock_File ovens_lock;
 
     Lock_File finished_fifo_lock;
@@ -56,7 +55,7 @@ private:
 
 public:
     Delivery(Semaphore &cadets_semaphore, Shared_Memory<int> *ovens, Semaphore &free_ovens_semaphore,
-             Semaphore &occupied_ovens_semaphore, Shared_Memory<float> &cash_register);
+             Shared_Memory<float> &cash_register);
 
     void start_deliveries();
 
@@ -64,11 +63,11 @@ private:
     class DeliverySIGINTHandler : public EventHandler {
 
     private:
-        Semaphore occupied_ovens;
+        Semaphore free_ovens;
         ReaderFifo finished_fifo;
 
     public:
-        DeliverySIGINTHandler(Semaphore &occupied_ovens, ReaderFifo &finished_fifo);
+        DeliverySIGINTHandler(Semaphore &free_ovens, ReaderFifo &finished_fifo);
 
         int handle_signal(int signal_number);
     };
