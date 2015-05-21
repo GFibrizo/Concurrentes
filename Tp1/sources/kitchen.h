@@ -44,6 +44,7 @@ private:
 
     //Cosas que maneja para los hornos
     Semaphore free_ovens_semaphore;
+    Semaphore occupied_ovens_semaphore;
 
     Lock_File ovens_lock;
     WriterFifo finished_fifo;
@@ -56,7 +57,7 @@ private:
     void put_in_oven(int order, float time);
 
 public:
-    Kitchen(Semaphore &, Semaphore &, Shared_Memory<int> *, Semaphore &);
+    Kitchen(Semaphore &, Semaphore &, Shared_Memory<int> *, Semaphore &, Semaphore &);
 
     void accept_orders();
 };

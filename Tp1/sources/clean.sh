@@ -1,6 +1,5 @@
 #!/bin/bash
 
-rm /tmp/*_pipe && rm /tmp/*_lock
 ME=`whoami`
 
 IPCS_S=`ipcs -s | egrep "0x[0-9a-f]+ [0-9]+" | grep $ME | cut -f2 -d" "`
