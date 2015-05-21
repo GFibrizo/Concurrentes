@@ -43,7 +43,10 @@ Call_Center::Call_Center(Semaphore &recepcionists_semaphore, Semaphore &max_requ
 void Call_Center::simulate_call(int order) {
     int pid = fork();
     if (pid == 0) {
-        //TODO: do something
+
+#ifdef __DEBUG__
+        Logger::log(__FILE__,Logger::DEBUG,"Llamada atendiendose: "+to_string(order));
+#endif
         sleep(CALL_TIME);
 #ifdef __DEBUG__
 		Logger::log(__FILE__,Logger::DEBUG,"Pedido aceptado: "+to_string(order));
@@ -67,9 +70,6 @@ void Call_Center::accept_calls() {
             break;
         }
 
-#ifdef __DEBUG__
-        Logger::log(__FILE__,Logger::DEBUG,"Llamada atendiendose: "+to_string(order));
-#endif
         accept_call(order);
     }
 
