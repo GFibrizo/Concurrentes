@@ -115,7 +115,7 @@ void Kitchen::put_in_oven(int order, float time) {
         pizza = ovens[oven_number].read();
     }
     ovens[oven_number].write(order);
-    ovens_lock.lock();
+    ovens_lock.release();
 
     int pid = fork();
     if (pid == 0) {
