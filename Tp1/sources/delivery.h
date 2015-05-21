@@ -37,8 +37,10 @@ class Delivery {
 private:
     size_t launched_process = 0;
     Semaphore cadets;
+
     Shared_Memory<int> *ovens;
     Semaphore occupied_ovens;
+    Lock_File ovens_lock;
 
     Lock_File finished_fifo_lock;
     ReaderFifo finished_fifo;

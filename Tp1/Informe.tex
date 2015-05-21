@@ -129,16 +129,16 @@ Entregas & Hornos \\
 \end{tabular}
 \end{center}
 
-Además de las anteriores, el programa principal es el punto de entrada, por lo que debe redirigir 
-la entrada de los pedidos al proceso de la Recepción. 
+Además de las anteriores, el programa principal es el punto de entrada del sistema, por lo que debe 
+redirigir los pedidos que se ingresen al proceso de la Recepción. 
 
 Por último, la supervisora y cada cadeta deben acceder a la caja de a una por vez. Por lo tanto, 
 deben coordinarse para no usar la registradora más de una al mismo tiempo.
 
 \subsection{Comunicación Programa Principal-Recepción}
 
-Estos dos procesos deben comunicarse de forma que todo lo ingresado en el programa principal sea 
-redirigido a la Recepción. 
+Los pedidos se ingresan por entrada estandar, por lo que estos dos procesos deben comunicarse de 
+forma que todo lo ingresado en el programa principal sea edirigido a la Recepción. 
 
 \subsection{Comunicación Recepción-Cocina}
 
@@ -167,5 +167,22 @@ caja está siendo utilizada, ya que solo una persona puede acceder a la misma.
 
 \section{Mecanismos de concurrencia utilizados}
 
+Se han utilizado, para cada caso descripto anteriormente, los siguientes mecanismos de concurrencia:
+
+\subsection{Comunicación Programa Principal-Recepción}
+
+Se utiliza un unnamed pipe para enviar los pedidos ingresados por entrada estandar en el programa 
+principal (writer) a la recepción (reader). El uso de un lock evita que se cierre el pipe cuando 
+todavía quedan pedidos pendientes encolados.
+
+\subsection{Comunicación Recepción-Cocina}
+
+
+
+\subsection{Comunicación Cocina-Hornos}
+
+\subsection{Comunicación Hornos-Entregas}
+
+\subsection{Comunicación Entregas-Supervisora}
 
 \end{document}

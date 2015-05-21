@@ -54,6 +54,7 @@ Delivery::Delivery(Semaphore &cadets_semaphore, Shared_Memory<int> *ovens, Semap
         : cadets(cadets_semaphore),
           ovens(ovens),
           occupied_ovens(occupied_ovens_semaphore),
+          ovens_lock(OVEN_LOCK),
           finished_fifo_lock(FINISHED_FIFO_LOCK),
           finished_fifo(FINISHED_FIFO),
           cash_register_lock(CASH_REGISTER_LOCK),
@@ -72,10 +73,10 @@ void Delivery::make_delivery(int oven_number) {
 void Delivery::simulate_delivery(int oven_number) {
     int pid = fork();
     if (pid == 0) {
-        //FIXME rehacer cuando esten los hornos
-        //string order = ovens.remove(oven_number);
-        int order = oven_number;
-        ///////////////////////////////////////
+        ovens_lock.lock();
+        int order = ovens[oven_number].read();
+        ovens[oven_number].write(0);
+        ovens_lock.release();
 #ifdef __DEBUG__
 	    Logger::log(__FILE__, Logger::DEBUG, "Sacada del horno "+to_string(oven_number)+": "+to_string(order));
 #endif
@@ -105,20 +106,20 @@ void Delivery::start_deliveries() {
     SignalHandler::get_instance()->register_handler(SIGINT, &sigint_handler);
 
     int oven_number = 0;
-    char *buffer = (char *) &oven_number;
-    while (finished_fifo.read_fifo(buffer, sizeof(int)) > 0) {
+    //char *buffer = (char *) &oven_number;
+    while (finished_fifo.read_fifo(static_cast<void*>(&oven_number), sizeof(int)) > 0) {
         make_delivery(oven_number);
 
     }
-
-    for (size_t i = 0; i < launched_process; i++) {
-        wait(0); // Espera que terminen todas las entregas
-    }
+    launched_process++;  // El hijo que hace occupied_ovens.w()
 
     //finished_fifo.close_fifo();
     finished_fifo_lock.release();
 
-    std::cout << "Estamos listos" << std::endl;
+    std::cout << "Hay que esperar " << to_string(launched_process) << " hijos" << std::endl;
+    for (size_t i = 0; i < launched_process; i++) {
+        wait(0); // Espera que terminen todas las entregas
+    }
 }
 
 Delivery::DeliverySIGINTHandler::DeliverySIGINTHandler(Semaphore &occupied_ovens, ReaderFifo &finished_fifo)
@@ -137,8 +138,7 @@ int Delivery::DeliverySIGINTHandler::handle_signal(int signal_number) {
         sigprocmask(SIG_BLOCK, &blocking_set, NULL);
         // Graceful Quit
         int pid = fork();
-        if (pid != 0) { //Hijo
-            std::cout << "A esperar que se termine de cocinar todo" << std::endl;
+        if (pid == 0) { //Hijo
             occupied_ovens.w(); //Espera que no haya hornos en uso
 #ifdef __DEBUG__
     Logger::log(__FILE__, Logger::DEBUG, "No quedan mas pizzas en el horno");

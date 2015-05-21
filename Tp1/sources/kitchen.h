@@ -47,7 +47,7 @@ private:
     Semaphore occupied_ovens_semaphore;
 
     Lock_File ovens_lock;
-    //Lock_File finished_fifo_lock;  //TODO: Creo que no había que usarlo acá, lo agregué por las dudas. - Bruno
+    Lock_File finished_fifo_lock;  //TODO: Creo que no había que usarlo acá, lo agregué por las dudas. - Bruno
     WriterFifo finished_fifo;
 
 private:
