@@ -137,10 +137,16 @@ int launch_supervisor(Shared_Memory<float> &cash_register, float checking_interv
     return pid;
 }
 
-void initialize_ovens(Shared_Memory<int> *ovens, int ovens_size) {
+void ignite_ovens(Shared_Memory<int> *ovens, int ovens_size) {
     for (int i = 0; i < ovens_size; i++) {
         ovens[i].create(__FILE__, i);
         ovens[i].write(0);
+    }
+}
+
+void turn_off_ovens(Shared_Memory<int> *ovens, int ovens_size) {
+    for (int i = 0; i < ovens_size; i++) {
+        ovens[i].free();
     }
 }
 
@@ -211,7 +217,7 @@ int main() {
 
     Pipe pipe = Pipe();
     Shared_Memory<int> *ovens = new Shared_Memory<int>[config["Hornos"]];
-    initialize_ovens(ovens, config["Hornos"]);
+    ignite_ovens(ovens, config["Hornos"]);
 
     Shared_Memory<float> cash_register = Shared_Memory<float>();
 
@@ -242,12 +248,19 @@ int main() {
 #ifdef __DEBUG__
     Logger::log(__FILE__,Logger::DEBUG,"Cerrada cocina. Todos las cocineras se retiraron");
 #endif
-    //ovens.close_ovens();
+
     kill(delivery_pid, SIGINT);  // mata al delivery
     waitpid(delivery_pid, 0, 0);  // espera que termine delivery
 #ifdef __DEBUG__
     Logger::log(__FILE__,Logger::DEBUG,"Cerrado el delivery. Todas las empleadas se retiraron");
 #endif
+
+    turn_off_ovens(ovens, config["Hornos"]);
+    delete[](ovens);
+#ifdef __DEBUG__
+    Logger::log(__FILE__,Logger::DEBUG,"Liberada la cocina. Todos los hornos se apagaron");
+#endif
+
     kill(supervisor_pid, SIGINT);  // mata al supervisor
     waitpid(supervisor_pid, 0, 0);  // espera al supervisor
 #ifdef __DEBUG__
