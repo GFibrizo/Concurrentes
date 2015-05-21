@@ -10,7 +10,7 @@
 #include <errno.h>
 
 #define DEFAULT_SIZE 1
-#define DEFAULT_POSITION DEFAULT_SIZE -1
+#define DEFAULT_POSITION 0
 
 template<class T> class Shared_Memory {
 
@@ -42,7 +42,7 @@ template<class T> Shared_Memory<T>::Shared_Memory() :
 template<class T> void Shared_Memory<T>::create(const std::string& file,
 		const char salt, const int sm_size) {
 	key_t key = ftok(file.c_str(), salt);
-
+	shared_size = sm_size;
 	if (key > 0) {
 		this->sharedm_id = shmget(key, sm_size * sizeof(T), 0644 | IPC_CREAT);
 
@@ -62,7 +62,6 @@ template<class T> void Shared_Memory<T>::create(const std::string& file,
 		std::string error_msg = std::string("Error en ftok(): ") + std::string(strerror(errno));
 		throw error_msg;
 	}
-	shared_size = sm_size;
 }
 
 template<class T> void Shared_Memory<T>::free() {
@@ -80,7 +79,7 @@ template<class T> void Shared_Memory<T>::free() {
 
 template<class T> Shared_Memory<T>::Shared_Memory(const std::string& file,
 		const char salt, const int sm_size) :
-		sharedm_id(0), data_pointer(NULL) {
+		sharedm_id(0), data_pointer(NULL), shared_size(sm_size) {
 	key_t key = ftok(file.c_str(), salt);
 
 	if (key > 0) {
@@ -102,12 +101,11 @@ template<class T> Shared_Memory<T>::Shared_Memory(const std::string& file,
 		std::string error_msg = std::string("Error en ftok(): ") + std::string(strerror(errno));
 		throw error_msg;
 	}
-	shared_size = sm_size;
 }
 
 template<class T> Shared_Memory<T>::Shared_Memory(const Shared_Memory& origin) :
 		sharedm_id(origin.sharedm_id), shared_size(origin.shared_size) {
-	void* tmpPtr = shmat(origin.sharedm_id, NULL, 0);
+	void* tmp_ptr = shmat(origin.sharedm_id, NULL, 0);
 
 	if (tmp_ptr != (void*) -1) {
 		this->data_pointer = static_cast<T*>(tmp_ptr);

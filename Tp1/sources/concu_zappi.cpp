@@ -208,7 +208,7 @@ int main() {
     OvenSet ovens = OvenSet(config["Hornos"], free_ovens_semaphore, occupied_ovens_semaphore);
 
     Shared_Memory<float> cash_register = Shared_Memory<float>();
-    Shared_Memory<int> oven_memory = Shared_Memory<int>();
+    Shared_Memory<int> oven_memory = Shared_Memory<int>(OVENS_SM, 'b', config["Hornos"]);
     initialize_ovens(oven_memory, config["Hornos"]);
 
     int call_center_pid = launch_call_center(recepcionists_semaphore,max_requests_semaphore, pipe);
