@@ -91,10 +91,12 @@ void Kitchen::accept_orders() {
     finished_fifo.remove();
 }
 
-Kitchen::Kitchen(Semaphore &chefs_semaphore, Semaphore &max_requests_semaphore, Shared_Memory<int> *ovens,Semaphore &free_ovens_semaphore, Semaphore &occupied_ovens_semaphore) :
+Kitchen::Kitchen(Semaphore &chefs_semaphore, Semaphore &max_requests_semaphore, Shared_Memory<int> *ovens,
+                 Semaphore &free_ovens_semaphore, Semaphore &occupied_ovens_semaphore) :
         chefs(chefs_semaphore), request_fifo_lock(REQUEST_FIFO_LOCK),
         requests_fifo(REQUEST_PIPE), max_requests(max_requests_semaphore),
-        ovens(ovens),free_ovens_semaphore(free_ovens_semaphore),occupied_ovens_semaphore(occupied_ovens_semaphore),ovens_lock(OVEN_LOCK),finished_fifo(FINISHED_FIFO) {
+        ovens(ovens), free_ovens_semaphore(free_ovens_semaphore), occupied_ovens_semaphore(occupied_ovens_semaphore),
+        ovens_lock(OVEN_LOCK), finished_fifo(FINISHED_FIFO) {
     request_fifo_lock.lock();
     requests_fifo.open_fifo();
     launched_process = 0;
@@ -107,7 +109,7 @@ void Kitchen::put_in_oven(int order, float time) {
     occupied_ovens_semaphore.v();
 
     int oven_number = 0;
-    
+
     ovens_lock.lock();
     int pizza = ovens[oven_number].read();
     while (pizza != 0) {
@@ -120,11 +122,11 @@ void Kitchen::put_in_oven(int order, float time) {
     int pid = fork();
     if (pid == 0) {
         sleep(time);
-        finished_fifo.write_fifo(static_cast<void*>(&oven_number), sizeof(int));
+        finished_fifo.write_fifo(static_cast<void *>(&oven_number), sizeof(int));
 #ifdef __DEBUG__
         Logger::log(__FILE__, Logger::DEBUG,
                     "Coccion finalizada: " + std::to_string(pizza) + " en horno: " + std::to_string(oven_number));
 #endif
-    exit(EXIT_SUCCESS);
+        exit(EXIT_SUCCESS);
     }
 }
