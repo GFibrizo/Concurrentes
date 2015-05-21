@@ -83,7 +83,7 @@ void Delivery::simulate_delivery(int oven_number) {
 #ifdef __DEBUG__
 	    Logger::log(__FILE__, Logger::DEBUG, "Sacada del horno "+to_string(oven_number)+": "+to_string(order));
 #endif
-        occupied_ovens.p();
+//        occupied_ovens.p();
         free_ovens.v();
 
         float deliver_time = generate_deliver_time();
@@ -107,7 +107,8 @@ void Delivery::simulate_delivery(int oven_number) {
 }
 
 void Delivery::start_deliveries() {
-    DeliverySIGINTHandler sigint_handler(occupied_ovens, finished_fifo);
+//    DeliverySIGINTHandler sigint_handler(occupied_ovens, finished_fifo);
+    DeliverySIGINTHandler sigint_handler(free_ovens, finished_fifo);
     SignalHandler::get_instance()->register_handler(SIGINT, &sigint_handler);
 
     int oven_number = 0;
@@ -118,7 +119,7 @@ void Delivery::start_deliveries() {
     }
     launched_process++;  // El hijo que hace occupied_ovens.w()
 
-    //finished_fifo.close_fifo();
+    finished_fifo.close_fifo();
     finished_fifo_lock.release();
 
     std::cout << "Hay que esperar " << to_string(launched_process) << " hijos" << std::endl;
@@ -148,7 +149,6 @@ int Delivery::DeliverySIGINTHandler::handle_signal(int signal_number) {
 #ifdef __DEBUG__
     Logger::log(__FILE__, Logger::DEBUG, "No quedan mas pizzas en el horno");
 #endif
-            finished_fifo.close_fifo();
             exit(EXIT_SUCCESS);
         }
         return 0;

@@ -51,7 +51,7 @@ void Kitchen::simulate_cook(int order) {
 #ifdef __DEBUG__
 		Logger::log(__FILE__,Logger::DEBUG,"Al horno: "+to_string(order));
 #endif
-        chefs.v(); //TODO: ver en que orden se deberia liberar esto
+//        chefs.v(); //TODO: ver en que orden se deberia liberar esto
         exit(EXIT_SUCCESS);
     }
 }
@@ -86,7 +86,9 @@ void Kitchen::accept_orders() {
 		Logger::log(__FILE__,Logger::DEBUG,"Amasados todos los pedidos");
 #endif
 
-    occupied_ovens_semaphore.w();
+//    occupied_ovens_semaphore.w();
+    free_ovens_semaphore.w();
+
     finished_fifo.close_fifo();
     finished_fifo.remove();
 }
@@ -106,7 +108,7 @@ Kitchen::Kitchen(Semaphore &chefs_semaphore, Semaphore &max_requests_semaphore, 
 void Kitchen::put_in_oven(int order, float time) {
 
     free_ovens_semaphore.p();
-    occupied_ovens_semaphore.v();
+//    occupied_ovens_semaphore.v();
 
     int oven_number = 0;
 
@@ -119,14 +121,15 @@ void Kitchen::put_in_oven(int order, float time) {
     ovens[oven_number].write(order);
     ovens_lock.release();
 
-    int pid = fork();
-    if (pid == 0) {
+    chefs.v();
+//    int pid = fork();
+//    if (pid == 0) {
         sleep(time);
         finished_fifo.write_fifo(static_cast<void *>(&oven_number), sizeof(int));
 #ifdef __DEBUG__
         Logger::log(__FILE__, Logger::DEBUG,
                     "Coccion finalizada: " + std::to_string(order) + " en horno: " + std::to_string(oven_number));
 #endif
-        exit(EXIT_SUCCESS);
-    }
+//        exit(EXIT_SUCCESS);
+//    }
 }
