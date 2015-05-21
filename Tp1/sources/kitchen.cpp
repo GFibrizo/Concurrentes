@@ -87,9 +87,7 @@ void Kitchen::accept_orders() {
 #endif
 
     occupied_ovens_semaphore.w();
-    //finished_fifo_lock.lock();
     finished_fifo.close_fifo();
-    //finished_fifo_lock.release();
     finished_fifo.remove();
 }
 
