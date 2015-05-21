@@ -30,7 +30,7 @@ int Semaphore::p() const {
 	operation.sem_op  = -1;	// restar 1 al semaforo
 	operation.sem_flg = 0;
 
-	int res = semop(this->id, &operation, 1); //FIXME
+	int res = semop(this->id, &operation, 1);
 	return res;
 }
 
@@ -40,7 +40,7 @@ int Semaphore::v() const {
 	operation.sem_op  = 1;	// sumar 1 al semaforo
 	operation.sem_flg = 0;
 
-	int res = semop(this->id,&operation, 1); //FIXME
+	int res = semop(this->id,&operation, 1);
 	return res;
 }
 
@@ -50,7 +50,7 @@ int Semaphore::w() const {
 	operation.sem_op  = 0;	// espera a que sea 0
 	operation.sem_flg = 0;
 
-	int res = semop(this->id,&operation, 1); //FIXME
+	int res = semop(this->id,&operation, 1);
 	return res;
 }
 

@@ -53,7 +53,7 @@ void Call_Center::simulate_call(int order) {
 		Logger::log(__FILE__,Logger::DEBUG,"Pedido aceptado: "+to_string(order));
 #endif
         fifo.write_fifo(static_cast<void *>(&order), sizeof(int));
-        recepcionist.v(); //TODO: ver en que orden se deberia liberar esto
+        recepcionist.v();
         exit(EXIT_SUCCESS);
     }
 }
@@ -76,9 +76,8 @@ void Call_Center::accept_calls() {
 
     pipe_lock.release(); //El pipe ya esta vacio
 
-    for (size_t i = 0; i < launched_process; i++) { //TODO: Por esto es que los semaforos no funcionan para esto.
-        //TODO O en realidad hay que tirar un wait por proceso lanzado me parece independientemente de como lo hagamos
-        wait(0); //Waits for all recepcionist to finish
+    for (size_t i = 0; i < launched_process; i++) {
+        wait(0); //Espera que terminen las recepcionistas
     }
 
     int end = 0;

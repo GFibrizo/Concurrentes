@@ -107,7 +107,6 @@ void Delivery::start_deliveries() {
     SignalHandler::get_instance()->register_handler(SIGINT, &sigint_handler);
 
     int oven_number = 0;
-    //char *buffer = (char *) &oven_number;
     while (finished_fifo.read_fifo(static_cast<void*>(&oven_number), sizeof(int)) > 0) {
         make_delivery(oven_number);
 

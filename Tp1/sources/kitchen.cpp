@@ -40,19 +40,16 @@ float generate_cooking_time() {
 void Kitchen::simulate_cook(int order) {
     int pid = fork();
     if (pid == 0) {
-        //TODO: do something
-
 #ifdef __DEBUG__
 		Logger::log(__FILE__,Logger::DEBUG,"Pedido levantado, amasando: "+to_string(order));
 #endif
         sleep(COOKING_TIME);
 
         put_in_oven(order, generate_cooking_time());
-
 #ifdef __DEBUG__
 		Logger::log(__FILE__,Logger::DEBUG,"Al horno: "+to_string(order));
 #endif
-//        chefs.v(); //TODO: ver en que orden se deberia liberar esto
+
         exit(EXIT_SUCCESS);
     }
 }
@@ -80,15 +77,13 @@ void Kitchen::accept_orders() {
 
 
     for (size_t i = 0; i < launched_process; i++) {
-        wait(0); //Waits for all chefs to finish
+        wait(0); //Espera que terminen las cocineras
     }
-
 #ifdef __DEBUG__
 		Logger::log(__FILE__,Logger::DEBUG,"Amasados todos los pedidos");
 #endif
 
     occupied_ovens_semaphore.w();
-
     finished_fifo.close_fifo();
     finished_fifo.remove();
 }
@@ -106,12 +101,10 @@ Kitchen::Kitchen(Semaphore &chefs_semaphore, Semaphore &max_requests_semaphore, 
 }
 
 void Kitchen::put_in_oven(int order, float time) {
-
     free_ovens_semaphore.p();
     occupied_ovens_semaphore.v();
 
     int oven_number = 0;
-
     ovens_lock.lock();
     int pizza = ovens[oven_number].read();
     while (pizza != 0) {

@@ -145,12 +145,6 @@ void ignite_ovens(Shared_Memory<int> *ovens, int ovens_size) {
     }
 }
 
-void turn_off_ovens(Shared_Memory<int> *ovens, int ovens_size) {
-    for (int i = 0; i < ovens_size; i++) {
-        ovens[i].free();
-    }
-}
-
 void answer_calls(Pipe &pipe, Semaphore &max_requests_semaphore) {
     string line;
     cout << "Pedido: ";
@@ -159,7 +153,7 @@ void answer_calls(Pipe &pipe, Semaphore &max_requests_semaphore) {
         ssize_t wrote = pipe.write_pipe(static_cast<void *>(&order), sizeof(int));
 
         if (wrote <= 0) {
-            break; //TODO: Ver bien que hacer en este caso.
+            break;
         }
 
         if (wrote == sizeof(int)) {
@@ -192,7 +186,7 @@ void answer_calls(Pipe &pipe, Semaphore &max_requests_semaphore) {
 }
 
 int main() {
-    Logger::open_logger("run_log.log"); //TODO: Agregar opccion para sobreescribir
+    Logger::open_logger("run_log.log");
 
     Logger::log(__FILE__, Logger::INFO, "Inicio configuracion");
     map<string, int> config;
@@ -210,11 +204,10 @@ int main() {
 
     Semaphore recepcionists_semaphore = Semaphore(RECEPCIONIST_SEM, config["Recepcionistas"]);
     Semaphore chefs_semaphore = Semaphore(CHEFS_SEM, config["Cocineras"]);
-    Semaphore max_requests_semaphore = Semaphore(REQUEST_SEM, config["Cocineras"] * 2 -
-                                                              1); //El primer llamado siempre se atiende por defecto
+    Semaphore max_requests_semaphore = Semaphore(REQUEST_SEM, config["Cocineras"] * 2 - 1); //El primer llamado siempre se atiende por defecto
     Semaphore cadets_semaphore = Semaphore(CADETS_SEM, config["Cadetas"]);
-    Semaphore free_ovens_semaphore = Semaphore(FREE_OVENS_SEM, config["Hornos"]);  // Cocina -> Hornos
-    Semaphore occupied_ovens_semaphore = Semaphore(OCCUPIED_OVENS_SEM, 0);  // Hornos -> Delivery
+    Semaphore free_ovens_semaphore = Semaphore(FREE_OVENS_SEM, config["Hornos"]);
+    Semaphore occupied_ovens_semaphore = Semaphore(OCCUPIED_OVENS_SEM, 0);
 
     Pipe pipe = Pipe();
     Shared_Memory<int> *ovens = new Shared_Memory<int>[config["Hornos"]];
@@ -223,13 +216,11 @@ int main() {
     Shared_Memory<float> cash_register = Shared_Memory<float>();
 
     int call_center_pid = launch_call_center(recepcionists_semaphore, max_requests_semaphore, pipe);
-    int kitchen_pid = launch_chefs(chefs_semaphore, max_requests_semaphore, ovens, free_ovens_semaphore,
-                                   occupied_ovens_semaphore);
+    int kitchen_pid = launch_chefs(chefs_semaphore, max_requests_semaphore, ovens, free_ovens_semaphore, occupied_ovens_semaphore);
 
     int delivery_pid = 0;
     int supervisor_pid = 0;
     try {
-        //Cash_Register cash_register = Cash_Register();
         cash_register.create(CASH_REGISTER_SM, 'a');
         delivery_pid = launch_delivery(cadets_semaphore, ovens, free_ovens_semaphore, occupied_ovens_semaphore, cash_register);
         supervisor_pid = launch_supervisor(cash_register, config["Intervalo_Supervisora"]);
@@ -254,31 +245,26 @@ int main() {
     Logger::log(__FILE__,Logger::DEBUG,"Cerrada cocina. Todos las cocineras se retiraron");
 #endif
 
-    kill(delivery_pid, SIGINT);  // mata al delivery
+    kill(delivery_pid, SIGINT);  // signal para que termine delivery
     waitpid(delivery_pid, 0, 0);  // espera que termine delivery
     cadets_semaphore.remove();
 #ifdef __DEBUG__
     Logger::log(__FILE__,Logger::DEBUG,"Cerrado el delivery. Todas las empleadas se retiraron");
 #endif
 
-
-    //turn_off_ovens(ovens, config["Hornos"]);
-    //delete[](ovens);
     free_ovens_semaphore.remove();
     occupied_ovens_semaphore.remove();
 #ifdef __DEBUG__
     //Logger::log(__FILE__,Logger::DEBUG,"Liberada la cocina. Todos los hornos se terminaron de usar");
 #endif
 
-    kill(supervisor_pid, SIGINT);  // mata al supervisor
-    waitpid(supervisor_pid, 0, 0);  // espera al supervisor
+    kill(supervisor_pid, SIGINT);  // signal para que termine supervisor
+    waitpid(supervisor_pid, 0, 0);  // espera que termine supervisor
 #ifdef __DEBUG__
     Logger::log(__FILE__,Logger::DEBUG,"Cerrada oficina. La supervisora se ha retirado");
 #endif
 
-    //TODO: Ver bien donde ponerlo
-    delete[] ovens;  //Si se pone antes que termine el supervisor, figura que todavía tiene procesos attached
-    //cash_register.free();
+    delete[] ovens;
     Logger::close_logger();
 
     return 0;

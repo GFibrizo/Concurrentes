@@ -48,7 +48,7 @@ private:
     void simulate_call(int order);
 
 public:
-    Call_Center(Semaphore&,Semaphore&,Pipe&);
+    Call_Center(Semaphore &recepcionists_semaphore, Semaphore &max_requests_semaphore, Pipe &pipe);
 
     void accept_calls();
     virtual ~Call_Center();
