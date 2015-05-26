@@ -172,12 +172,19 @@ Se han utilizado, para cada caso descripto anteriormente, los siguientes mecanis
 \subsection{Comunicación Programa Principal-Recepción}
 
 Se utiliza un unnamed pipe para enviar los pedidos ingresados por entrada estandar en el programa 
-principal (writer) a la recepción (reader). El uso de un lock evita que se cierre el pipe cuando 
-todavía quedan pedidos pendientes encolados.
+principal (writer) a la recepción (reader). Se opto por este mecanismo dado que se pretende conectar un proceso padre con un proceso hijo.\\ 
+Se utilizo un lock para proteger al pipe. El uso de un lock evita que se cierre el pipe cuando todavía quedan pedidos pendientes encolados. El lock se pide al
+crear el objeto que simula la recepcion (en el proceso hijo) y no se libera hasta que no queden pedidos pendientes. En el proceso padre, el lock se pide al momento de intentar cerrar y liberar el pipe.
 
 \subsection{Comunicación Recepción-Cocina}
 
+Se utiliza una FIFO para enviar los pedidos desde las recepcionistas hacia la cocina. En funcionamiento es similar al pipe que conecta el programa principal, pero debido a que no son procesos con una relacion padre-hijo, no se podia utilizar un pipe.\\
+Al igual que para el pipe, se utilizo un lock para evitar cerrarla antes que este vacia. Se comporta de la misma manera que el anteriormente mencionado.
 
+\subsection{Comunicación Programa Principal-Cocina}
+
+El programa principal debe tener alguna manera de poder monitorear la cantidad de pedidos que se pueden seguir aceptando. Se puede seguir tomando pedidos mientras que el numero de pedidos tomados menos el de pedidos procesados por la cocina, no supere al doble del numero de cocineras.\\
+Se opto para esto, utilizar un semaforo compartido entre ambos. El semaforo se inicializa en el doble del numero de cocineras. Al recibir un pedido por consola, el programa principal decremetan este semaforo; mientras que en la cocina se aumenta al aceptar un pedido. 
 
 \subsection{Comunicación Cocina-Hornos}
 
