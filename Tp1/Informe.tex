@@ -99,14 +99,14 @@ revisión de caja y la siguiente, están determinados en un archivo de configura
 \section{División del proyecto en procesos}
 
 Luego de analizar el problema y los requerimientos del mismo, se decidió dividir el programa en 
-cinco procesos principales: uno por cada sección de la pizzería (recepción de pedidos, cocina, 
-hornos y entregas) y uno para la supervisión de la caja. Cada uno de estos lanzará subprocesos para 
+cuatro procesos: uno por cada sección atendida de la pizzería, recepción de pedidos, cocina y 
+entregas, y uno para la supervisión de la caja. Cada uno de estos lanzará subprocesos para 
 procesar las tareas de forma atómica, representando a una entidad de esa sección que la realiza. 
 Por ejemplo, en el proceso que representa la cocina, se lanzan subprocesos para preparar los 
 pedidos y enviarlos a los hornos, que representan a una cocinera amasando y poniendo las pizza a 
 cocinar.
-Un proceso principal se encargará de la inicialización del ambiente, y el control de los cinco 
-procesos principales
+Un proceso principal se encargará de la inicialización del ambiente y el control de los otros cuatro 
+procesos.
 
 \section{Comunicación entre procesos}
 
@@ -169,28 +169,72 @@ caja está siendo utilizada, ya que solo una persona puede acceder a la misma.
 
 Se han utilizado, para cada caso descripto anteriormente, los siguientes mecanismos de concurrencia:
 
+\subsection{Hornos}
+
+Los hornos se representan usando shared memory: Se tiene un array en el que cada posición representa 
+un horno. Estos contienen la información de la pizza que se está cocinando, o un valor especial que 
+indica que está vacío (por ejemplo, enteros mayores a 1 representan las pizzas, 0 que está libre).\\
+Los procesos que se comunican con los hornos lo harán directamente, escribiendo y leyendo de la 
+shared memory. Se usará un lock para evitar que dos procesos accedan a esta memoria simultaneamente.
+
 \subsection{Comunicación Programa Principal-Recepción}
 
 Se utiliza un unnamed pipe para enviar los pedidos ingresados por entrada estandar en el programa 
-principal (writer) a la recepción (reader). Se opto por este mecanismo dado que se pretende conectar un proceso padre con un proceso hijo.\\ 
-Se utilizo un lock para proteger al pipe. El uso de un lock evita que se cierre el pipe cuando todavía quedan pedidos pendientes encolados. El lock se pide al
-crear el objeto que simula la recepcion (en el proceso hijo) y no se libera hasta que no queden pedidos pendientes. En el proceso padre, el lock se pide al momento de intentar cerrar y liberar el pipe.
+principal (writer) a la recepción (reader). Se opto por este mecanismo dado que se pretende 
+conectar un proceso padre con un proceso hijo.\\ 
+Se utilizo un lock para proteger al pipe. El uso de un lock evita que se cierre el pipe cuando 
+todavía quedan pedidos pendientes encolados. El lock se pide al crear el objeto que simula la 
+recepcion (en el proceso hijo) y no se libera hasta que no queden pedidos pendientes. En el proceso 
+padre, el lock se pide al momento de intentar cerrar y liberar el pipe.
 
 \subsection{Comunicación Recepción-Cocina}
 
-Se utiliza una FIFO para enviar los pedidos desde las recepcionistas hacia la cocina. En funcionamiento es similar al pipe que conecta el programa principal, pero debido a que no son procesos con una relacion padre-hijo, no se podia utilizar un pipe.\\
-Al igual que para el pipe, se utilizo un lock para evitar cerrarla antes que este vacia. Se comporta de la misma manera que el anteriormente mencionado.
+Se utiliza una FIFO para enviar los pedidos desde las recepcionistas hacia la cocina. En 
+funcionamiento es similar al pipe que conecta el programa principal, pero debido a que no son 
+procesos con una relacion padre-hijo, no se podia utilizar un pipe.\\
+Al igual que para el pipe, se utilizo un lock para evitar cerrarla antes que este vacia. Se 
+comporta de la misma manera que el anteriormente mencionado.
 
 \subsection{Comunicación Programa Principal-Cocina}
 
-El programa principal debe tener alguna manera de poder monitorear la cantidad de pedidos que se pueden seguir aceptando. Se puede seguir tomando pedidos mientras que el numero de pedidos tomados menos el de pedidos procesados por la cocina, no supere al doble del numero de cocineras.\\
-Se opto para esto, utilizar un semaforo compartido entre ambos. El semaforo se inicializa en el doble del numero de cocineras. Al recibir un pedido por consola, el programa principal decremetan este semaforo; mientras que en la cocina se aumenta al aceptar un pedido. 
+El programa principal debe tener alguna manera de poder monitorear la cantidad de pedidos que se 
+pueden seguir aceptando. Se puede seguir tomando pedidos mientras que el numero de pedidos tomados 
+menos el de pedidos procesados por la cocina, no supere al doble del numero de cocineras.\\
+Se opto para esto, utilizar un semaforo compartido entre ambos. El semaforo se inicializa en el 
+doble del numero de cocineras. Al recibir un pedido por consola, el programa principal decremetan 
+este semaforo; mientras que en la cocina se aumenta al aceptar un pedido.
 
 \subsection{Comunicación Cocina-Hornos}
 
+Las cocineras deben poder poner las pizzas ya preparadas en un horno libre. Como ya se dijo al 
+explicar el funcionamiento de los hornos, se lee y escribe directamente a la memoria, y se utiliza 
+un lock para que solo un proceso (cocinera o cadeta) pueda acceder.
+
 \subsection{Comunicación Hornos-Entregas}
 
+Las cadetas deben poder leer la shared memory, y escribir para marcarla como libre una vez que 
+sacaron la pizza. Para no acceder simultáneamente a la memoria, se usa el lock mencionado 
+anteriormente en la cocina.
+
+\subsection{Comunicación Cocina-Entregas}
+
+Además del lock para coordinar la utilización de los hornos que ya se describió, se usan dos 
+semáforos: uno de hornos ocupados y uno de hornos libres, inicializados en cero y en la cantidad de 
+hornos, respectivamente. El de libres se utiliza para saber cuando una cocinera puede ir a buscar 
+un horno para poner el pedido preparado, y el de ocupados es usado por las cadetas para saber 
+cuando no hay más pedidos que retirar. Al colocar una cocinera un pedido en el horno, se decrementa 
+el semáforo de libres y se incrementa el de usados. Las operaciones inversas se realizan cuando una 
+cadeta retira una pizza ya cocida de un horno.\\
+
+\subsection{Caja Registradora}
+
+La caja registradora se representa utilizando una shared memory, usada por las cadetas y la 
+supervisora. Para evitar el acceso simultaneo, se utiliza un lock de escritura.
+
 \subsection{Comunicación Entregas-Supervisora}
+
+La comunicación entre la sección de entregas y la supervisora se limita al uso de la caja. Se 
+utiliza el lock asociado a la misma para evitar el acceso simultaneo a la shared memory.
 
 \newpage
 
