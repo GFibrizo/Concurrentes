@@ -204,6 +204,13 @@ Se opto para esto, utilizar un semaforo compartido entre ambos. El semaforo se i
 doble del numero de cocineras. Al recibir un pedido por consola, el programa principal decremetan 
 este semaforo; mientras que en la cocina se aumenta al aceptar un pedido.
 
+\subsection{Comunicación Programa Principal-Delivery y Supervisora}
+
+El programa principal debe de alguna manera poder finalizar los procesos delivery y supervisora. Siendo
+que no tiene un canal de conexion directa (como el pipe en el caso de la recepcion) o indirecta (por medio de la recepcion a la cocina)
+se opto por mandar un signal a dichos procesos para que finalicen su ejecucion. En ambos casos, se agrego
+un handler para el \textit{SIGINT} que se encarga de liberar los recursos y hacer finalizar al proceso.
+
 \subsection{Comunicación Cocina-Hornos}
 
 Las cocineras deben poder poner las pizzas ya preparadas en un horno libre. Como ya se dijo al 
@@ -214,7 +221,12 @@ un lock para que solo un proceso (cocinera o cadeta) pueda acceder.
 
 Las cadetas deben poder leer la shared memory, y escribir para marcarla como libre una vez que 
 sacaron la pizza. Para no acceder simultáneamente a la memoria, se usa el lock mencionado 
-anteriormente en la cocina.
+anteriormente en la cocina.\\
+Ademas, para notificarle al delivery que hay pizzas terminadas se utiliza otra FIFO. Al terminar
+la simulacion de coccion, el proceso envia al proceso delivery el numero de horno que finalizo.
+A diferencia de los anteriores pipes y FIFOs, no se utilizo un lock para controlar el cierre de esta.
+Se opto por usar el semaforo de hornos ocupados para no utilizar un recurso extra. Al momento de
+intentar cerrar el FIFO, se bloquea hasta que el semaforo llegue a 0 y la FIFO ya no sea necesaria.
 
 \subsection{Comunicación Cocina-Entregas}
 
@@ -240,9 +252,9 @@ utiliza el lock asociado a la misma para evitar el acceso simultaneo a la shared
 
 \section{Diagrama de procesos}
 
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{center}
-\includegraphics[width=250pt]{./informe/Modelo-de-procesos.png}
+\includegraphics[width=380pt]{./informe/Modelo-de-procesos.png}
 \caption{Diagrama de procesos}
 \end{center}
 \end{figure}
@@ -251,9 +263,9 @@ utiliza el lock asociado a la misma para evitar el acceso simultaneo a la shared
 
 \section{Diagrama de clases}
 
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{center}
-\includegraphics[width=250pt]{./informe/diagrama-clases.png}
+\includegraphics[width=380pt]{./informe/diagrama-clases.png}
 \caption{Diagrama de clases}
 \end{center}
 \end{figure}
@@ -262,9 +274,9 @@ utiliza el lock asociado a la misma para evitar el acceso simultaneo a la shared
 
 \section{Diagrama de transición de estados}
 
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{center}
-\includegraphics[width=250pt]{./informe/diagrama-estados-pizza.png}
+\includegraphics[width=350pt]{./informe/diagrama-estados-pizza.png}
 \caption{Diagrama de transición de estados}
 \end{center}
 \end{figure}
