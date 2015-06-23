@@ -21,6 +21,7 @@
 #include "logger.h"
 #include "locknames.h"
 
+#include <sys/time.h>
 #include <ctime>
 #include <iomanip>
 #include <sstream>
@@ -35,8 +36,8 @@ using std::endl;
 std::ofstream Logger::file_stream; //Declaration of static member
 Lock_File Logger::lock = Lock_File(NULL_LOCK);
 
-string get_date() {
-    time_t t = time(0);
+void get_date(char* buffer) {
+    /*time_t t = time(0);
 
     stringstream date;
 
@@ -48,7 +49,15 @@ string get_date() {
     << now->tm_hour << ":" << setw(2) << now->tm_min << ":" << setw(2)
     << now->tm_sec;
 
-    return date.str();
+    return date.str();*/
+    timeval current_time;
+    gettimeofday(&current_time, NULL);
+    int milli = current_time.tv_usec / 1000;
+
+    char aux[80];
+    strftime(aux, 80, "%Y-%m-%d %H:%M:%S", localtime(&current_time.tv_sec));
+
+    sprintf(buffer, "%s.%d", aux, milli);
 }
 
 /*
@@ -101,7 +110,9 @@ string get_date() {
 
 void Logger::initialize_log() {
     file_stream << "--Inicio de ejecucion--" << endl;
-    file_stream << get_error_flag(INFO) << "- " << get_date() << " -"
+    char buffer[84];
+    get_date(buffer);
+    file_stream << get_error_flag(INFO) << "- " << buffer << " -"
     << get_error_flag(INFO) << endl;
 }
 
@@ -120,11 +131,11 @@ string Logger::get_error_flag(error_type_t error_level) {
 }
 
 void Logger::log(string caller, error_type_t error_type, string error_message) {
-
-    string error_flag = get_error_flag(error_type);
-    string date = get_date();
-
     lock.lock();
+    string error_flag = get_error_flag(error_type);
+    char date[84];
+    get_date(date);
+
     file_stream << date << "-" << "File: " << caller << " " << error_flag
     << ": " << error_message << endl;
     lock.release();
@@ -141,7 +152,9 @@ void Logger::open_logger(std::string log_file) {
 
 void Logger::close_logger() {
     lock.lock();
-    file_stream << get_error_flag(INFO) << "- " << get_date() << " -"
+    char buffer[84];
+    get_date(buffer);
+    file_stream << get_error_flag(INFO) << "- " << buffer << " -"
     << get_error_flag(INFO) << endl;
     file_stream << "--Fin de ejecucion--" << endl;
     file_stream.close();
