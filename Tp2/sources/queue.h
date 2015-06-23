@@ -1,7 +1,3 @@
-//
-// Created by hige on 21/06/15.
-//
-
 #ifndef QUEUE_H
 #define QUEUE_H
 
