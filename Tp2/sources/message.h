@@ -3,15 +3,16 @@
 
 #include "record.h"
 
-#define    REQUEST     1
-#define    RESPONSE    2
+#define SERVER_ID   0
 
-#define TEXT_SIZE    255
-
+#define MSG_ADD     0
+#define MSG_QUERY   1
 
 typedef struct message {
-    long type;
-    long id;
+    long receiver_id;
+    int message_type;
+    long sender_id;
+    bool success;  // Podriamos hacer que el record que indique error en lugar de esto (tipo, el nombre vacio). No se que va mejor
     record_t record;
 } message_t;
 

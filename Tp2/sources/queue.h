@@ -10,11 +10,11 @@
 template<class T>
 class MessageQueue {
 private:
-    key_t clave;
+    key_t key;
     int id;
 
 public:
-    MessageQueue(const std::string &file, const char salt);
+    MessageQueue(const std::string &filename, const char salt);
 
     ~MessageQueue();
 
@@ -26,12 +26,12 @@ public:
 };
 
 template<class T>
-MessageQueue<T>::MessageQueue(const std::string &file, const char salt) {
-    this->clave = ftok(file.c_str(), salt);
-    if (this->clave == -1)
+MessageQueue<T>::MessageQueue(const std::string &filename, const char salt) {
+    this->key = ftok(filename.c_str(), salt);
+    if (this->key == -1)
         perror("Error en ftok");
 
-    this->id = msgget(this->clave, 0777 | IPC_CREAT);
+    this->id = msgget(this->key, 0777 | IPC_CREAT);
     if (this->id == -1)
         perror("Error en msgget");
 }

@@ -1,7 +1,7 @@
 #ifndef RECORD_H
 #define RECORD_H
 
-#define NAME_SIZE 61
+#define NAME_SIZE 60
 #define ADDRESS_SIZE 120
 #define PHONE_SIZE 13
 
