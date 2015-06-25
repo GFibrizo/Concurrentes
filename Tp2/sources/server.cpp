@@ -3,7 +3,7 @@
 #include "message.h"
 #include "queue.h"
 
-#define SERVER_TEMPORAL "server.tmp"
+#include "constants.h"
 
 using std::cout;
 using std::endl;

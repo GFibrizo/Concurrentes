@@ -1,11 +1,7 @@
+#include "constants.h"
+
 #ifndef MESSAGE_H
 #define MESSAGE_H
-
-#define SERVER_ID   1
-
-#define NAME_SIZE 60
-#define ADDRESS_SIZE 120
-#define PHONE_SIZE 13
 
 typedef struct message {
     long receiver_id; //mtype
