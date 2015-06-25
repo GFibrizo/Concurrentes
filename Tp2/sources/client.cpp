@@ -5,6 +5,6 @@
 #include "queue.h"
 
 int main(void) {
-    MessageQueue m = MessageQueue();
-
+    MessageQueue m = MessageQueue("server.cpp", 'X');
+    return 0;
 }

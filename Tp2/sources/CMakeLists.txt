@@ -3,4 +3,4 @@ project (ConcusQl)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 include_directories(sources)
-add_executable(message queue record client)
+add_executable(message queue record client server)
