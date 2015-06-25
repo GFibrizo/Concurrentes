@@ -9,7 +9,7 @@ DEBUG = OFF
 	CPPFLAGS += -D __DEBUG__
 #endif
 
-SERVER =
+SERVER = server
 CLIENT = client
 
 CONCURRENT_OBJECTS = queue.h
