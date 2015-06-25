@@ -3,18 +3,16 @@
 #include "queue.h"
 #include "message.h"
 
+#define SERVER_TEMPORAL "server.tmp"
+
+
 int main(void) {
-    MessageQueue<message_t> m = MessageQueue<message_t>("server.cpp", 'X');
+    MessageQueue<message_t> m = MessageQueue<message_t>(SERVER_TEMPORAL, 'X');
 
     message_t request;
     request.receiver_id = 1; //Al server
     request.sender_id = getpid();
-
-    record_t record;
-
-    strncpy(record.name, "Polez", 6);
-
-    memcpy(&request.record, &record, sizeof(record_t));
+    strncpy(request.name, "Polez", 6);
 
     m.write_queue(request);
 
