@@ -3,9 +3,6 @@
 #include "queue.h"
 #include "message.h"
 
-#include "constants.h"
-
-
 int main(void) {
     MessageQueue<message_t> m = MessageQueue<message_t>(SERVER_TEMPORAL, 'X');
 

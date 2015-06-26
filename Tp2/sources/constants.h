@@ -9,5 +9,6 @@
 
 #define SERVER_TEMPORAL "server.tmp"
 
+#define DATABASE_FILE "database.db"
 
 #endif //CONCUSQL_CONSTANTS_H

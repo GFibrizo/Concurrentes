@@ -20,7 +20,7 @@ public:
 
     int write_queue(const T &data) const;
 
-    int read_queue(const int type, T *buffer) const;
+    ssize_t read_queue(const int type, T *buffer) const;
 
     int free_queue() const;
 };
@@ -50,7 +50,7 @@ int MessageQueue<T>::write_queue(const T &data) const {
 }
 
 template<class T>
-int MessageQueue<T>::read_queue(const int type, T *buffer) const {
+ssize_t MessageQueue<T>::read_queue(const int type, T *buffer) const {
     return msgrcv(this->id, static_cast<void *>(buffer), sizeof(T) - sizeof(long), type, 0);
 }
 

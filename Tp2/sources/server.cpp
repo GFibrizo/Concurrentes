@@ -3,8 +3,6 @@
 #include "message.h"
 #include "queue.h"
 
-#include "constants.h"
-
 using std::cout;
 using std::endl;
 using std::remove;
