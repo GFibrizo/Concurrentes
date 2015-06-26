@@ -21,6 +21,8 @@ int main() {
         cout << "PID: " << request.sender_id << " Envio: " << request.name << endl;
     }
 
+    m.free_queue();
+
     temporal.close();
     remove(SERVER_TEMPORAL);
 

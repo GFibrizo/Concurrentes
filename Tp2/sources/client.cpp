@@ -13,5 +13,7 @@ int main(void) {
 
     m.write_queue(request);
 
+    m.free_queue();
+
     return 0;
 }
