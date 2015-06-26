@@ -6,7 +6,7 @@
 
 class DatabaseRecord {
 
-private:
+public:
     std::string name;
     std::string address;
     std::string phone_number;
@@ -14,6 +14,7 @@ private:
 public:
     DatabaseRecord();
 
+    DatabaseRecord(const DatabaseRecord &another);
     DatabaseRecord(std::string name, std::string address, std::string phone_number);
 };
 

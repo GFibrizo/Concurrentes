@@ -12,19 +12,23 @@ DEBUG = OFF
 SERVER = server
 CLIENT = client
 
-CONCURRENT_OBJECTS = queue.h
-OBJECTS = $(CONCURRENT_OBJECTS)
+CONCURRENT_OBJECTS = queue.h message.h
+CLIENT_OBJECTS = $(CONCURRENT_OBJECTS)
+SERVER_OBJECTS = $(CONCURRENT_OBJECTS) database.o database_record.o
 
 all: $(SERVER) $(CLIENT)
 
-$(SERVER): $(SERVER).cpp $(OBJECTS)
-	$(CC) $(CPPFLAGS) $(CPPLDFLAGS) $(OBJECTS) $(SERVER).cpp -o $(SERVER)
+%.o: %.c
+	$(CC) $(CPPFLAGS) -c $<
 
-$(CLIENT): $(CLIENT).cpp $(OBJECTS)
-	$(CC) $(CPPFLAGS) $(CPPLDFLAGS) $(OBJECTS) $(CLIENT).cpp -o $(CLIENT)
+$(SERVER): $(SERVER).cpp $(SERVER_OBJECTS)
+	$(CC) $(CPPFLAGS) $(CPPLDFLAGS) $(SERVER_OBJECTS) $(SERVER).cpp -o $(SERVER)
+
+$(CLIENT): $(CLIENT).cpp $(CLIENT_OBJECTS)
+	$(CC) $(CPPFLAGS) $(CPPLDFLAGS) $(CLIENT_OBJECTS) $(CLIENT).cpp -o $(CLIENT)
 
 clean:
-	rm -f -r *.o *.save *.log  *~ $(SERVER) $(CLIENT)
+	rm -f -r *.o *.save *.log *.db  *~ $(SERVER) $(CLIENT)
 
 clean_objects:
 	rm -f -r *.o *.save *~

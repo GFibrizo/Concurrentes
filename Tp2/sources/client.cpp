@@ -1,7 +1,13 @@
 #include <unistd.h>
 #include <string.h>
+#include <iostream>
 #include "queue.h"
 #include "message.h"
+
+using std::string;
+using std::cin;
+using std::cout;
+using std::endl;
 
 int main(void) {
     MessageQueue<message_t> m = MessageQueue<message_t>(SERVER_TEMPORAL, 'X');
@@ -9,11 +15,21 @@ int main(void) {
     message_t request;
     request.receiver_id = SERVER_ID; //Al server
     request.sender_id = getpid();
-    strncpy(request.name, "Polez", 6);
+
+    char name_buffer[NAME_SIZE];
+
+    cin.getline(name_buffer, NAME_SIZE);
+    string name = string(name_buffer);
+
+    string address = "Calle de los gatos 123";
+    string phone = "22-25-24";
+
+    strncpy(request.name, name.c_str(), name.size() + 1);
+    strncpy(request.address, address.c_str(), address.size() + 1);
+    strncpy(request.phone_number, phone.c_str(), phone.size() + 1);
+
 
     m.write_queue(request);
-
-    m.free_queue();
 
     return 0;
 }

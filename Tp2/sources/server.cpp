@@ -2,6 +2,7 @@
 #include <fstream>
 #include "message.h"
 #include "queue.h"
+#include "database.h"
 
 using std::cout;
 using std::endl;
@@ -9,6 +10,8 @@ using std::remove;
 
 
 int main() {
+
+    Database database = Database(string(DATABASE_FILE));
 
     std::ofstream temporal(SERVER_TEMPORAL);
 
@@ -19,9 +22,13 @@ int main() {
         m.read_queue(1, &request);
 
         cout << "PID: " << request.sender_id << " Envio: " << request.name << endl;
+        DatabaseRecord record = DatabaseRecord(request.name, request.address, request.phone_number);
+        database.store_record(record);
     }
 
     m.free_queue();
+
+    database.persist();
 
     temporal.close();
     remove(SERVER_TEMPORAL);

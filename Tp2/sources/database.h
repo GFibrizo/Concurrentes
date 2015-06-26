@@ -9,14 +9,21 @@ using std::map;
 using std::string;
 
 class Database {
-
-    Database(std::string filename);
-
+private:
     std::string filename;
     std::map<std::string, DatabaseRecord> data_map;
 
 private:
     void fill_map();
+
+public:
+    Database(std::string filename);
+
+    void persist();
+
+    void store_record(DatabaseRecord record);
+
+    DatabaseRecord get_record(std::string name);
 };
 
 
