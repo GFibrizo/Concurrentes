@@ -1,14 +1,17 @@
 #ifndef CONCUSQL_CONSTANTS_H
 #define CONCUSQL_CONSTANTS_H
 
-#define NAME_SIZE 60
-#define ADDRESS_SIZE 120
-#define PHONE_SIZE 13
+#include <string>
 
-#define SERVER_ID   1
+static const int NAME_SIZE = 60;
+static const int ADDRESS_SIZE = 120;
+static const int PHONE_SIZE = 13;
 
-#define SERVER_TEMPORAL "server.tmp"
+static const int SERVER_ID = 1;
 
-#define DATABASE_FILE "database.db"
+static const std::string SERVER_TEMPORAL = "server.tmp";
+static const std::string DATABASE_FILE = "database.db";
+
+static const int RETRIVE_INFORMATION = 3;
 
 #endif //CONCUSQL_CONSTANTS_H

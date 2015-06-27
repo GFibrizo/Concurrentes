@@ -11,10 +11,10 @@ using std::remove;
 
 
 Server::Server() {
-    database = new Database(string(DATABASE_FILE));
+    database = new Database(DATABASE_FILE);
 
     //Creates the temporal file
-    std::ofstream temporal(SERVER_TEMPORAL);
+    std::ofstream temporal(SERVER_TEMPORAL.c_str());
     temporal.close();
 
     //Creates queue
@@ -27,7 +27,7 @@ Server::~Server() {
     delete queue;
 
     //Remove temporal connection file
-    remove(SERVER_TEMPORAL);
+    remove(SERVER_TEMPORAL.c_str());
 
     database->persist();
     delete database;
@@ -42,24 +42,26 @@ void Server::get_request() {
     cout << "PID: " << request.sender_id << " Envio: " << request.name << endl; //TODO: Usar el logger
 //#endif
 
-    handle_request(request.message_type, record);
-    send_response(request.sender_id, record, 0);
+    int status = handle_request(request.message_type, record);
+    send_response(request.sender_id, record, status);
 }
 
 void Server::stop() {
     queue->free_queue();
 
     //Remove temporal connection file
-    remove(SERVER_TEMPORAL);
+    remove(SERVER_TEMPORAL.c_str());
 }
 
-void Server::handle_request(int request_type, DatabaseRecord &record) {
+
+int Server::handle_request(int request_type, DatabaseRecord &record) {
     switch (request_type) {
         case 1:
         case 2:
-        case 3:
+        case RETRIVE_INFORMATION:
+            return handle_get(record);
         default:
-            break;
+            return -2;
     }
 }
 
@@ -73,4 +75,15 @@ void Server::send_response(long receiver_id, DatabaseRecord &record, int status)
     message_fill_record(record.name, record.address, record.phone_number, &response);
 
     this->queue->write_queue(response);
+}
+
+int Server::handle_get(DatabaseRecord &record) {
+    DatabaseRecord new_record = database->get_record(record.name);
+
+    if (new_record.name == "")
+        return -1;
+
+    record.phone_number = new_record.phone_number;
+    record.address = new_record.address;
+    return 0;
 }

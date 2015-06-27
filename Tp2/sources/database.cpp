@@ -32,7 +32,7 @@ Database::Database(std::string filename) {
 
 
 void Database::persist() {
-    std::ofstream database(DATABASE_FILE);
+    std::ofstream database(DATABASE_FILE.c_str());
 
     for (std::map<string, DatabaseRecord>::iterator it = this->data_map.begin(); it != this->data_map.end(); ++it) {
         DatabaseRecord record = it->second;
