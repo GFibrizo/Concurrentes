@@ -22,23 +22,31 @@
 
 #include "queue.h"
 #include "message.h"
+#include "database.h"
 
 class Server {
 private:
-    int connections_count = 0;
     MessageQueue<message_t>* queue;
-    message_t current_request;
-    message_t current_response;  // Esto por si hacemos en 2 pasos, procesar y enviar. Si el procesar envia, no hace falta
+    Database *database;
 
 public:
-    Server(const std::string &queue_filename);
+    Server();
+
     ~Server();
-    int get_request();
-    int process_request();
-    int send_response();
+
 private:
+    void get_request();
+
+    int process_request();
+
+    int send_response();
+
     int process_query();
+
     int process_add();
+
+    int process_update();
+
 };
 
 

@@ -3,4 +3,4 @@ project (ConcusQl)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 include_directories(sources)
-add_executable(message queue client server database.cpp database.h database_record.cpp database_record constants)
+add_executable(ConcusQl message queue client server database database_record constants main_client main_server)
