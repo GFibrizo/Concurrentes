@@ -19,8 +19,6 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-
-
 #include "queue.h"
 #include "message.h"
 #include "database.h"
@@ -44,6 +42,12 @@ private:
     int handle_request(int request_type, DatabaseRecord &record);
 
     int handle_get(DatabaseRecord &record);
+
+    int handle_create(DatabaseRecord &record);
+
+    int handle_update(DatabaseRecord &record);
+
+
 
     void send_response(long receiver_id, DatabaseRecord &record, int status);
 

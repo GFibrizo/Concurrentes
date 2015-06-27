@@ -12,6 +12,11 @@ static const int SERVER_ID = 1;
 static const std::string SERVER_TEMPORAL = "server.tmp";
 static const std::string DATABASE_FILE = "database.db";
 
-static const int RETRIVE_INFORMATION = 3;
+static const int REQUEST_ERROR = -1;
+static const int REQUEST_SUCCESS = 0;
+
+static const int CREATE_RECORD = 1;
+static const int UPDATE_RECORD = 2;
+static const int RETRIVE_RECORD = 3;
 
 #endif //CONCUSQL_CONSTANTS_H

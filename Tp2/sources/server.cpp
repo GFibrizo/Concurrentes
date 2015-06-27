@@ -56,9 +56,11 @@ void Server::stop() {
 
 int Server::handle_request(int request_type, DatabaseRecord &record) {
     switch (request_type) {
-        case 1:
-        case 2:
-        case RETRIVE_INFORMATION:
+        case CREATE_RECORD:
+            return handle_create(record);
+        case UPDATE_RECORD:
+            return handle_update(record);
+        case RETRIVE_RECORD:
             return handle_get(record);
         default:
             return -2;
@@ -81,9 +83,29 @@ int Server::handle_get(DatabaseRecord &record) {
     DatabaseRecord new_record = database->get_record(record.name);
 
     if (new_record.name == "")
-        return -1;
+        return REQUEST_ERROR;
 
     record.phone_number = new_record.phone_number;
     record.address = new_record.address;
-    return 0;
+    return REQUEST_SUCCESS;
+}
+
+int Server::handle_create(DatabaseRecord &record) {
+    DatabaseRecord new_record = database->get_record(record.name);
+
+    if (new_record.name != "") //Already exists
+        return REQUEST_ERROR;
+
+    database->store_record(record);
+    return REQUEST_SUCCESS;
+}
+
+int Server::handle_update(DatabaseRecord &record) {
+    DatabaseRecord new_record = database->get_record(record.name);
+
+    if (new_record.name == "") //Doesn't exist
+        return REQUEST_ERROR;
+
+    database->store_record(record);
+    return REQUEST_SUCCESS;
 }

@@ -14,7 +14,7 @@ int main(void) {
     message_t request;
     request.receiver_id = SERVER_ID; //Al server
     request.sender_id = getpid();
-    request.message_type = 1;
+    request.message_type = RETRIVE_RECORD;
 
     char name_buffer[NAME_SIZE];
 
@@ -26,8 +26,13 @@ int main(void) {
     m.write_queue(request);
     m.read_queue(getpid(), &request);
 
-    cout << "Operacion: " << request.message_type << endl;
-    cout << request.name << " , " << request.address << " , " << request.phone_number << endl;
 
+    if (request.message_type == REQUEST_ERROR) {
+        cout << "No se pudo realizar la operacion" << endl;
+    }
+    else {
+        cout << "Operacion: " << request.message_type << endl;
+        cout << request.name << " , " << request.address << " , " << request.phone_number << endl;
+    }
     return 0;
 }
