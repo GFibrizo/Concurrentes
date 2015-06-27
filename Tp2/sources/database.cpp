@@ -13,7 +13,7 @@ void Database::fill_map() {
 
     while (std::getline(database, name, ',')) {
         std::getline(database, address, ',');
-        std::getline(database, phone_number, ',');
+        std::getline(database, phone_number, '\n');
 
         DatabaseRecord record = DatabaseRecord(name, address, phone_number);
 
