@@ -1,5 +1,4 @@
 #include <unistd.h>
-#include <string.h>
 #include <iostream>
 #include "queue.h"
 #include "message.h"
@@ -24,10 +23,7 @@ int main(void) {
     string address = "Calle de los gatos 123";
     string phone = "22-25-24";
 
-    strncpy(request.name, name.c_str(), name.size() + 1);
-    strncpy(request.address, address.c_str(), address.size() + 1);
-    strncpy(request.phone_number, phone.c_str(), phone.size() + 1);
-
+    message_fill_record(name, address, phone, &request);
 
     m.write_queue(request);
 

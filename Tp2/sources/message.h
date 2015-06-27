@@ -1,4 +1,7 @@
 #include "constants.h"
+#include <string>
+#include <string.h>
+#include <bits/stringfwd.h>
 
 #ifndef MESSAGE_H
 #define MESSAGE_H
@@ -17,5 +20,10 @@ typedef struct message {
     char phone_number[PHONE_SIZE];
 
 } message_t;
+
+void message_fill_record(std::string name,
+                         std::string address,
+                         std::string phone_number,
+                         message_t *message);
 
 #endif //MESSAGE_H

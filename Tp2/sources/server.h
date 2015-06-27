@@ -26,11 +26,12 @@
 
 class Server {
 private:
-    MessageQueue<message_t>* queue;
+    MessageQueue<message_t> *queue;
     Database *database;
 
 public:
     Server();
+
     ~Server();
 
     void get_request();
@@ -39,9 +40,12 @@ public:
 
 private:
 
+    void handle_request(int request_type, DatabaseRecord &record);
+
+    void send_response(long receiver_id, DatabaseRecord &record, int status);
+
     int process_request();
 
-    int send_response();
 
     int process_query();
 
