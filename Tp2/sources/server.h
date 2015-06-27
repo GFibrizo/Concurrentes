@@ -31,11 +31,13 @@ private:
 
 public:
     Server();
-
     ~Server();
 
-private:
     void get_request();
+
+    void stop();
+
+private:
 
     int process_request();
 

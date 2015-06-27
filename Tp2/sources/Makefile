@@ -9,12 +9,15 @@ DEBUG = OFF
 	CPPFLAGS += -D __DEBUG__
 #endif
 
-SERVER = server
-CLIENT = client
+SERVER = main_server
+CLIENT = main_client
+
+SERVER_NAME = ConcusQlServer
+CLIENT_NAME = ConcusQlClient
 
 CONCURRENT_OBJECTS = queue.h message.h
-CLIENT_OBJECTS = $(CONCURRENT_OBJECTS)
-SERVER_OBJECTS = $(CONCURRENT_OBJECTS) database.o database_record.o
+CLIENT_OBJECTS = $(CONCURRENT_OBJECTS) client.o
+SERVER_OBJECTS = $(CONCURRENT_OBJECTS) database.o database_record.o server.o
 
 all: $(SERVER) $(CLIENT)
 
@@ -22,13 +25,13 @@ all: $(SERVER) $(CLIENT)
 	$(CC) $(CPPFLAGS) -c $<
 
 $(SERVER): $(SERVER).cpp $(SERVER_OBJECTS)
-	$(CC) $(CPPFLAGS) $(CPPLDFLAGS) $(SERVER_OBJECTS) $(SERVER).cpp -o $(SERVER)
+	$(CC) $(CPPFLAGS) $(CPPLDFLAGS) $(SERVER_OBJECTS) $(SERVER).cpp -o $(SERVER_NAME)
 
 $(CLIENT): $(CLIENT).cpp $(CLIENT_OBJECTS)
-	$(CC) $(CPPFLAGS) $(CPPLDFLAGS) $(CLIENT_OBJECTS) $(CLIENT).cpp -o $(CLIENT)
+	$(CC) $(CPPFLAGS) $(CPPLDFLAGS) $(CLIENT_OBJECTS) $(CLIENT).cpp -o $(CLIENT_NAME)
 
 clean:
-	rm -f -r *.o *.save *.log *.db  *~ $(SERVER) $(CLIENT)
+	rm -f -r *.o *.save *.log *.db  *~ $(SERVER_NAME) $(CLIENT_NAME)
 
 clean_objects:
 	rm -f -r *.o *.save *~

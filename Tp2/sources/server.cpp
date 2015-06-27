@@ -47,3 +47,10 @@ void Server::get_request() {
     DatabaseRecord record = DatabaseRecord(request.name, request.address, request.phone_number);
     database->store_record(record);
 }
+
+void Server::stop() {
+    queue->free_queue();
+
+    //Remove temporal connection file
+    remove(SERVER_TEMPORAL);
+}
