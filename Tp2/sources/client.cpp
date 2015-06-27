@@ -14,18 +14,20 @@ int main(void) {
     message_t request;
     request.receiver_id = SERVER_ID; //Al server
     request.sender_id = getpid();
+    request.message_type = 1;
 
     char name_buffer[NAME_SIZE];
 
     cin.getline(name_buffer, NAME_SIZE);
     string name = string(name_buffer);
 
-    string address = "Calle de los gatos 123";
-    string phone = "22-25-24";
-
-    message_fill_record(name, address, phone, &request);
+    message_fill_record(name, name, name, &request);
 
     m.write_queue(request);
+    m.read_queue(getpid(), &request);
+
+    cout << "Operacion: " << request.message_type << endl;
+    cout << request.name << " , " << request.address << " , " << request.phone_number << endl;
 
     return 0;
 }
