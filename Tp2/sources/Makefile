@@ -1,6 +1,6 @@
 #Project Builder
 #General
-CC = g++ -std=c++11 #Gaston puto no vuelvas a poner gcc
+CC = g++ -std=c++11
 CPPFLAGS = -Wall -Wextra -g -pedantic 
 CPPLDFLAGS = -lm -lstdc++
 DEBUG = OFF
@@ -17,7 +17,7 @@ CLIENT_NAME = ConcusQlClient
 
 CONCURRENT_OBJECTS = queue.h message.o
 CLIENT_OBJECTS = $(CONCURRENT_OBJECTS) client.o
-SERVER_OBJECTS = $(CONCURRENT_OBJECTS) database.o database_record.o server.o
+SERVER_OBJECTS = $(CONCURRENT_OBJECTS) database.o database_record.o signal_handler.o server.o
 
 all: $(SERVER) $(CLIENT)
 

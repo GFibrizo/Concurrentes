@@ -17,3 +17,7 @@ void message_fill_record(string name, string address, string phone_number, messa
     strncpy(message->address, address.c_str(), address.size() + 1);
     strncpy(message->phone_number, phone_number.c_str(), phone_number.size() + 1);
 }
+
+void message_clean_fields(message_t *message) {
+    memset(message, 0, sizeof(message_t));
+}

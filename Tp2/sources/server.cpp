@@ -19,6 +19,8 @@ Server::Server() {
 
     //Creates queue
     queue = new MessageQueue<message_t>(SERVER_TEMPORAL, 'X');
+
+    SignalHandler::get_instance()->register_handler(SIGINT, this);
 }
 
 Server::~Server() {
@@ -37,7 +39,10 @@ int Server::get_request() {
     int ret = queue->read_queue(SERVER_ID, &current_request);
 
 //#ifdef __DEBUG__
-    cout << "PID: " << current_request.sender_id << " Envio: " << current_request.name << endl; //TODO: Usar el logger
+    if (current_request.sender_id != 0) {
+        cout << "PID: " << current_request.sender_id << " Envio: " << current_request.name <<
+        endl; //TODO: Usar el logger
+    }
 //#endif
 
     return ret;
@@ -99,14 +104,15 @@ int Server::handle_update(DatabaseRecord &record) {
 }
 
 int Server::process_next_request() {
+    message_clean_fields(&current_response);
     if (get_request() == -1) {
         return -1;
     }
     DatabaseRecord record = DatabaseRecord(current_request.name, current_request.address, current_request.phone_number);
-
     int request_status = handle_request(record);
-
-    return send_response(record, request_status);
+    int ret = send_response(record, request_status);
+    message_clean_fields(&current_request);
+    return ret;
 }
 
 void Server::stop() {
@@ -114,4 +120,27 @@ void Server::stop() {
 
     //Remove temporal connection file
     remove(SERVER_TEMPORAL.c_str());
+}
+
+int Server::handle_signal(int signal_number) {
+    if (signal_number == SIGINT) {
+#ifdef __DEBUG__
+    //TODO Usar logger
+    //Logger::log(__FILE__, Logger::DEBUG, "Deteniendo servidor");
+    cout << "Deteniendo server" << endl;
+#endif
+        // Bloqueo de SIGINT
+        sigset_t blocking_set;
+        sigemptyset(&blocking_set);
+        sigaddset(&blocking_set, SIGINT);
+        sigprocmask(SIG_BLOCK, &blocking_set, NULL);
+        // Graceful Quit
+        stop();
+#ifdef __DEBUG__
+    //TODO Usar logger
+    //Logger::log(__FILE__, Logger::DEBUG, "Servidor detenido");
+#endif
+        return 0;
+    }
+    return -1;
 }

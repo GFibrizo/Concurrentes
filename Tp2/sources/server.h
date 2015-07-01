@@ -22,8 +22,10 @@
 #include "queue.h"
 #include "message.h"
 #include "database.h"
+#include "event_handler.h"
+#include "signal_handler.h"
 
-class Server {
+class Server : public EventHandler {
 private:
     MessageQueue<message_t> *queue;
     Database *database;
@@ -53,6 +55,8 @@ private:
     int handle_create(DatabaseRecord &record);
 
     int handle_update(DatabaseRecord &record);
+
+    int handle_signal(int signal_number);
 };
 
 

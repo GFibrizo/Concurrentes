@@ -3,11 +3,11 @@
 int main() {
 
     Server server = Server();
+    int status = 0;
 
-    //while (true){
-    server.process_next_request();
-    //}
+    while (status != -1) {
+        status = server.process_next_request();
+    }
 
-    server.stop();
     return 0;
 }
