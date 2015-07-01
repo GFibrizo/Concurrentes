@@ -22,11 +22,11 @@ Server::Server() {
     database = new Database(DATABASE_FILE);
 
     //Creates the temporal file
-    std::ofstream temporal(SERVER_TEMPORAL.c_str());
+    std::ofstream temporal(SERVER_TMP_FILE.c_str());
     temporal.close();
 
     //Creates queue
-    queue = new MessageQueue<message_t>(SERVER_TEMPORAL, 'X');
+    queue = new MessageQueue<message_t>(SERVER_TMP_FILE, 'X');
 
     SignalHandler::get_instance()->register_handler(SIGINT, this);
 
@@ -39,7 +39,7 @@ Server::~Server() {
     delete queue;
 
     //Remove temporal connection file
-    remove(SERVER_TEMPORAL.c_str());
+    remove(SERVER_TMP_FILE.c_str());
 
     database->persist();
     delete database;
@@ -136,7 +136,7 @@ void Server::stop() {
     queue->free_queue();
 
     //Remove temporal connection file
-    remove(SERVER_TEMPORAL.c_str());
+    remove(SERVER_TMP_FILE.c_str());
 }
 
 int Server::handle_signal(int signal_number) {

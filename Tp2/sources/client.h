@@ -23,15 +23,33 @@
 
 #include "message.h"
 #include "queue.h"
+#include "database_record.h"
 
 class Client {
 private:
     MessageQueue<message_t> *queue;
 
+    message_t request;
+
 public:
     Client();
 
+    bool connect();
+
+    bool connected();
+
+    int request_create(const DatabaseRecord &record);
+
+    int request_update(const DatabaseRecord &record);
+
+    int request_retrieve(DatabaseRecord &record);
+
     ~Client();
+
+private:
+    int make_request(int type, DatabaseRecord &record);
+
+    void free_queue();
 };
 
 
