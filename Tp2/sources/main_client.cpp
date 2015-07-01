@@ -30,37 +30,31 @@ void print_menu() {
     cout << "Menu pijudo" << endl;
 }
 
-void request_create(Client &client) {
-    DatabaseRecord record;
-    //TODO llenar record
+void request_create(Client &client, DatabaseRecord &record) {
     int operation_result = client.request_create(record);
     switch (operation_result) {
         case REQUEST_SUCCESS:
             cout << "Registro agregado exitosamente" << endl;
+            break;
         case REQUEST_ERROR:
             cout << "Ya existe un registro con el nombre " << record.name << endl;
-        case SERVER_ERROR:
-            cout << "Error en la comunicacion con el servidor" << endl;
+            break;
     }
 }
 
-void request_update(Client &client) {
-    DatabaseRecord record;
-    //TODO llenar record
+void request_update(Client &client, DatabaseRecord &record) {
     int operation_result = client.request_update(record);
     switch (operation_result) {
         case REQUEST_SUCCESS:
             cout << "Registro modificado exitosamente" << endl;
+            break;
         case REQUEST_ERROR:
             cout << "No existe un registro con el nombre " << record.name << endl;
-        case SERVER_ERROR:
-            cout << "Error en la comunicacion con el servidor" << endl;
+            break;
     }
 }
 
-void request_retrieve(Client &client) {
-    DatabaseRecord record;
-    //TODO llenar record
+void request_retrieve(Client &client, DatabaseRecord &record) {
     int operation_result = client.request_retrieve(record);
     switch (operation_result) {
         case REQUEST_SUCCESS:
@@ -68,10 +62,10 @@ void request_retrieve(Client &client) {
             cout << "Nombre: " << record.name << endl;
             cout << "Direccion: " << record.address << endl;
             cout << "Telefono: " << record.phone_number << endl;
+            break;
         case REQUEST_ERROR:
             cout << "No existe un registro con el nombre " << record.name << endl;
-        case SERVER_ERROR:
-            cout << "Error en la comunicacion con el servidor" << endl;
+            break;
     }
 }
 
@@ -79,23 +73,51 @@ int main() {
 
     Client client = Client();
 
+    if (! client.connect()) {
+        cout << "Error de conexion con el servidor: servidor no disponible." << endl;
+        return -1;
+    }
+
     while (client.connected()){
         print_menu();
         int option;
+        cout << "Ingrese la opcion deseada: ";
         cin >> option;
+        if (option == MENU_EXIT) {
+            break;
+        }
+        DatabaseRecord record;
+        cout << "Ingrese el nombre: ";
+        cin >> record.name;
         switch (option) {
             case MENU_CREATE:
-                request_create(client);
+                cout << "Ingrese la direccion: ";
+                cin >> record.address;
+                cout << "Ingrese el numero de telefono: ";
+                cin >> record.phone_number;
+                request_create(client, record);
+                break;
             case MENU_UPDATE:
-                request_update(client);
+                cout << "Ingrese la nueva direccion: ";
+                cin >> record.address;
+                cout << "Ingrese el nuevo numero de telefono: ";
+                cin >> record.phone_number;
+                request_update(client, record);
+                break;
             case MENU_RETRIEVE:
-                request_retrieve(client);
-            case MENU_EXIT:
-                client.disconnect();
+                request_retrieve(client, record);
+                break;
             default:
-                cout << "La opción elegida no es correcta, ingrese nuevamente." << endl << endl;
+                cout << "La opción elegida no es correcta, ingrese nuevamente." << endl;
+                break;
         }
         cout << endl;
+    }
+
+    if (client.connected()) {
+        client.disconnect();
+    } else {
+        cout << "Error en la comunicacion con el servidor. Se cerrara el programa." << endl;
     }
 
     return 0;

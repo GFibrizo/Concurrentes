@@ -74,7 +74,8 @@ int Client::request_retrieve(DatabaseRecord &record) {
 }
 
 void Client::free_queue() {
-    queue->free_queue();
-    delete queue;
-    queue = NULL;  //FIXME no me acuerdo si delete lo setea a NULL o simplemente lo deja como sea
+    if (queue != NULL) {
+        delete queue;
+        queue = NULL;  //FIXME no me acuerdo si delete lo setea a NULL o simplemente lo deja como sea
+    }
 }

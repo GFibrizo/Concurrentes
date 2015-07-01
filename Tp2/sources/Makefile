@@ -15,10 +15,10 @@ CLIENT = main_client
 SERVER_NAME = ConcusQlServer
 CLIENT_NAME = ConcusQlClient
 
-CONCURRENT_OBJECTS = queue.h message.o logger.o event_handler.h lock_file.o
+CONCURRENT_OBJECTS = queue.h message.o logger.o event_handler.h lock_file.o database_record.o
 
 CLIENT_OBJECTS = $(CONCURRENT_OBJECTS) client.o
-SERVER_OBJECTS = $(CONCURRENT_OBJECTS) database.o database_record.o signal_handler.o server.o
+SERVER_OBJECTS = $(CONCURRENT_OBJECTS) database.o signal_handler.o server.o
 
 all: $(SERVER) $(CLIENT)
 
