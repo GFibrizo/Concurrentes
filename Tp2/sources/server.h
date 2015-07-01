@@ -24,6 +24,7 @@
 #include "database.h"
 #include "event_handler.h"
 #include "signal_handler.h"
+#include "logger.h"
 
 class Server : public EventHandler {
 private:

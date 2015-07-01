@@ -1,16 +1,24 @@
 #include <iostream>
 #include <fstream>
-#include "message.h"
-#include "queue.h"
-#include "database.h"
+#include <sstream>
+
 #include "server.h"
 
 using std::cout;
 using std::endl;
 using std::remove;
 
+template <typename T>
+string to_string(T val) {
+    std::stringstream stream;
+    stream << val;
+    return stream.str();
+}
 
 Server::Server() {
+    Logger::open_logger("run_log.log");
+    Logger::log(__FILE__, Logger::INFO, "Iniciando server");
+
     database = new Database(DATABASE_FILE);
 
     //Creates the temporal file
@@ -21,6 +29,8 @@ Server::Server() {
     queue = new MessageQueue<message_t>(SERVER_TEMPORAL, 'X');
 
     SignalHandler::get_instance()->register_handler(SIGINT, this);
+
+    Logger::log(__FILE__, Logger::INFO, "Server iniciado");
 }
 
 Server::~Server() {
@@ -37,19 +47,21 @@ Server::~Server() {
 
 int Server::get_request() {
     int ret = queue->read_queue(SERVER_ID, &current_request);
-
-//#ifdef __DEBUG__
+#ifdef __DEBUG__
     if (current_request.sender_id != 0) {
-        cout << "PID: " << current_request.sender_id << " Envio: " << current_request.name <<
-        endl; //TODO: Usar el logger
+        Logger::log(__FILE__, Logger::DEBUG, "Recibido request del cliente con PID: " + to_string(current_request.sender_id) + ". Peticion: " + current_request.name);
     }
-//#endif
-
+#endif
     return ret;
 }
 
 int Server::handle_request(DatabaseRecord &record) {
     int request_type = current_request.message_type;
+#ifdef __DEBUG__
+    if (current_request.sender_id != 0) {
+        Logger::log(__FILE__, Logger::DEBUG, "Procesando request del cliente con PID: " + to_string(current_request.sender_id) + ". Tipo de peticion: " + to_string(current_request.message_type));
+    }
+#endif
     switch (request_type) {
         case CREATE_RECORD:
             return handle_create(record);
@@ -69,6 +81,11 @@ int Server::send_response(DatabaseRecord &record, int request_status) {
 
     message_fill_record(record.name, record.address, record.phone_number, &current_response);
 
+#ifdef __DEBUG__
+    if (current_response.receiver_id != 0) {
+        Logger::log(__FILE__, Logger::DEBUG, "Enviando respuesta al cliente con PID: " + to_string(current_request.sender_id) + ". Estado de la peticion: " + to_string(request_status));
+    }
+#endif
     return queue->write_queue(current_response);
 }
 
@@ -124,11 +141,7 @@ void Server::stop() {
 
 int Server::handle_signal(int signal_number) {
     if (signal_number == SIGINT) {
-#ifdef __DEBUG__
-    //TODO Usar logger
-    //Logger::log(__FILE__, Logger::DEBUG, "Deteniendo servidor");
-    cout << "Deteniendo server" << endl;
-#endif
+        Logger::log(__FILE__, Logger::INFO, "Deteniendo servidor");
         // Bloqueo de SIGINT
         sigset_t blocking_set;
         sigemptyset(&blocking_set);
@@ -136,10 +149,7 @@ int Server::handle_signal(int signal_number) {
         sigprocmask(SIG_BLOCK, &blocking_set, NULL);
         // Graceful Quit
         stop();
-#ifdef __DEBUG__
-    //TODO Usar logger
-    //Logger::log(__FILE__, Logger::DEBUG, "Servidor detenido");
-#endif
+        Logger::log(__FILE__, Logger::INFO, "Servidor detenido");
         return 0;
     }
     return -1;
