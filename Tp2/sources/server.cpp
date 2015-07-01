@@ -16,7 +16,7 @@ string to_string(T val) {
 }
 
 Server::Server() {
-    Logger::open_logger("run_log.log");
+    Logger::open_logger(SERVER_LOG_FILE);
     Logger::log(__FILE__, Logger::INFO, "Iniciando server");
 
     database = new Database(DATABASE_FILE);

@@ -22,7 +22,5 @@
 #define CONCUSQL_LOCKNAMES_H
 
 #define NULL_LOCK "/dev/null"
-#define LOGGER_LOCK "/tmp/logger_lock"
-
 
 #endif //CONCUSQL_LOCKNAMES_H

@@ -12,6 +12,9 @@ static const int SERVER_ID = 1;
 static const std::string SERVER_TMP_FILE = "server.tmp";
 static const std::string DATABASE_FILE = "database.db";
 
+static const std::string SERVER_LOG_FILE = "log_server";
+static const std::string CLIENT_LOG_FILE = "log_client";
+
 static const int SERVER_DEBUG_TIME = 5;
 
 static const int SERVER_ERROR = -1;
