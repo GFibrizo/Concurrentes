@@ -48,7 +48,6 @@ private:
     int handle_update(DatabaseRecord &record);
 
 
-
     void send_response(long receiver_id, DatabaseRecord &record, int status);
 
     int process_request();

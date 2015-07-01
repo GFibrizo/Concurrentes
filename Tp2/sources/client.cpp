@@ -2,14 +2,15 @@
 #include <iostream>
 #include "queue.h"
 #include "message.h"
+#include "client.h"
 
 using std::string;
 using std::cin;
 using std::cout;
 using std::endl;
 
-int main(void) {
-    MessageQueue<message_t> m = MessageQueue<message_t>(SERVER_TEMPORAL, 'X');
+int maein(void) {
+
 
     message_t request;
     request.receiver_id = SERVER_ID; //Al server
@@ -35,4 +36,12 @@ int main(void) {
         cout << request.name << " , " << request.address << " , " << request.phone_number << endl;
     }
     return 0;
+}
+
+Client::Client() {
+    this->queue = new MessageQueue<message_t>(SERVER_TEMPORAL, 'X');
+}
+
+Client::~Client() {
+
 }

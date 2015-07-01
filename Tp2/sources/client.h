@@ -21,8 +21,17 @@
 #define CLIENT_H
 
 
-class Client {
+#include "message.h"
+#include "queue.h"
 
+class Client {
+private:
+    MessageQueue<message_t> *queue;
+
+public:
+    Client();
+
+    ~Client();
 };
 
 

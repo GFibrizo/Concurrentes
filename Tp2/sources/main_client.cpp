@@ -17,3 +17,21 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses
 //
 
+#include "client.h"
+
+int main() {
+
+    Client client = Client();
+
+    //while (true){
+    client.request_retrive_record();
+    //}
+
+    int i = 0;
+
+    if (2 < i < 5) {
+
+    }
+
+    return 0;
+}
