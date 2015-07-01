@@ -92,35 +92,77 @@ int Server::send_response(DatabaseRecord &record, int request_status) {
 int Server::handle_get(DatabaseRecord &record) {
     DatabaseRecord new_record = database->get_record(record.name);
 
-    if (new_record.name == "")
+    if (new_record.name == "") {
+#ifdef __DEBUG__
+        if (current_request.sender_id != 0) {
+            Logger::log(__FILE__, Logger::DEBUG, "Retrieve del cliente con PID " + to_string(current_request.sender_id)
+            + "fallo: no existe un registro con nombre " + record.name);
+        }
+#endif
         return REQUEST_ERROR;
+    }
 
     record.phone_number = new_record.phone_number;
     record.address = new_record.address;
+#ifdef __DEBUG__
+    if (current_request.sender_id != 0) {
+        Logger::log(__FILE__, Logger::DEBUG, "Retrieve del cliente con PID " + to_string(current_request.sender_id)
+        + "exitoso: enviando el registro con nombre " + record.name);
+    }
+#endif
     return REQUEST_SUCCESS;
 }
 
 int Server::handle_create(DatabaseRecord &record) {
     DatabaseRecord new_record = database->get_record(record.name);
 
-    if (new_record.name != "") //Already exists
+    if (new_record.name != "") {
+#ifdef __DEBUG__
+        if (current_request.sender_id != 0) {
+            Logger::log(__FILE__, Logger::DEBUG, "Create del cliente con PID " + to_string(current_request.sender_id)
+            + "fallo: ya existe un registro con nombre " + record.name);
+        }
+#endif
         return REQUEST_ERROR;
+    }
 
     database->store_record(record);
+#ifdef __DEBUG__
+    if (current_request.sender_id != 0) {
+        Logger::log(__FILE__, Logger::DEBUG, "Create del cliente con PID " + to_string(current_request.sender_id)
+        + "exitoso: agregando registro con nombre " + record.name);
+    }
+#endif
     return REQUEST_SUCCESS;
 }
 
 int Server::handle_update(DatabaseRecord &record) {
     DatabaseRecord new_record = database->get_record(record.name);
 
-    if (new_record.name == "") //Doesn't exist
+    if (new_record.name == "") {
+#ifdef __DEBUG__
+        if (current_request.sender_id != 0) {
+            Logger::log(__FILE__, Logger::DEBUG, "Update del cliente con PID " + to_string(current_request.sender_id)
+            + "fallo: no existe un registro con nombre " + record.name);
+        }
+#endif
         return REQUEST_ERROR;
+    }
 
     database->store_record(record);
+#ifdef __DEBUG__
+    if (current_request.sender_id != 0) {
+        Logger::log(__FILE__, Logger::DEBUG, "Update del cliente con PID " + to_string(current_request.sender_id)
+        + "exitoso: modificado el registro con nombre " + record.name);
+    }
+#endif
     return REQUEST_SUCCESS;
 }
 
 int Server::process_next_request() {
+#ifdef __DEBUG__
+    Logger::log(__FILE__, Logger::DEBUG, "Esperando una nueva request");
+#endif
     message_clean_fields(&current_response);
     if (get_request() == -1) {
         return -1;

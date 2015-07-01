@@ -68,7 +68,7 @@ int Client::request_update(DatabaseRecord &record) {
 }
 
 int Client::request_retrieve(DatabaseRecord &record) {
-    int ret = make_request(UPDATE_RECORD, record);
+    int ret = make_request(RETRIVE_RECORD, record);
     record.set_record(request.name, request.address, request.phone_number);
     return ret;
 }

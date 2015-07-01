@@ -18,6 +18,7 @@
 //
 
 #include <iostream>
+#include <string>
 
 #include "client.h"
 #include "database_record.h"
@@ -25,9 +26,15 @@
 using std::cout;
 using std::endl;
 using std::cin;
+using std::to_string;
 
 void print_menu() {
-    cout << "Menu pijudo" << endl;
+    cout << endl;
+    cout << "Cliente ConcusQL" << endl;
+    cout << to_string(MENU_CREATE) << " - Agregar registro" << endl;
+    cout << to_string(MENU_UPDATE) << " - Modificar registro" << endl;
+    cout << to_string(MENU_RETRIEVE) << " - Consultar registro" << endl;
+    cout << to_string(MENU_EXIT) << " - Salir" << endl;
 }
 
 void request_create(Client &client, DatabaseRecord &record) {
@@ -83,7 +90,9 @@ int main() {
         int option;
         cout << "Ingrese la opcion deseada: ";
         cin >> option;
-        if (option == MENU_EXIT) {
+        if (! option) {
+            continue;
+        } else if (option == MENU_EXIT) {
             break;
         }
         DatabaseRecord record;
@@ -108,6 +117,8 @@ int main() {
                 request_retrieve(client, record);
                 break;
             default:
+                cin.clear();
+                cin.ignore(INTMAX_MAX, '\n');
                 cout << "La opción elegida no es correcta, ingrese nuevamente." << endl;
                 break;
         }
