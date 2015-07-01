@@ -49,7 +49,7 @@ int Server::get_request() {
     int ret = queue->read_queue(SERVER_ID, &current_request);
 #ifdef __DEBUG__
     if (current_request.sender_id != 0) {
-        Logger::log(__FILE__, Logger::DEBUG, "Recibido request del cliente con PID: " + to_string(current_request.sender_id) + ". Peticion: " + current_request.name);
+        Logger::log(__FILE__, Logger::DEBUG, "Recibido request del cliente: " + to_string(current_request.sender_id));
     }
 #endif
     return ret;
@@ -59,8 +59,9 @@ int Server::handle_request(DatabaseRecord &record) {
     int request_type = current_request.message_type;
 #ifdef __DEBUG__
     if (current_request.sender_id != 0) {
-        Logger::log(__FILE__, Logger::DEBUG, "Procesando request del cliente con PID: " + to_string(current_request.sender_id) + ". Tipo de peticion: " + to_string(current_request.message_type));
+        Logger::log(__FILE__, Logger::DEBUG, "Procesando request del cliente: " + to_string(current_request.sender_id) + ". Tipo de peticion: " + to_string(current_request.));
     }
+    sleep(SERVER_DEBUG_TIME);
 #endif
     switch (request_type) {
         case CREATE_RECORD:
@@ -83,7 +84,7 @@ int Server::send_response(DatabaseRecord &record, int request_status) {
 
 #ifdef __DEBUG__
     if (current_response.receiver_id != 0) {
-        Logger::log(__FILE__, Logger::DEBUG, "Enviando respuesta al cliente con PID: " + to_string(current_request.sender_id) + ". Estado de la peticion: " + to_string(request_status));
+        Logger::log(__FILE__, Logger::DEBUG, "Enviando respuesta al cliente: " + to_string(current_request.sender_id) + ". Estado de la peticion: " + to_string(request_status));
     }
 #endif
     return queue->write_queue(current_response);
@@ -95,8 +96,8 @@ int Server::handle_get(DatabaseRecord &record) {
     if (new_record.name == "") {
 #ifdef __DEBUG__
         if (current_request.sender_id != 0) {
-            Logger::log(__FILE__, Logger::DEBUG, "Retrieve del cliente con PID " + to_string(current_request.sender_id)
-            + "fallo: no existe un registro con nombre " + record.name);
+            Logger::log(__FILE__, Logger::DEBUG, "Retrieve del cliente " + to_string(current_request.sender_id)
+            + " fallo: no existe un registro con nombre " + record.name);
         }
 #endif
         return REQUEST_ERROR;
@@ -106,8 +107,8 @@ int Server::handle_get(DatabaseRecord &record) {
     record.address = new_record.address;
 #ifdef __DEBUG__
     if (current_request.sender_id != 0) {
-        Logger::log(__FILE__, Logger::DEBUG, "Retrieve del cliente con PID " + to_string(current_request.sender_id)
-        + "exitoso: enviando el registro con nombre " + record.name);
+        Logger::log(__FILE__, Logger::DEBUG, "Retrieve del cliente " + to_string(current_request.sender_id)
+        + " exitoso: enviando el registro con nombre " + record.name);
     }
 #endif
     return REQUEST_SUCCESS;
@@ -119,8 +120,8 @@ int Server::handle_create(DatabaseRecord &record) {
     if (new_record.name != "") {
 #ifdef __DEBUG__
         if (current_request.sender_id != 0) {
-            Logger::log(__FILE__, Logger::DEBUG, "Create del cliente con PID " + to_string(current_request.sender_id)
-            + "fallo: ya existe un registro con nombre " + record.name);
+            Logger::log(__FILE__, Logger::DEBUG, "Create del cliente " + to_string(current_request.sender_id)
+            + " fallo: ya existe un registro con nombre " + record.name);
         }
 #endif
         return REQUEST_ERROR;
@@ -129,8 +130,8 @@ int Server::handle_create(DatabaseRecord &record) {
     database->store_record(record);
 #ifdef __DEBUG__
     if (current_request.sender_id != 0) {
-        Logger::log(__FILE__, Logger::DEBUG, "Create del cliente con PID " + to_string(current_request.sender_id)
-        + "exitoso: agregando registro con nombre " + record.name);
+        Logger::log(__FILE__, Logger::DEBUG, "Create del cliente " + to_string(current_request.sender_id)
+        + " exitoso: agregando registro con nombre " + record.name);
     }
 #endif
     return REQUEST_SUCCESS;
@@ -142,8 +143,8 @@ int Server::handle_update(DatabaseRecord &record) {
     if (new_record.name == "") {
 #ifdef __DEBUG__
         if (current_request.sender_id != 0) {
-            Logger::log(__FILE__, Logger::DEBUG, "Update del cliente con PID " + to_string(current_request.sender_id)
-            + "fallo: no existe un registro con nombre " + record.name);
+            Logger::log(__FILE__, Logger::DEBUG, "Update del cliente " + to_string(current_request.sender_id)
+            + " fallo: no existe un registro con nombre " + record.name);
         }
 #endif
         return REQUEST_ERROR;
@@ -152,8 +153,8 @@ int Server::handle_update(DatabaseRecord &record) {
     database->store_record(record);
 #ifdef __DEBUG__
     if (current_request.sender_id != 0) {
-        Logger::log(__FILE__, Logger::DEBUG, "Update del cliente con PID " + to_string(current_request.sender_id)
-        + "exitoso: modificado el registro con nombre " + record.name);
+        Logger::log(__FILE__, Logger::DEBUG, "Update del cliente " + to_string(current_request.sender_id)
+        + " exitoso: modificado el registro con nombre " + record.name);
     }
 #endif
     return REQUEST_SUCCESS;
