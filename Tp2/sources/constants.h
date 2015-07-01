@@ -20,4 +20,9 @@ static const int CREATE_RECORD = 1;
 static const int UPDATE_RECORD = 2;
 static const int RETRIVE_RECORD = 3;
 
+static const int MENU_CREATE = 1;
+static const int MENU_UPDATE = 2;
+static const int MENU_RETRIEVE = 3;
+static const int MENU_EXIT = 4;
+
 #endif //CONCUSQL_CONSTANTS_H

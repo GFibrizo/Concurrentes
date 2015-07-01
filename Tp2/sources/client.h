@@ -38,9 +38,11 @@ public:
 
     bool connected();
 
-    int request_create(const DatabaseRecord &record);
+    void disconnect();
 
-    int request_update(const DatabaseRecord &record);
+    int request_create(DatabaseRecord &record);
+
+    int request_update(DatabaseRecord &record);
 
     int request_retrieve(DatabaseRecord &record);
 

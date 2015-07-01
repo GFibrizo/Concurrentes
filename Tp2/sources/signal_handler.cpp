@@ -1,3 +1,5 @@
+#include "signal_handler.h"
+
 SignalHandler *SignalHandler::instance = NULL;
 EventHandler *SignalHandler::handlers[NSIG];
 

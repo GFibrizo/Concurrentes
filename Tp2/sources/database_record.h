@@ -17,6 +17,8 @@ public:
     DatabaseRecord(const DatabaseRecord &another);
 
     DatabaseRecord(std::string name, std::string address, std::string phone_number);
+
+    void set_record(std::string name, std::string address, std::string phone_number);
 };
 
 
