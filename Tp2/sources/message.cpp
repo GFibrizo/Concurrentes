@@ -7,9 +7,7 @@
 
 using std::string;
 
-void message_fill_record(string name,
-                         string address,
-                         string phone_number, message_t *message) {
+void message_fill_record(string name, string address, string phone_number, message_t *message) {
 
     name.resize(NAME_SIZE);
     address.resize(ADDRESS_SIZE);

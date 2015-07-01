@@ -5,7 +5,7 @@ int main() {
     Server server = Server();
 
     //while (true){
-    server.get_request();
+    server.process_next_request();
     //}
 
     server.stop();

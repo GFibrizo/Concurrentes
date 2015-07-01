@@ -33,28 +33,18 @@ Server::~Server() {
     delete database;
 }
 
-void Server::get_request() {
-    message_t request;
-    queue->read_queue(SERVER_ID, &request);
-    DatabaseRecord record = DatabaseRecord(request.name, request.address, request.phone_number);
+int Server::get_request() {
+    int ret = queue->read_queue(SERVER_ID, &current_request);
 
 //#ifdef __DEBUG__
-    cout << "PID: " << request.sender_id << " Envio: " << request.name << endl; //TODO: Usar el logger
+    cout << "PID: " << current_request.sender_id << " Envio: " << current_request.name << endl; //TODO: Usar el logger
 //#endif
 
-    int status = handle_request(request.message_type, record);
-    send_response(request.sender_id, record, status);
+    return ret;
 }
 
-void Server::stop() {
-    queue->free_queue();
-
-    //Remove temporal connection file
-    remove(SERVER_TEMPORAL.c_str());
-}
-
-
-int Server::handle_request(int request_type, DatabaseRecord &record) {
+int Server::handle_request(DatabaseRecord &record) {
+    int request_type = current_request.message_type;
     switch (request_type) {
         case CREATE_RECORD:
             return handle_create(record);
@@ -67,16 +57,14 @@ int Server::handle_request(int request_type, DatabaseRecord &record) {
     }
 }
 
-void Server::send_response(long receiver_id, DatabaseRecord &record, int status) {
-    message_t response;
+int Server::send_response(DatabaseRecord &record, int request_status) {
+    current_response.sender_id = SERVER_ID;
+    current_response.message_type = request_status;
+    current_response.receiver_id = current_request.sender_id;
 
-    response.sender_id = SERVER_ID;
-    response.message_type = status;
-    response.receiver_id = receiver_id;
+    message_fill_record(record.name, record.address, record.phone_number, &current_response);
 
-    message_fill_record(record.name, record.address, record.phone_number, &response);
-
-    this->queue->write_queue(response);
+    return queue->write_queue(current_response);
 }
 
 int Server::handle_get(DatabaseRecord &record) {
@@ -108,4 +96,22 @@ int Server::handle_update(DatabaseRecord &record) {
 
     database->store_record(record);
     return REQUEST_SUCCESS;
+}
+
+int Server::process_next_request() {
+    if (get_request() == -1) {
+        return -1;
+    }
+    DatabaseRecord record = DatabaseRecord(current_request.name, current_request.address, current_request.phone_number);
+
+    int request_status = handle_request(record);
+
+    return send_response(record, request_status);
+}
+
+void Server::stop() {
+    queue->free_queue();
+
+    //Remove temporal connection file
+    remove(SERVER_TEMPORAL.c_str());
 }
