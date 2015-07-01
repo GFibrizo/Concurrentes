@@ -21,9 +21,8 @@ typedef struct message {
 
 } message_t;
 
-void message_fill_record(std::string name,
-                         std::string address,
-                         std::string phone_number,
-                         message_t *message);
+void message_fill_record(std::string name, std::string address, std::string phone_number, message_t *message);
+
+void message_clean_fields(message_t *message);
 
 #endif //MESSAGE_H

@@ -22,24 +22,34 @@
 #include "queue.h"
 #include "message.h"
 #include "database.h"
+#include "event_handler.h"
+#include "signal_handler.h"
+#include "logger.h"
 
-class Server {
+class Server : public EventHandler {
 private:
     MessageQueue<message_t> *queue;
     Database *database;
+
+    message_t current_request;
+    message_t current_response;
 
 public:
     Server();
 
     ~Server();
 
-    void get_request();
+    int process_next_request();
 
     void stop();
 
 private:
 
-    int handle_request(int request_type, DatabaseRecord &record);
+    int get_request();
+
+    int handle_request(DatabaseRecord &record);
+
+    int send_response(DatabaseRecord &record, int request_status);
 
     int handle_get(DatabaseRecord &record);
 
@@ -47,18 +57,7 @@ private:
 
     int handle_update(DatabaseRecord &record);
 
-
-    void send_response(long receiver_id, DatabaseRecord &record, int status);
-
-    int process_request();
-
-
-    int process_query();
-
-    int process_add();
-
-    int process_update();
-
+    int handle_signal(int signal_number);
 };
 
 

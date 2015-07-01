@@ -1,16 +1,24 @@
 #include <iostream>
 #include <fstream>
-#include "message.h"
-#include "queue.h"
-#include "database.h"
+#include <sstream>
+
 #include "server.h"
 
 using std::cout;
 using std::endl;
 using std::remove;
 
+template<typename T>
+string to_string(T val) {
+    std::stringstream stream;
+    stream << val;
+    return stream.str();
+}
 
 Server::Server() {
+    Logger::open_logger("run_log.log");
+    Logger::log(__FILE__, Logger::INFO, "Iniciando server");
+
     database = new Database(DATABASE_FILE);
 
     //Creates the temporal file
@@ -19,6 +27,10 @@ Server::Server() {
 
     //Creates queue
     queue = new MessageQueue<message_t>(SERVER_TEMPORAL, 'X');
+
+    SignalHandler::get_instance()->register_handler(SIGINT, this);
+
+    Logger::log(__FILE__, Logger::INFO, "Server iniciado");
 }
 
 Server::~Server() {
@@ -33,28 +45,23 @@ Server::~Server() {
     delete database;
 }
 
-void Server::get_request() {
-    message_t request;
-    queue->read_queue(SERVER_ID, &request);
-    DatabaseRecord record = DatabaseRecord(request.name, request.address, request.phone_number);
-
-//#ifdef __DEBUG__
-    cout << "PID: " << request.sender_id << " Envio: " << request.name << endl; //TODO: Usar el logger
-//#endif
-
-    int status = handle_request(request.message_type, record);
-    send_response(request.sender_id, record, status);
+int Server::get_request() {
+    int ret = queue->read_queue(SERVER_ID, &current_request);
+#ifdef __DEBUG__
+    if (current_request.sender_id != 0) {
+        Logger::log(__FILE__, Logger::DEBUG, "Recibido request del cliente con PID: " + to_string(current_request.sender_id) + ". Peticion: " + current_request.name);
+    }
+#endif
+    return ret;
 }
 
-void Server::stop() {
-    queue->free_queue();
-
-    //Remove temporal connection file
-    remove(SERVER_TEMPORAL.c_str());
-}
-
-
-int Server::handle_request(int request_type, DatabaseRecord &record) {
+int Server::handle_request(DatabaseRecord &record) {
+    int request_type = current_request.message_type;
+#ifdef __DEBUG__
+    if (current_request.sender_id != 0) {
+        Logger::log(__FILE__, Logger::DEBUG, "Procesando request del cliente con PID: " + to_string(current_request.sender_id) + ". Tipo de peticion: " + to_string(current_request.message_type));
+    }
+#endif
     switch (request_type) {
         case CREATE_RECORD:
             return handle_create(record);
@@ -67,16 +74,19 @@ int Server::handle_request(int request_type, DatabaseRecord &record) {
     }
 }
 
-void Server::send_response(long receiver_id, DatabaseRecord &record, int status) {
-    message_t response;
+int Server::send_response(DatabaseRecord &record, int request_status) {
+    current_response.sender_id = SERVER_ID;
+    current_response.message_type = request_status;
+    current_response.receiver_id = current_request.sender_id;
 
-    response.sender_id = SERVER_ID;
-    response.message_type = status;
-    response.receiver_id = receiver_id;
+    message_fill_record(record.name, record.address, record.phone_number, &current_response);
 
-    message_fill_record(record.name, record.address, record.phone_number, &response);
-
-    this->queue->write_queue(response);
+#ifdef __DEBUG__
+    if (current_response.receiver_id != 0) {
+        Logger::log(__FILE__, Logger::DEBUG, "Enviando respuesta al cliente con PID: " + to_string(current_request.sender_id) + ". Estado de la peticion: " + to_string(request_status));
+    }
+#endif
+    return queue->write_queue(current_response);
 }
 
 int Server::handle_get(DatabaseRecord &record) {
@@ -108,4 +118,39 @@ int Server::handle_update(DatabaseRecord &record) {
 
     database->store_record(record);
     return REQUEST_SUCCESS;
+}
+
+int Server::process_next_request() {
+    message_clean_fields(&current_response);
+    if (get_request() == -1) {
+        return -1;
+    }
+    DatabaseRecord record = DatabaseRecord(current_request.name, current_request.address, current_request.phone_number);
+    int request_status = handle_request(record);
+    int ret = send_response(record, request_status);
+    message_clean_fields(&current_request);
+    return ret;
+}
+
+void Server::stop() {
+    queue->free_queue();
+
+    //Remove temporal connection file
+    remove(SERVER_TEMPORAL.c_str());
+}
+
+int Server::handle_signal(int signal_number) {
+    if (signal_number == SIGINT) {
+        Logger::log(__FILE__, Logger::INFO, "Deteniendo servidor");
+        // Bloqueo de SIGINT
+        sigset_t blocking_set;
+        sigemptyset(&blocking_set);
+        sigaddset(&blocking_set, SIGINT);
+        sigprocmask(SIG_BLOCK, &blocking_set, NULL);
+        // Graceful Quit
+        stop();
+        Logger::log(__FILE__, Logger::INFO, "Servidor detenido");
+        return 0;
+    }
+    return -1;
 }
