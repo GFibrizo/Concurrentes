@@ -24,6 +24,7 @@
 #include "message.h"
 #include "queue.h"
 #include "database_record.h"
+#include "logger.h"
 
 class Client {
 private:

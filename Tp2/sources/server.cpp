@@ -59,7 +59,7 @@ int Server::handle_request(DatabaseRecord &record) {
     int request_type = current_request.message_type;
 #ifdef __DEBUG__
     if (current_request.sender_id != 0) {
-        Logger::log(__FILE__, Logger::DEBUG, "Procesando request del cliente: " + to_string(current_request.sender_id) + ". Tipo de peticion: " + to_string(current_request.));
+        Logger::log(__FILE__, Logger::DEBUG, "Procesando request del cliente: " + to_string(current_request.sender_id) + ". Tipo de peticion: " + to_string(current_request.message_type));
     }
     sleep(SERVER_DEBUG_TIME);
 #endif
