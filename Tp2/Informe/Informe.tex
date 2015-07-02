@@ -91,7 +91,26 @@ Los clientes deben comunicarse con el servidor para enviar los pedidos y consult
 
 \subsection{Comunicación cliente-servidor}
 
-Para la comunicación entre el cliente y el servidor se utilizará una cola de mensajes. El ID del servidor será un número fijo y determinado en un archivo, y el de cada cliente será su PID. El mismo será utilizado para que cada proceso solo saque de la cola los mensajes que le corresponden, evitando perdida de mensajes o respuestas inválidas. Esto además permite utilizar la misma cola para todos los clientes, de manera que los recursos consumidos no aumentan según la cantidad de conexiones (salvo la memoria que utiliza cada uno de los mismos).
+Para la comunicación entre el cliente y el servidor se utilizará una unica cola de mensajes. El ID del servidor será un número fijo y determinado en un archivo\footnote{Dado que sino no existe forma de determinar a priori el PID del servidor}, y el de cada cliente será su PID. El mismo será utilizado para que cada proceso solo saque de la cola los mensajes que le corresponden, evitando perdida de mensajes o respuestas inválidas. Esto además permite utilizar la misma cola para todos los clientes, de manera que los recursos consumidos no aumentan según la cantidad de conexiones (salvo la memoria que utiliza cada uno de los mismos).
+
+\subsubsection{Protocolo}
+
+Para el protocolo se definio el siguiente esquema de mensaje:
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|}\hline
+long&long&int&char[ ]&char[ ]&char[ ]\\\hline
+receiver\_id&sender\_id&message\_type&name&address&phone\_number\\\hline
+32 bits\footnote{Al menos}&32 bits&16 bits \footnote{Al menos}&NAME\_SIZE &ADDRESS\_SIZE &PHONE\_SIZE \\\hline
+   
+\end{tabular}
+\end{center}
+
+No existe ningun mecanismo de autenticacion contra el servidor, sino que simplemente las peticiones se envian, procesan y devuelven al remitente correspondiente. De todas maneras, para poder enviar mensajes, se requiere de la combinacion correcta de archivo y sal de la cola que usa el servidor.
+
+\subsection{Proteccion de conexion}
+
+Para evitar que los clientes puedan enviar mensajes mientras el servidor no esta activo, se usa como archivo para crear la id un temporal que solo existe mientras el servidor esta activo.
 
 \subsection{Logger}
 
