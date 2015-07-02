@@ -1,7 +1,7 @@
 //
-// client
-//
-// Copyright 2015 Bruno Merlo Schurmann bruno290@gmail.com 
+// Copyright 2015
+// Bruno Merlo Schurmann bruno290@gmail.com
+// Gaston Martinez gaston.martinez.90@gmail.com
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
