@@ -1,3 +1,22 @@
+//
+// Copyright 2015
+// Bruno Merlo Schurmann bruno290@gmail.com
+// Gaston Martinez gaston.martinez.90@gmail.com
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses
+//
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -59,7 +78,7 @@ int Server::handle_request(DatabaseRecord &record) {
     int request_type = current_request.message_type;
 #ifdef __DEBUG__
     if (current_request.sender_id != 0) {
-        Logger::log(__FILE__, Logger::DEBUG, "Procesando request del cliente: " + to_string(current_request.sender_id) + ". Tipo de peticion: " + to_string(current_request.));
+        Logger::log(__FILE__, Logger::DEBUG, "Procesando request del cliente: " + to_string(current_request.sender_id) + ". Tipo de peticion: " + to_string(current_request.message_type));
     }
     sleep(SERVER_DEBUG_TIME);
 #endif
